@@ -6,6 +6,19 @@
     android:orientation="vertical"
     android:gravity="center">
 
+    <!-- Aquí colocamos la imagen (logo) -->
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/logoapp"
+        android:contentDescription="App Logo" />
+
+    <!-- Espacio entre logo y botón -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
     <Button
         android:id="@+id/goToLoginButton"
         android:layout_width="wrap_content"

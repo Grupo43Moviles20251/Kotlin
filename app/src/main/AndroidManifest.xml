@@ -24,6 +24,7 @@
 
         <activity
             android:name=".ui.login.LoginActivity"
+            android:theme="@style/Theme.FreshLink.NoActionBar"
             android:exported="true"/>
     </application>
 
