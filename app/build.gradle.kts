@@ -33,6 +33,12 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/kotlin")
+        }
+    }
 }
 
 dependencies {
