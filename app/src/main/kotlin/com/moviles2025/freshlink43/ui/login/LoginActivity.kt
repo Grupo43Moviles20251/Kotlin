@@ -25,9 +25,11 @@ class LoginActivity : AppCompatActivity() {
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         val loginButton = findViewById<Button>(R.id.loginButton)
         val forgotPasswordTextView = findViewById<TextView>(R.id.forgotPasswordTextView)
+        val signUpTextView = findViewById<TextView>(R.id.signUpTextView)
 
         // Configurar el texto "Forgot your password?" con spannable
         setupForgotPasswordText(forgotPasswordTextView)
+        setupSignUpText(signUpTextView)
 
         // Acción de login (solo mock para ahora)
         loginButton.setOnClickListener {
@@ -38,17 +40,17 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupForgotPasswordText(forgotPasswordTextView: TextView) {
-        val fullText = "Forgot your password?"
-        val spannable = SpannableString(fullText)
+        val textPassword = "Forgot your password?"
+        val spannablePassword = SpannableString(textPassword)
 
-        val start = fullText.indexOf("password")
-        val end = start + "password".length
+        val startPassword = textPassword.indexOf("password")
+        val endPassword = startPassword + "password".length
 
         // Hacer "password" en negrita
-        spannable.setSpan(StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannablePassword.setSpan(StyleSpan(Typeface.BOLD), startPassword, endPassword, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         // Hacer "password" clickable
-        spannable.setSpan(object : ClickableSpan() {
+        spannablePassword.setSpan(object : ClickableSpan() {
             override fun onClick(widget: View) {
                 Toast.makeText(this@LoginActivity, "Redirect to recover password", Toast.LENGTH_SHORT).show()
                 // Aquí puedes abrir un fragmento, otra Activity o lanzar un intent
@@ -57,11 +59,34 @@ class LoginActivity : AppCompatActivity() {
             override fun updateDrawState(ds: TextPaint) {
                 super.updateDrawState(ds)
                 ds.isUnderlineText = false
-                //ds.color = forgotPasswordTextView.currentTextColor pa quitar que se vea brillante
             }
-        }, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }, startPassword, endPassword, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-        forgotPasswordTextView.text = spannable
+        forgotPasswordTextView.text = spannablePassword
         forgotPasswordTextView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
+    }
+
+    private fun setupSignUpText(signUpTextView: TextView) {
+        val textSignIn = "Sign Up"
+        val spannableSignUp = SpannableString(textSignIn)
+
+        val startSignUp = textSignIn.indexOf("Sign Up")
+        val endSingUp = startSignUp + "Sign Up".length
+
+        spannableSignUp.setSpan(object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                Toast.makeText(this@LoginActivity, "Redirect to Sign Up", Toast.LENGTH_SHORT).show()
+                // Aquí puedes abrir un fragmento, otra Activity o lanzar un intent
+            }
+
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.isUnderlineText = false
+                ds.color = signUpTextView.currentTextColor
+            }
+        }, startSignUp, endSingUp, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        signUpTextView.text = spannableSignUp
+        signUpTextView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
     }
 }

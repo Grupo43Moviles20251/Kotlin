@@ -118,4 +118,32 @@
         android:fontFamily="@font/montserratalternates_semibold"
         android:text="Sign in with Google"
         android:textAllCaps="false" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="15dp" />
+
+    <TextView
+        android:id="@+id/neverExperiencedTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/montserratalternates_medium"
+        android:text="Never Experienced FreshLink?"
+        android:textColor="#38677A"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/signUpTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/montserratalternates_extrabold"
+
+        android:text="Sign Up"
+        android:textColor="#38677A"
+        android:textSize="14sp" />
+
 </LinearLayout>
