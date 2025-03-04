@@ -89,6 +89,10 @@
         android:text="Sign In"
         android:textAllCaps="false" />
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="8dp" />
+
     <TextView
         android:id="@+id/alternatives"
         android:layout_width="wrap_content"
@@ -100,6 +104,9 @@
         android:textColor="#38677A"
         android:textSize="14sp" />
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="8dp" />
 
     <Button
         android:id="@+id/googleButton"
