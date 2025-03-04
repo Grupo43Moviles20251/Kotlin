@@ -11,10 +11,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val goToLoginButton = findViewById<Button>(R.id.goToLoginButton)
+        val goToLoginButton = findViewById<Button>(R.id.logInButton)
+        val goToSignUpButton = findViewById<Button>(R.id.signUpButton)
 
         goToLoginButton.setOnClickListener {
             val intent = Intent(this, com.moviles2025.freshlink43.ui.login.LoginActivity::class.java)
+            startActivity(intent)
+        }
+
+        goToSignUpButton.setOnClickListener {
+            val intent = Intent(this, com.moviles2025.freshlink43.ui.signup.SignUpActivity::class.java)
             startActivity(intent)
         }
     }

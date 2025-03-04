@@ -1,5 +1,6 @@
 package com.moviles2025.freshlink43.ui.login
 
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableString
@@ -76,7 +77,9 @@ class LoginActivity : AppCompatActivity() {
         spannableSignUp.setSpan(object : ClickableSpan() {
             override fun onClick(widget: View) {
                 Toast.makeText(this@LoginActivity, "Redirect to Sign Up", Toast.LENGTH_SHORT).show()
-                // Aquí puedes abrir un fragmento, otra Activity o lanzar un intent
+                val intent = Intent(this@LoginActivity, com.moviles2025.freshlink43.ui.signup.SignUpActivity::class.java)
+                startActivity(intent)
+                finish()
             }
 
             override fun updateDrawState(ds: TextPaint) {
