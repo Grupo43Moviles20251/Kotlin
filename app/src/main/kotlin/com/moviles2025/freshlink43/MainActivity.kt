@@ -42,6 +42,7 @@ fun MainScreen(
     onLoginClick: () -> Unit,
     onSignUpClick: () -> Unit
 ) {
+    val buttonColor = Color(0xFF38677A)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,7 +69,6 @@ fun MainScreen(
             color = Color(0xFF38677A)
         )
 
-        // Botones abajo
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,7 +77,11 @@ fun MainScreen(
         ) {
             Button(
                 onClick = onLoginClick,
-                shape = RoundedCornerShape(16.dp), // Si quieres bordes redondeados
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonColor,
+                    contentColor = Color.White // Texto en blanco para contraste
+                ),
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp)
@@ -91,6 +95,10 @@ fun MainScreen(
             Button(
                 onClick = onSignUpClick,
                 shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonColor,
+                    contentColor = Color.White
+                ),
                 modifier = Modifier.weight(1f)
             ) {
                 Text(

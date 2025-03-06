@@ -6,6 +6,7 @@ plugins {
     id("com.google.firebase.crashlytics")
     //id("org.jetbrains.kotlin.android")
     alias(libs.plugins.compose.compiler)
+
 }
 
 android {
@@ -62,6 +63,8 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.androidx.lifecycle.runtime.compose.android)
+    implementation(libs.androidx.espresso.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,5 +82,6 @@ dependencies {
 
     // (Opcional) Si usas ViewModel con Compose:
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
+    implementation("androidx.compose.material:material-icons-extended:1.6.1")
 
 }
