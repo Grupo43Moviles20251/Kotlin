@@ -2,31 +2,37 @@ package com.moviles2025.freshlink43.ui.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.ui.profile.ProfileActivity
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : ComponentActivity() {
 
     private val viewModel: HomeViewModel by viewModels()
+    private var backPressedTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
 
-        // Ejemplo básico de un botón que te lleva al perfil (solo para que veas flujo)
-        val profileButton = findViewById<Button>(R.id.profileButton)
-
-        profileButton.setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
+        setContent {
+            HomeScreen(
+                viewModel = viewModel,
+                onNavigateToProfile = {
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                }
+            )
         }
+    }
 
-        // Aquí luego puedes observar LiveData de restaurantes, etc.
-        viewModel.welcomeMessage.observe(this) { message ->
-            // Mostrar mensaje de bienvenida (opcional)
-            println(message)
+
+    override fun onBackPressed() {
+        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed()
+        } else {
+            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
         }
+        backPressedTime = System.currentTimeMillis()
     }
 }
