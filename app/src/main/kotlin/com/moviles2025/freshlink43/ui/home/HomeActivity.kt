@@ -26,7 +26,6 @@ class HomeActivity : ComponentActivity() {
         }
     }
 
-//prueba
     override fun onBackPressed() {
         if (backPressedTime + 2000 > System.currentTimeMillis()) {
             super.onBackPressed()
