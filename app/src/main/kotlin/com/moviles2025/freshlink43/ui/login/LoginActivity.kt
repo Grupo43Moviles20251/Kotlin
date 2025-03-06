@@ -1,92 +1,71 @@
 package com.moviles2025.freshlink43.ui.login
 
-import android.graphics.Typeface
+import android.content.Intent
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ClickableSpan
-import android.text.style.StyleSpan
-import android.text.TextPaint
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
 import com.moviles2025.freshlink43.R
+import com.moviles2025.freshlink43.ui.home.HomeActivity
+import com.moviles2025.freshlink43.ui.signup.SignUpActivity
 
 class LoginActivity : AppCompatActivity() {
 
+    private val viewModel: LoginViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
 
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
-        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-        val loginButton = findViewById<Button>(R.id.loginButton)
-        val forgotPasswordTextView = findViewById<TextView>(R.id.forgotPasswordTextView)
-        val signUpTextView = findViewById<TextView>(R.id.signUpTextView)
+        setContent {
+            LoginScreen(
+                viewModel = viewModel,
+                onNavigateToSignUp = {
+                    startActivity(Intent(this, SignUpActivity::class.java))
+                    finish()
+                },
+                onLoginSuccess = {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
+                },
+                onGoogleSignIn = { launchGoogleSignIn() }
+            )
+        }
 
-        // Configurar el texto "Forgot your password?" con spannable
-        setupForgotPasswordText(forgotPasswordTextView)
-        setupSignUpText(signUpTextView)
-
-        // Acción de login (solo mock para ahora)
-        loginButton.setOnClickListener {
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
-            Toast.makeText(this, "Logging in with $email", Toast.LENGTH_SHORT).show()
+        if (intent.getBooleanExtra("signup_success", false)) {
+            Toast.makeText(this, "Account created! Please log in.", Toast.LENGTH_LONG).show()
         }
     }
 
-    private fun setupForgotPasswordText(forgotPasswordTextView: TextView) {
-        val textPassword = "Forgot your password?"
-        val spannablePassword = SpannableString(textPassword)
+    private fun launchGoogleSignIn() {
+        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
 
-        val startPassword = textPassword.indexOf("password")
-        val endPassword = startPassword + "password".length
-
-        // Hacer "password" en negrita
-        spannablePassword.setSpan(StyleSpan(Typeface.BOLD), startPassword, endPassword, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        // Hacer "password" clickable
-        spannablePassword.setSpan(object : ClickableSpan() {
-            override fun onClick(widget: View) {
-                Toast.makeText(this@LoginActivity, "Redirect to recover password", Toast.LENGTH_SHORT).show()
-                // Aquí puedes abrir un fragmento, otra Activity o lanzar un intent
-            }
-
-            override fun updateDrawState(ds: TextPaint) {
-                super.updateDrawState(ds)
-                ds.isUnderlineText = false
-            }
-        }, startPassword, endPassword, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        forgotPasswordTextView.text = spannablePassword
-        forgotPasswordTextView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
+        val googleSignInClient = GoogleSignIn.getClient(this, options)
+        startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
     }
 
-    private fun setupSignUpText(signUpTextView: TextView) {
-        val textSignIn = "Sign Up"
-        val spannableSignUp = SpannableString(textSignIn)
-
-        val startSignUp = textSignIn.indexOf("Sign Up")
-        val endSingUp = startSignUp + "Sign Up".length
-
-        spannableSignUp.setSpan(object : ClickableSpan() {
-            override fun onClick(widget: View) {
-                Toast.makeText(this@LoginActivity, "Redirect to Sign Up", Toast.LENGTH_SHORT).show()
-                // Aquí puedes abrir un fragmento, otra Activity o lanzar un intent
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                viewModel.loginWithGoogle(credential)
+            } catch (e: ApiException) {
+                Toast.makeText(this, "Google Sign-In failed: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
 
-            override fun updateDrawState(ds: TextPaint) {
-                super.updateDrawState(ds)
-                ds.isUnderlineText = false
-                ds.color = signUpTextView.currentTextColor
-            }
-        }, startSignUp, endSingUp, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        signUpTextView.text = spannableSignUp
-        signUpTextView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
+    companion object {
+        private const val RC_SIGN_IN = 100
     }
 }
