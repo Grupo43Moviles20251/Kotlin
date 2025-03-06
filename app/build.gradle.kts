@@ -1,8 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    //alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.gms.google-services")
-
+    id("com.google.firebase.crashlytics")
+    //id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -41,12 +44,20 @@ android {
             java.srcDirs("src/main/kotlin")
         }
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3" // o la última disponible
+    }
+    buildFeatures {
+        compose = true // <--- ¡Esto es clave!
+    }
 }
 
 dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
     implementation(libs.androidx.core.ktx)
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation(libs.androidx.appcompat)
@@ -55,4 +66,18 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.firebase:firebase-auth:22.2.0")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    val composeBom = platform("androidx.compose:compose-bom:2024.03.00")
+    implementation(composeBom)
+
+    // Core de Compose
+    implementation("androidx.activity:activity-compose")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+
+    // (Opcional) Si usas ViewModel con Compose:
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
+
 }

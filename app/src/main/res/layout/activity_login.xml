@@ -108,17 +108,11 @@
         android:layout_width="match_parent"
         android:layout_height="8dp" />
 
-    <Button
+    <com.google.android.gms.common.SignInButton
         android:id="@+id/googleButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/rounded_button"
-        android:backgroundTint="#38677A"
-        android:fontFamily="@font/montserratalternates_semibold"
-        android:text="Sign in with Google"
-        android:textAllCaps="false" />
-
+        android:layout_marginTop="16dp"/>
     <Space
         android:layout_width="match_parent"
         android:layout_height="15dp" />

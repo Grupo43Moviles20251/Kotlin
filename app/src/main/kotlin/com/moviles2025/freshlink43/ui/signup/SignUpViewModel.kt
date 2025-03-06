@@ -1,24 +1,20 @@
-package com.moviles2025.freshlink43.ui.login
+package com.moviles2025.freshlink43.ui.signup
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.moviles2025.freshlink43.data.repository.SignUpRepository
-import com.moviles2025.freshlink43.data.model.SignUpResult
-import kotlinx.coroutines.launch
 
 class SignUpViewModel : ViewModel() {
 
     private val repository = SignUpRepository()
 
-    private val _signUpResult = MutableLiveData<SignUpResult>()
-    val signUpResult: LiveData<SignUpResult> = _signUpResult
+    private val _signUpResult = MutableLiveData<Pair<Boolean, String>>()
+    val signUpResult: LiveData<Pair<Boolean, String>> = _signUpResult
 
     fun signUp(email: String, password: String) {
-        viewModelScope.launch {
-            val result = repository.registerUser(email, password)
-            _signUpResult.postValue(result)
+        repository.signUpWithEmail(email, password) { success, message ->
+            _signUpResult.postValue(Pair(success, message))
         }
     }
 }

@@ -1,19 +1,20 @@
 package com.moviles2025.freshlink43.data.repository
 
-import com.moviles2025.freshlink43.data.model.SignUpResult
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 class SignUpRepository {
 
-    suspend fun registerUser(email: String, password: String): SignUpResult {
-        // Simulación de una llamada a un backend (por ahora solo delay)
-        delay(2000)
+    private val auth = FirebaseAuth.getInstance()
 
-        // Por ahora, simulamos que cualquier email que termine en @freshlink.com es exitoso
-        return if (email.endsWith("@freshlink.com")) {
-            SignUpResult(success = true, message = "Welcome to FreshLink!")
-        } else {
-            SignUpResult(success = false, message = "Invalid email. Please use a freshlink.com account.")
-        }
+    fun signUpWithEmail(email: String, password: String, callback: (Boolean, String) -> Unit) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    callback(true, "Account created successfully!")
+                } else {
+                    callback(false, task.exception?.localizedMessage ?: "Sign up failed")
+                }
+            }
     }
 }
