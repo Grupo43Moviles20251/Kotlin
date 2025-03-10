@@ -37,6 +37,12 @@
             android:exported="true"/>
 
         <activity
+            android:name=".ui.forgotpass.ForgotPasswordActivity"
+            android:theme="@style/Theme.FreshLink.NoActionBar"
+            android:screenOrientation="portrait"
+            android:exported="true"/>
+
+        <activity
             android:name=".ui.home.HomeActivity"
             android:theme="@style/Theme.FreshLink.NoActionBar"
             android:screenOrientation="portrait"

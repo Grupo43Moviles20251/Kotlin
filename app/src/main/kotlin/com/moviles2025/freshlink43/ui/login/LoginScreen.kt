@@ -31,7 +31,8 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     onNavigateToSignUp: () -> Unit,
     onLoginSuccess: () -> Unit,
-    onGoogleSignIn: () -> Unit
+    onGoogleSignIn: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -109,6 +110,7 @@ fun LoginScreen(
                 .padding(top = 8.dp)
                 .clickable {
                     Toast.makeText(context, "Redirect to recover password", Toast.LENGTH_SHORT).show()
+                    onNavigateToForgotPassword()
                 }
         )
 

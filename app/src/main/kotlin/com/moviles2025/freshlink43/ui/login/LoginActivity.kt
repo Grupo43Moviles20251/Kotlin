@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.moviles2025.freshlink43.R
+import com.moviles2025.freshlink43.ui.forgotpass.ForgotPasswordActivity
 import com.moviles2025.freshlink43.ui.home.HomeActivity
 import com.moviles2025.freshlink43.ui.signup.SignUpActivity
 
@@ -32,7 +33,12 @@ class LoginActivity : AppCompatActivity() {
                     startActivity(Intent(this, HomeActivity::class.java))
                     finish()
                 },
-                onGoogleSignIn = { launchGoogleSignIn() }
+                onGoogleSignIn = { launchGoogleSignIn() },
+                onNavigateToForgotPassword = {
+
+                    startActivity(Intent(this, ForgotPasswordActivity::class.java))
+                    finish()
+                }
             )
         }
 
