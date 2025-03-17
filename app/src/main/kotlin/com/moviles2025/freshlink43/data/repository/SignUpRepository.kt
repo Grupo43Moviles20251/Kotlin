@@ -37,7 +37,7 @@ class SignUpRepository {
                 val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
                 val request = Request.Builder()
-                    .url("http://192.168.1.111:8000/signup") // Reemplazar por la IP real del backend
+                    .url("http://10.0.2.2:8000/signup") // Reemplazar por la IP real del backend
                     .post(requestBody)
                     .header("Content-Type", "application/json")
                     .build()
