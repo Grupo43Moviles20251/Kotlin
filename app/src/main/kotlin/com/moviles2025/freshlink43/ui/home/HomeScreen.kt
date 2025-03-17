@@ -20,6 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moviles2025.freshlink43.R
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.ContentScale
+
 
 @Composable
 fun HomeScreen(
@@ -40,11 +47,13 @@ fun HomeScreen(
 
         Text(
             text = "Restaurants for you",
-            fontSize = 18.sp,
+            fontSize = 20.sp,
+            color = Color(0xFF2A9D8F),
             fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
             modifier = Modifier.padding(bottom = 8.dp)
                 .fillMaxWidth() // Hace que ocupe todo el ancho disponible
                 .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(top = 8.dp)
         )
 
         LazyColumn(
@@ -96,36 +105,99 @@ fun Header(onNavigateToProfile: () -> Unit) {
 
 @Composable
 fun PlaceholderRestaurantCard(index: Int) {
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .height(150.dp),
+            .padding(10.dp)
+            .height(220.dp), // Altura ajustada
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2)) // Fondo suave
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                text = if (index == 0) "Café Pasaje" else "Super Organico",
-                fontSize = 18.sp,
-                fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
-                color = Color(0xFF38677A)
+            // Imagen en la parte superior
+            Image(
+                painter = painterResource(id = R.drawable.bakery2), // Asegúrate de que la imagen exista en drawable
+                contentDescription = "Restaurant Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)) // Redondear solo la parte superior
             )
-            Text(
-                text = "Surprise bag",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = if (index == 0) "$5.00k" else "$7.00k",
-                fontSize = 16.sp,
-                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
-                color = Color(0xFF38677A)
-            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f) // Para que el contenido se expanda
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = if (index == 0) "Café Pasaje" else "Super Organico",
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
+                    color = Color(0xFF2A9D8F),
+                    modifier = Modifier
+                        .padding(bottom = 5.dp)
+                )
+
+                Text(
+                    text = "Surprise bag",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.weight(1f)) // Empuja los elementos hacia abajo
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp), // Asegura alineación en la parte inferior
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom // 🔹 Alinea todo en la misma altura
+                ) {
+                    // ⭐ Sección de Rating con Icono
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Star, // Icono de estrella de Material
+                            contentDescription = "Rating",
+                            tint = Color(0xFF2A9D8F),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "4.8",
+                            fontSize = 14.sp,
+                            color = Color(0xFF2A9D8F),
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+
+                    // 💰 Sección de Precios
+                    Row(
+                        verticalAlignment = Alignment.Bottom // 🔹 Se asegura de que los textos estén alineados
+                    ) {
+                        // Precio tachado con `TextDecoration.LineThrough`
+                        Text(
+                            text = "$18.50k",
+                            fontSize = 15.sp,
+                            color = Color.Gray,
+                            textDecoration = TextDecoration.LineThrough,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                        // Precio final en verde
+                        Text(
+                            text = if (index == 0) "$5.00k" else "$7.00k",
+                            fontSize = 24.sp,
+                            fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
+                            color = Color(0xFF2A9D8F)
+                        )
+                    }
+                }
+            }
         }
     }
 }
