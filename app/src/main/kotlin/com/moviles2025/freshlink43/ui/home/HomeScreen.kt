@@ -45,9 +45,20 @@ fun HomeScreen(
             color = Color.Gray.copy(alpha = 0.3f) // Color gris con transparencia
         )
 
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally // Centra la imagen horizontalmente
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.logoapp),
+                contentDescription = "App Logo",
+                modifier = Modifier.size(100.dp) // Establece el tamaño de la imagen
+            )
+        }
+
         Text(
             text = "Restaurants for you",
-            fontSize = 20.sp,
+            fontSize = 22.sp,
             color = Color(0xFF2A9D8F),
             fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
             modifier = Modifier.padding(bottom = 8.dp)
@@ -67,7 +78,7 @@ fun HomeScreen(
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
-            color = Color.Gray.copy(alpha = 0.3f) // Color gris con transparencia
+            color = Color.Gray.copy(alpha = 0.3f)
         )
         BottomNavigationBar(
             modifier = Modifier
@@ -119,7 +130,7 @@ fun PlaceholderRestaurantCard(index: Int) {
         ) {
             // Imagen en la parte superior
             Image(
-                painter = painterResource(id = R.drawable.bakery2), // Asegúrate de que la imagen exista en drawable
+                painter = painterResource(id = R.drawable.bakery3), // Asegúrate de que la imagen exista en drawable
                 contentDescription = "Restaurant Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
