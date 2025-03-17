@@ -58,6 +58,7 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.google.firebase:firebase-crashlytics")
     implementation(libs.androidx.core.ktx)
     implementation("androidx.activity:activity-ktx:1.9.0")

@@ -87,7 +87,7 @@ fun SignUpScreen(
             )
 
             Button(
-                onClick = { viewModel.signUp() },
+                onClick = { viewModel.signUp(context) },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38677A)),
                 modifier = Modifier.fillMaxWidth()

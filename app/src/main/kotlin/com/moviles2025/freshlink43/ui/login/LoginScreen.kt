@@ -117,7 +117,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { viewModel.login() },
+            onClick = { viewModel.login(context) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),

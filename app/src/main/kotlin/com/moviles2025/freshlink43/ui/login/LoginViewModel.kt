@@ -1,5 +1,6 @@
 package com.moviles2025.freshlink43.ui.login
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.AuthCredential
 import com.moviles2025.freshlink43.data.repository.LoginRepository
@@ -24,14 +25,14 @@ class LoginViewModel : ViewModel() {
     fun onEmailChanged(email: String) = _uiState.update { it.copy(email = email) }
     fun onPasswordChanged(password: String) = _uiState.update { it.copy(password = password) }
 
-    fun login() {
-        repository.loginWithEmail(uiState.value.email, uiState.value.password) { success, message ->
+    fun login(context: Context) {  // 👈 Agregar Context como parámetro
+        repository.loginWithEmail(uiState.value.email, uiState.value.password, context) { success, message ->
             _uiState.update { it.copy(loginResult = message, loginSuccess = success) }
         }
     }
 
-    fun loginWithGoogle(credential: AuthCredential) {
-        repository.loginWithGoogle(credential) { success, message ->
+    fun loginWithGoogle(credential: AuthCredential, context: Context) {  // 👈 Agregar Context
+        repository.loginWithGoogle(credential, context) { success, message ->
             _uiState.update { it.copy(loginResult = message, loginSuccess = success) }
         }
     }
