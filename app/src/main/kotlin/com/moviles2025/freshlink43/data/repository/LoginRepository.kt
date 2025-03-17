@@ -20,6 +20,8 @@ import java.io.IOException
 
 class LoginRepository {
 
+
+
     private val auth = FirebaseAuth.getInstance()
     private val client = OkHttpClient()
 
@@ -83,7 +85,7 @@ class LoginRepository {
 
     private fun verifyUserWithBackend(idToken: String, context: Context, callback: (Boolean, String) -> Unit) {
         val request = Request.Builder()
-            .url("http://192.168.101.5:8080/users/me") // Verificar si el usuario existe
+            .url("http://192.168.1.111:8000/users/me") // Verificar si el usuario existe
             .get()
             .addHeader("Authorization", "Bearer $idToken")
             .build()
@@ -144,7 +146,7 @@ class LoginRepository {
         val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("http://192.168.101.5:8080/signup") // Endpoint para registrar usuarios
+            .url("http://192.168.1.111:8000/signup") // Endpoint para registrar usuarios
             .post(requestBody)
             .addHeader("Authorization", "Bearer $idToken") // Enviar el token de Firebase
             .build()
