@@ -1,4 +1,4 @@
-package com.moviles2025.freshlink43.ui.home
+package com.moviles2025.freshlink43.ui.search
 
 import android.icu.text.DecimalFormat
 import androidx.compose.foundation.Image
@@ -33,18 +33,32 @@ import coil.compose.rememberImagePainter
 import coil.size.Size
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import com.moviles2025.freshlink43.ui.home.HomeViewModel
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.Search
+
+
 
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel,
+fun SearchScreen(
+    viewModel: SearchViewModel,
     onNavigateToProfile: () -> Unit,
     onSearchClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
+    val query = remember { mutableStateOf("") }
+
     // Cargar los restaurantes cuando se crea la pantalla
-    LaunchedEffect(Unit) {
-        viewModel.getRestaurants(context)
+    LaunchedEffect(query.value) {
+        if (query.value.isNotEmpty()) {
+            viewModel.getFilteredRestaurants(query.value)
+        }
     }
 
     // Observar la lista de restaurantes
@@ -55,16 +69,14 @@ fun HomeScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Header(onNavigateToProfile)
+        // Barra de búsqueda
+        SearchBar(query = query)
 
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = Color.Gray.copy(alpha = 0.3f)
-        )
+        // Botones de filtro
+        FilterButtons(viewModel)
 
         Text(
-            text = "Restaurants for you",
+            text = "Last Offers",
             fontSize = 24.sp,
             color = Color(0xFF2A9D8F),
             fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
@@ -79,7 +91,7 @@ fun HomeScreen(
         ) {
             // Recorre la lista de restaurantes usando un for y crea una tarjeta para cada uno
             items(restaurants.size) { index ->
-                val restaurant = restaurants[index] // Obtiene el restaurante de la lista
+                val restaurant = restaurants[index]
                 PlaceholderRestaurantCard(
                     placeName = restaurant.name,
                     productName = restaurant.products[0].productName,
@@ -101,35 +113,98 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-                onSearchClick = onSearchClick
+            onSearchClick = onSearchClick
         )
     }
 }
 
 @Composable
-fun Header(onNavigateToProfile: () -> Unit) {
+fun SearchBar(query: MutableState<String>) {
+    TextField(
+        value = query.value,
+        onValueChange = { query.value = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 65.dp, start = 10.dp, end = 10.dp, bottom = 10.dp),
+
+        placeholder = {
+            Text(
+                text = "Search",
+                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
+                fontSize = 15.sp
+            )
+        },
+        leadingIcon = {
+            Icon(Icons.Filled.Search, contentDescription = "Search Icon")
+        },
+        shape = RoundedCornerShape(20.dp)
+    )
+}
+
+@Composable
+fun FilterButtons(viewModel: SearchViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 10.dp, vertical = 1.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.logoapp),
-            contentDescription = "App Logo",
-            modifier = Modifier.size(50.dp)
-        )
-        IconButton(onClick = { onNavigateToProfile() }) {
-            Image(
-                painter = painterResource(id = R.drawable.profileicon),
-                contentDescription = "Profile Icon",
-                modifier = Modifier.size(42.dp)
+        FilterButton(text = "Café", R.drawable.iconoseacrh) { viewModel.getFilteredRestaurantsByType("1") }
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 1.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
+        FilterButton(text = "Restaurants", R.drawable.iconorest) { viewModel.getFilteredRestaurantsByType("2") }
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 1.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
+        FilterButton(text = "Supermarkets", R.drawable.iconosuper) { viewModel.getFilteredRestaurantsByType("3") }
+    }
+}
 
+@Composable
+fun FilterButton(text: String, image:Int , onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp)
+            .padding(5.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A9D8F)),
+        shape = RoundedCornerShape(40.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically, // Para alinear el texto e icono verticalmente
+            horizontalArrangement = Arrangement.Center // Para centrar el contenido
+        ) {
+            Icon(
+                painter = painterResource(id = image), // Reemplaza 'ic_cafe' con el nombre de tu ícono
+                contentDescription = "Café Icon",
+                modifier = Modifier.size(35.dp), // Ajusta el tamaño del ícono
+                tint = Color.White // Color del ícono
+            )
+            Spacer(modifier = Modifier.width(8.dp)) // Espacio entre el ícono y el texto
+            Text(
+                text = text,
+                color = Color.White,
+                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
+                fontSize = 35.sp
             )
         }
     }
 }
+
+
+
+
+
 
 fun formatAmount(amount: Int): String {
     val formatter = DecimalFormat("#,###")

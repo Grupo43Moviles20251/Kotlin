@@ -1,4 +1,4 @@
-package com.moviles2025.freshlink43.ui.home
+package com.moviles2025.freshlink43.ui.search
 
 import android.content.Intent
 import android.os.Build
@@ -10,33 +10,36 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.moviles2025.freshlink43.ui.profile.ProfileActivity
-import com.moviles2025.freshlink43.ui.search.SearchActivity
 
-class HomeActivity : ComponentActivity() {
+class SearchActivity : ComponentActivity() {
 
-    private val homeViewModel: HomeViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
     private var backPressedTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
+        // Establecer el contenido de la vista con el composable SearchScreen
         setContent {
-            HomeScreen(
-                viewModel = homeViewModel,
+            SearchScreen(
+                viewModel = searchViewModel,
                 onNavigateToProfile = {
+                    // Navegar al perfil cuando se haga clic en el icono
                     startActivity(Intent(this, ProfileActivity::class.java))
                 },
                 onSearchClick = {
-                    startActivity(Intent(this, SearchActivity::class.java))
+                    startActivity(Intent(this, SearchActivity::class.java)) // Redirigir a SearchActivity
                 }
             )
         }
+
+        // Ocultar la barra de navegación
         window.decorView.post {
             hideSystemUI()
         }
     }
 
+    // Manejar el comportamiento del botón de retroceso
     override fun onBackPressed() {
         if (backPressedTime + 2000 > System.currentTimeMillis()) {
             super.onBackPressed()
@@ -46,6 +49,7 @@ class HomeActivity : ComponentActivity() {
         backPressedTime = System.currentTimeMillis()
     }
 
+    // Función para ocultar las barras del sistema
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.navigationBars())
