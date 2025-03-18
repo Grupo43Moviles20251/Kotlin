@@ -1,5 +1,6 @@
 package com.moviles2025.freshlink43.ui.home
 
+import android.icu.text.DecimalFormat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,45 +25,50 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
-
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import coil.compose.rememberImagePainter
+import coil.size.Size
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
     onNavigateToProfile: () -> Unit
 ) {
+    val context = LocalContext.current
     val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
+    // Cargar los restaurantes cuando se crea la pantalla
+    LaunchedEffect(Unit) {
+        viewModel.getRestaurants(context)
+    }
+
+    // Observar la lista de restaurantes
+    val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
         Header(onNavigateToProfile)
+
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
-            color = Color.Gray.copy(alpha = 0.3f) // Color gris con transparencia
+            color = Color.Gray.copy(alpha = 0.3f)
         )
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally // Centra la imagen horizontalmente
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logoapp),
-                contentDescription = "App Logo",
-                modifier = Modifier.size(100.dp) // Establece el tamaño de la imagen
-            )
-        }
 
         Text(
             text = "Restaurants for you",
-            fontSize = 22.sp,
+            fontSize = 24.sp,
             color = Color(0xFF2A9D8F),
             fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
             modifier = Modifier.padding(bottom = 8.dp)
-                .fillMaxWidth() // Hace que ocupe todo el ancho disponible
+                .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .padding(top = 8.dp)
         )
@@ -70,16 +76,26 @@ fun HomeScreen(
         LazyColumn(
             modifier = Modifier.weight(1f)
         ) {
-
-            items(2) { index ->
-                PlaceholderRestaurantCard(index)
+            // Recorre la lista de restaurantes usando un for y crea una tarjeta para cada uno
+            items(restaurants.size) { index ->
+                val restaurant = restaurants[index] // Obtiene el restaurante de la lista
+                PlaceholderRestaurantCard(
+                    placeName = restaurant.name,
+                    productName = restaurant.products[0].productName,
+                    originalPrice = restaurant.products[0].originalPrice.toInt(),
+                    discountPrice = restaurant.products[0].discountPrice.toInt(),
+                    rating = restaurant.rating,
+                    image = restaurant.imageUrl
+                )
             }
         }
+
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
             color = Color.Gray.copy(alpha = 0.3f)
         )
+
         BottomNavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
@@ -113,40 +129,62 @@ fun Header(onNavigateToProfile: () -> Unit) {
     }
 }
 
+fun formatAmount(amount: Int): String {
+    val formatter = DecimalFormat("#,###")
+    formatter.decimalFormatSymbols = formatter.decimalFormatSymbols.apply {
+        groupingSeparator = '.'
+        decimalSeparator = ','
+    }
+    return formatter.format(amount)
+}
 
 @Composable
-fun PlaceholderRestaurantCard(index: Int) {
+fun PlaceholderRestaurantCard(
+    placeName: String,
+    productName: String,
+    originalPrice: Int,
+    discountPrice: Int,
+    rating: Double,
+    image: String
+
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
-            .height(220.dp), // Altura ajustada
+            .height(220.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2)) // Fondo suave
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2))
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Imagen en la parte superior
+            val painter = rememberImagePainter(
+                data = image,
+                builder = {
+                    size(Size.ORIGINAL)
+                    crossfade(true)
+                }
+            )
             Image(
-                painter = painterResource(id = R.drawable.bakery3), // Asegúrate de que la imagen exista en drawable
+                painter = painter,
                 contentDescription = "Restaurant Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp)
-                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)) // Redondear solo la parte superior
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             )
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Para que el contenido se expanda
+                    .weight(1f)
                     .padding(16.dp)
             ) {
                 Text(
-                    text = if (index == 0) "Café Pasaje" else "Super Organico",
+                    text = placeName,
                     fontSize = 20.sp,
                     fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
                     color = Color(0xFF2A9D8F),
@@ -155,45 +193,45 @@ fun PlaceholderRestaurantCard(index: Int) {
                 )
 
                 Text(
-                    text = "Surprise bag",
+                    text = productName,
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
 
-                Spacer(modifier = Modifier.weight(1f)) // Empuja los elementos hacia abajo
+                Spacer(modifier = Modifier.weight(1f))
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp), // Asegura alineación en la parte inferior
+                        .padding(bottom = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom // 🔹 Alinea todo en la misma altura
+                    verticalAlignment = Alignment.Bottom
                 ) {
                     // ⭐ Sección de Rating con Icono
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Star, // Icono de estrella de Material
+                            imageVector = Icons.Filled.Star,
                             contentDescription = "Rating",
                             tint = Color(0xFF2A9D8F),
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
-                            text = "4.8",
+                            text = rating.toString(),
                             fontSize = 14.sp,
                             color = Color(0xFF2A9D8F),
                             modifier = Modifier.padding(start = 4.dp)
                         )
                     }
 
-                    // 💰 Sección de Precios
+
                     Row(
-                        verticalAlignment = Alignment.Bottom // 🔹 Se asegura de que los textos estén alineados
+                        verticalAlignment = Alignment.Bottom
                     ) {
-                        // Precio tachado con `TextDecoration.LineThrough`
+                        // Precio tachado
                         Text(
-                            text = "$18.50k",
+                            text = "$${formatAmount(discountPrice)}",
                             fontSize = 15.sp,
                             color = Color.Gray,
                             textDecoration = TextDecoration.LineThrough,
@@ -201,7 +239,7 @@ fun PlaceholderRestaurantCard(index: Int) {
                         )
                         // Precio final en verde
                         Text(
-                            text = if (index == 0) "$5.00k" else "$7.00k",
+                            text = "$${formatAmount(originalPrice)}",
                             fontSize = 24.sp,
                             fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
                             color = Color(0xFF2A9D8F)
@@ -234,9 +272,9 @@ fun BottomNavigationBar(modifier: Modifier = Modifier) {
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color.Transparent,  // 🔹 Elimina la sombra de selección
-                    selectedIconColor = Color(0xFF38677A),  // 🔹 Color del icono seleccionado
-                    unselectedIconColor = Color.Gray  // 🔹 Color del icono sin seleccionar
+                    indicatorColor = Color.Transparent,
+                    selectedIconColor = Color(0xFF38677A),
+                    unselectedIconColor = Color.Gray
                 )
             )
         }
