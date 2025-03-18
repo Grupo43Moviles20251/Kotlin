@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.moviles2025.freshlink43.ui.login.LoginActivity
+import com.moviles2025.freshlink43.ui.utils.FreshLinkTheme
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
@@ -14,14 +15,16 @@ class ForgotPasswordActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ForgotPasswordScreen(
-                viewModel = viewModel,
-                onBackToLogin = {
+            FreshLinkTheme (darkTheme = false){
+                ForgotPasswordScreen(
+                    viewModel = viewModel,
+                    onBackToLogin = {
 
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
-                }
-            )
+                        startActivity(Intent(this, LoginActivity::class.java))
+                        finish()
+                    }
+                )
+            }
         }
     }
 }
