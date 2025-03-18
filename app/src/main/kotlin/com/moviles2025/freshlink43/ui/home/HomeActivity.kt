@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.moviles2025.freshlink43.ui.login.LoginActivity
 import com.moviles2025.freshlink43.ui.profile.ProfileActivity
 import com.moviles2025.freshlink43.ui.ubication.UbicationActivity
+import com.moviles2025.freshlink43.ui.utils.FreshLinkTheme
 
 class HomeActivity : ComponentActivity() {
 
@@ -35,15 +36,16 @@ class HomeActivity : ComponentActivity() {
 
         setContent {
             var selectedTab by remember { mutableStateOf(0) }
-
-            HomeScreen(
-                viewModel = homeViewModel,
-                selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it },
-                onNavigateToProfile = {
-                    startActivity(Intent(this, ProfileActivity::class.java))
-                }
-            )
+            FreshLinkTheme (darkTheme = false){
+                HomeScreen(
+                    viewModel = homeViewModel,
+                    selectedTab = selectedTab,
+                    onTabSelected = { selectedTab = it },
+                    onNavigateToProfile = {
+                        startActivity(Intent(this, ProfileActivity::class.java))
+                    }
+                )
+            }
         }
 
         window.decorView.post {

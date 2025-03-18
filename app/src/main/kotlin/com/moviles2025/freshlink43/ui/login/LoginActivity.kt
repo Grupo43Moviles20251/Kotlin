@@ -16,6 +16,7 @@ import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.ui.forgotpass.ForgotPasswordActivity
 import com.moviles2025.freshlink43.ui.home.HomeActivity
 import com.moviles2025.freshlink43.ui.signup.SignUpActivity
+import com.moviles2025.freshlink43.ui.utils.FreshLinkTheme
 
 class LoginActivity : AppCompatActivity() {
 
@@ -26,22 +27,24 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            LoginScreen(
-                viewModel = viewModel,
-                onNavigateToSignUp = {
-                    startActivity(Intent(this, SignUpActivity::class.java))
-                    finish()
-                },
-                onLoginSuccess = {
-                    startActivity(Intent(this, HomeActivity::class.java))
-                    finish()
-                },
-                onGoogleSignIn = { launchGoogleSignIn() },
-                onNavigateToForgotPassword = {
-                    startActivity(Intent(this, ForgotPasswordActivity::class.java))
-                    finish()
-                }
-            )
+            FreshLinkTheme (darkTheme = false){
+                LoginScreen(
+                    viewModel = viewModel,
+                    onNavigateToSignUp = {
+                        startActivity(Intent(this, SignUpActivity::class.java))
+                        finish()
+                    },
+                    onLoginSuccess = {
+                        startActivity(Intent(this, HomeActivity::class.java))
+                        finish()
+                    },
+                    onGoogleSignIn = { launchGoogleSignIn() },
+                    onNavigateToForgotPassword = {
+                        startActivity(Intent(this, ForgotPasswordActivity::class.java))
+                        finish()
+                    }
+                )
+            }
         }
 
         if (intent.getBooleanExtra("signup_success", false)) {

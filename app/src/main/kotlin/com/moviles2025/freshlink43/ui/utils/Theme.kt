@@ -22,8 +22,8 @@ private val LightColorScheme = lightColorScheme(
     primary = corporationBlue,
     secondary = corporationGreen,
     tertiary = corporationOrange,
-    background = Color(0xFFFFFFFF)
-
+    background = Color.White,
+    surface = Color.White
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -37,20 +37,12 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun FreshLinkTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
