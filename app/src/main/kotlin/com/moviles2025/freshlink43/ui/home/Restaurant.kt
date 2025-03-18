@@ -2,9 +2,12 @@ package com.moviles2025.freshlink43.ui.home
 
 data class Restaurant(
     val name: String,
+    val imageUrl: String,
     val description: String,
-    val rating: String,
-    val oldPrice: String,
-    val newPrice: String,
-    val imageRes: Int
+    val latitude: Double,
+    val longitude: Double,
+    val address: String,
+    val products: List<Product>,
+    val rating: Double,
+    val type: Int
 )
