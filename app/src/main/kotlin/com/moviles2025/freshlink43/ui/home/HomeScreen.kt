@@ -24,8 +24,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 
 @Composable
@@ -36,23 +38,26 @@ fun HomeScreen(
     val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
         Header(onNavigateToProfile)
+
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
-            color = Color.Gray.copy(alpha = 0.3f) // Color gris con transparencia
+            color = Color.Gray.copy(alpha = 0.3f)
         )
 
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally // Centra la imagen horizontalmente
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = R.drawable.logoapp),
                 contentDescription = "App Logo",
-                modifier = Modifier.size(100.dp) // Establece el tamaño de la imagen
+                modifier = Modifier.size(100.dp)
             )
         }
 
@@ -70,16 +75,17 @@ fun HomeScreen(
         LazyColumn(
             modifier = Modifier.weight(1f)
         ) {
-
-            items(2) { index ->
+            items(4) { index ->
                 PlaceholderRestaurantCard(index)
             }
         }
+
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
             color = Color.Gray.copy(alpha = 0.3f)
         )
+
         BottomNavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
@@ -136,13 +142,13 @@ fun PlaceholderRestaurantCard(index: Int) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp)
-                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)) // Redondear solo la parte superior
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             )
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Para que el contenido se expanda
+                    .weight(1f)
                     .padding(16.dp)
             ) {
                 Text(
@@ -160,21 +166,21 @@ fun PlaceholderRestaurantCard(index: Int) {
                     color = Color.Gray
                 )
 
-                Spacer(modifier = Modifier.weight(1f)) // Empuja los elementos hacia abajo
+                Spacer(modifier = Modifier.weight(1f))
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp), // Asegura alineación en la parte inferior
+                        .padding(bottom = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom // 🔹 Alinea todo en la misma altura
+                    verticalAlignment = Alignment.Bottom
                 ) {
                     // ⭐ Sección de Rating con Icono
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Star, // Icono de estrella de Material
+                            imageVector = Icons.Filled.Star,
                             contentDescription = "Rating",
                             tint = Color(0xFF2A9D8F),
                             modifier = Modifier.size(16.dp)
@@ -187,11 +193,11 @@ fun PlaceholderRestaurantCard(index: Int) {
                         )
                     }
 
-                    // 💰 Sección de Precios
+
                     Row(
                         verticalAlignment = Alignment.Bottom // 🔹 Se asegura de que los textos estén alineados
                     ) {
-                        // Precio tachado con `TextDecoration.LineThrough`
+                        // Precio tachado
                         Text(
                             text = "$18.50k",
                             fontSize = 15.sp,
