@@ -101,7 +101,7 @@ class LoginRepository {
                 Log.d("Backend", "Respuesta al verificar usuario: $responseBody")
 
                 if (response.isSuccessful) {
-                    Log.d("Backend", "✅ Usuario encontrado en Firestore")
+                    Log.d("Backend", "Usuario encontrado en Firestore")
                     callback(true, "Login successful!")
                 } else if (response.code == 404) {
                     Log.d("Backend", " Usuario no encontrado en Firestore. Registrando...")
@@ -153,13 +153,13 @@ class LoginRepository {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("GoogleSignIn", "❌ Error al registrar usuario: ${e.localizedMessage}")
+                Log.e("GoogleSignIn", "Error al registrar usuario: ${e.localizedMessage}")
                 callback(false, "Failed to register user: ${e.localizedMessage}")
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                Log.d("GoogleSignIn", "📨 Respuesta del backend al registrar usuario: $responseBody")
+                Log.d("GoogleSignIn", "Respuesta del backend al registrar usuario: $responseBody")
 
                 if (response.isSuccessful) {
                     callback(true, "User registered successfully!")

@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-
+import com.moviles2025.freshlink43.ui.utils.*
 
 @Composable
 fun SignUpScreen(
@@ -66,7 +66,7 @@ fun SignUpScreen(
                 text = "Sign Up",
                 fontFamily = montserratBold,
                 fontSize = 20.sp,
-                color = Color(0xFF2F2F2F)
+                color = corporationBlack
             )
 
             OutlinedTextField(
@@ -135,7 +135,7 @@ fun SignUpScreen(
             Button(
                 onClick = { viewModel.signUp(context) },
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38677A)),
+                colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Sign Up", fontFamily = montserratSemiBold)
@@ -143,13 +143,13 @@ fun SignUpScreen(
 
             Text(
                 text = "Already have an account?",
-                color = Color(0xFF38677A),
+                color = corporationBlue,
                 fontFamily = montserratRegular
             )
 
             Text(
                 text = "Log In",
-                color = Color(0xFF38677A),
+                color = corporationBlue,
                 fontFamily = montserratSemiBold,
                 modifier = Modifier.clickable { onNavigateToLogin() }
             )
