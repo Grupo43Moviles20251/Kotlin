@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import com.google.firebase.auth.FirebaseAuth
+import com.moviles2025.freshlink43.ui.login.LoginActivity
 import com.moviles2025.freshlink43.ui.profile.ProfileActivity
 
 class HomeActivity : ComponentActivity() {
@@ -18,7 +20,13 @@ class HomeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val auth = FirebaseAuth.getInstance()
+        if (auth.currentUser == null) {
+            // Si no hay usuario autenticado, redirigir al login
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish() // Evita que vuelva atrás con el botón de retroceso
+            return
+        }
 
         setContent {
             HomeScreen(
