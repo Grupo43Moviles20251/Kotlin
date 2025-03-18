@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moviles2025.freshlink43.R
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import com.moviles2025.freshlink43.ui.utils.*
 
 @Composable
 fun LoginScreen(
@@ -56,7 +57,7 @@ fun LoginScreen(
         Text(
             text = "Login",
             fontSize = 20.sp,
-            color = Color(0xFF2F2F2F),
+            color = corporationBlack,
             fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -104,7 +105,7 @@ fun LoginScreen(
             "Forgot your password?",
             fontSize = 14.sp,
             fontFamily = FontFamily(Font(R.font.montserratalternates_medium)),
-            color = Color(0xFF38677A),
+            color = corporationBlue,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(top = 8.dp)
@@ -121,7 +122,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38677A)),
+            colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
@@ -136,7 +137,7 @@ fun LoginScreen(
             "Or you can",
             fontSize = 14.sp,
             fontFamily = FontFamily(Font(R.font.montserratalternates_medium)),
-            color = Color(0xFF38677A),
+            color = corporationBlue,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -151,7 +152,7 @@ fun LoginScreen(
             "Never Experienced FreshLink?",
             fontSize = 14.sp,
             fontFamily = FontFamily(Font(R.font.montserratalternates_medium)),
-            color = Color(0xFF38677A),
+            color = corporationBlue,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -160,7 +161,7 @@ fun LoginScreen(
             "Sign Up",
             fontSize = 14.sp,
             fontFamily = FontFamily(Font(R.font.montserratalternates_extrabold)),
-            color = Color(0xFF38677A),
+            color = corporationBlue,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(top = 8.dp)
@@ -202,7 +203,7 @@ fun GoogleSignInButton(
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Sign in with Google",
-                color = Color(0xFF38677A),
+                color = corporationBlue,
                 fontFamily = FontFamily(Font(R.font.montserratalternates_medium))
             )
         }

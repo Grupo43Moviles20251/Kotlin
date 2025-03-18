@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import com.moviles2025.freshlink43.ui.utils.FreshLinkTheme
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,14 +26,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MainScreen(
-                onLoginClick = {
-                    startActivity(Intent(this, com.moviles2025.freshlink43.ui.login.LoginActivity::class.java))
-                },
-                onSignUpClick = {
-                    startActivity(Intent(this, com.moviles2025.freshlink43.ui.signup.SignUpActivity::class.java))
-                }
-            )
+            FreshLinkTheme (darkTheme = false){
+                MainScreen(
+                    onLoginClick = {
+                        startActivity(
+                            Intent(
+                                this,
+                                com.moviles2025.freshlink43.ui.login.LoginActivity::class.java
+                            )
+                        )
+                    },
+                    onSignUpClick = {
+                        startActivity(
+                            Intent(
+                                this,
+                                com.moviles2025.freshlink43.ui.signup.SignUpActivity::class.java
+                            )
+                        )
+                    }
+                )
+            }
         }
     }
 }
