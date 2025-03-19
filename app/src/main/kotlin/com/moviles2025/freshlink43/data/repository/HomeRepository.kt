@@ -15,7 +15,7 @@ class HomeRepository {
     // Llamada a la API para obtener los restaurantes
     fun getRestaurants(callback: (List<Restaurant>?, String?) -> Unit) {
         val request = Request.Builder()
-            .url("http://192.168.101.5:8000/restaurants")
+            .url("http://10.0.2.2:8000/restaurants")
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {

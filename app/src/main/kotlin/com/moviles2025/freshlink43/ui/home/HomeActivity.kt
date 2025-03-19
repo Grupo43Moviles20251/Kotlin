@@ -16,10 +16,8 @@ import androidx.compose.runtime.setValue
 import com.google.firebase.auth.FirebaseAuth
 import com.moviles2025.freshlink43.ui.login.LoginActivity
 import com.moviles2025.freshlink43.ui.profile.ProfileActivity
-import com.moviles2025.freshlink43.ui.search.SearchActivity
 import com.moviles2025.freshlink43.ui.ubication.UbicationActivity
 import com.moviles2025.freshlink43.ui.utils.FreshLinkTheme
-
 
 class HomeActivity : ComponentActivity() {
 
@@ -36,6 +34,7 @@ class HomeActivity : ComponentActivity() {
             return
         }
 
+        setContent {
             var selectedTab by remember { mutableStateOf(0) }
             FreshLinkTheme (darkTheme = false){
                 HomeScreen(
@@ -44,10 +43,7 @@ class HomeActivity : ComponentActivity() {
                     onTabSelected = { selectedTab = it },
                     onNavigateToProfile = {
                         startActivity(Intent(this, ProfileActivity::class.java))
-                    },
-                    onSearchClick = {
-                    startActivity(Intent(this, SearchActivity::class.java))
-                }
+                    }
                 )
             }
         }

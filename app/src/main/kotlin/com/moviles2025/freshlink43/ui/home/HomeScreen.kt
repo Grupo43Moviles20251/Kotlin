@@ -41,9 +41,6 @@ import com.moviles2025.freshlink43.ui.utils.*
 fun HomeScreen(
     viewModel: HomeViewModel,
     onNavigateToProfile: () -> Unit,
-
-    onSearchClick: () -> Unit
-    //onNavigateToUbication: () -> Unit
     selectedTab: Int,
     onTabSelected: (Int) -> Unit,
 
@@ -112,7 +109,6 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-                onSearchClick = onSearchClick
         )
     }
 }

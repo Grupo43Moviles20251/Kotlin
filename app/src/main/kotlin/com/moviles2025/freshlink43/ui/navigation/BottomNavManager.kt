@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.ui.home.HomeActivity
 import com.moviles2025.freshlink43.ui.profile.ProfileActivity
-//import com.moviles2025.freshlink43.ui.search.SearchActivity
+import com.moviles2025.freshlink43.ui.search.SearchActivity
 import com.moviles2025.freshlink43.ui.ubication.UbicationActivity
 
 @Composable
@@ -64,7 +64,7 @@ private fun navigateToScreen(index: Int, context: Context) {
     when (index) {
         0 -> context.startActivity(Intent(context, HomeActivity::class.java))
         //1 -> context.startActivity(Intent(context, ProfileActivity::class.java))
-        //2 -> context.startActivity(Intent(context, SearchActivity::class.java))
+        2 -> context.startActivity(Intent(context, SearchActivity::class.java))
         3 -> context.startActivity(Intent(context, UbicationActivity::class.java))
     }
 }
