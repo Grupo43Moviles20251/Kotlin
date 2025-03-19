@@ -9,8 +9,17 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.google.firebase.auth.FirebaseAuth
+import com.moviles2025.freshlink43.ui.login.LoginActivity
 import com.moviles2025.freshlink43.ui.profile.ProfileActivity
 import com.moviles2025.freshlink43.ui.search.SearchActivity
+import com.moviles2025.freshlink43.ui.ubication.UbicationActivity
+import com.moviles2025.freshlink43.ui.utils.FreshLinkTheme
+
 
 class HomeActivity : ComponentActivity() {
 
@@ -19,19 +28,30 @@ class HomeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val auth = FirebaseAuth.getInstance()
+        if (auth.currentUser == null) {
+            // Si no hay usuario autenticado, redirigir al login
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish() // Evita que vuelva atrás con el botón de retroceso
+            return
+        }
 
-
-        setContent {
-            HomeScreen(
-                viewModel = homeViewModel,
-                onNavigateToProfile = {
-                    startActivity(Intent(this, ProfileActivity::class.java))
-                },
-                onSearchClick = {
+            var selectedTab by remember { mutableStateOf(0) }
+            FreshLinkTheme (darkTheme = false){
+                HomeScreen(
+                    viewModel = homeViewModel,
+                    selectedTab = selectedTab,
+                    onTabSelected = { selectedTab = it },
+                    onNavigateToProfile = {
+                        startActivity(Intent(this, ProfileActivity::class.java))
+                    },
+                    onSearchClick = {
                     startActivity(Intent(this, SearchActivity::class.java))
                 }
-            )
+                )
+            }
         }
+
         window.decorView.post {
             hideSystemUI()
         }

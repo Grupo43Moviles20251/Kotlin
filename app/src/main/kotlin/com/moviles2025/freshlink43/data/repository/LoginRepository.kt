@@ -85,7 +85,7 @@ class LoginRepository {
 
     private fun verifyUserWithBackend(idToken: String, context: Context, callback: (Boolean, String) -> Unit) {
         val request = Request.Builder()
-            .url("http://10.0.2.2:8000/users/me") // Verificar si el usuario existe
+            .url("http://192.168.101.5:8000/users/me") // Verificar si el usuario existe
             .get()
             .addHeader("Authorization", "Bearer $idToken")
             .build()
@@ -101,7 +101,7 @@ class LoginRepository {
                 Log.d("Backend", "Respuesta al verificar usuario: $responseBody")
 
                 if (response.isSuccessful) {
-                    Log.d("Backend", "✅ Usuario encontrado en Firestore")
+                    Log.d("Backend", "Usuario encontrado en Firestore")
                     callback(true, "Login successful!")
                 } else if (response.code == 404) {
                     Log.d("Backend", " Usuario no encontrado en Firestore. Registrando...")
@@ -146,20 +146,20 @@ class LoginRepository {
         val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("http://10.0.2.2:8000/signup") // Endpoint para registrar usuarios
+            .url("http://192.168.101.5:8000/signup") // Endpoint para registrar usuarios
             .post(requestBody)
             .addHeader("Authorization", "Bearer $idToken") // Enviar el token de Firebase
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("GoogleSignIn", "❌ Error al registrar usuario: ${e.localizedMessage}")
+                Log.e("GoogleSignIn", "Error al registrar usuario: ${e.localizedMessage}")
                 callback(false, "Failed to register user: ${e.localizedMessage}")
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                Log.d("GoogleSignIn", "📨 Respuesta del backend al registrar usuario: $responseBody")
+                Log.d("GoogleSignIn", "Respuesta del backend al registrar usuario: $responseBody")
 
                 if (response.isSuccessful) {
                     callback(true, "User registered successfully!")

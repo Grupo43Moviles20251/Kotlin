@@ -33,12 +33,20 @@ import coil.compose.rememberImagePainter
 import coil.size.Size
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
+import com.moviles2025.freshlink43.ui.navigation.Header
+import com.moviles2025.freshlink43.ui.utils.*
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
     onNavigateToProfile: () -> Unit,
+
     onSearchClick: () -> Unit
+    //onNavigateToUbication: () -> Unit
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
+
 ) {
     val context = LocalContext.current
     val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
@@ -66,7 +74,7 @@ fun HomeScreen(
         Text(
             text = "Restaurants for you",
             fontSize = 24.sp,
-            color = Color(0xFF2A9D8F),
+            color = corporationGreen,
             fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
             modifier = Modifier.padding(bottom = 8.dp)
                 .fillMaxWidth()
@@ -97,37 +105,15 @@ fun HomeScreen(
             color = Color.Gray.copy(alpha = 0.3f)
         )
 
-        BottomNavigationBar(
+        BottomNavManager(
+            context = LocalContext.current,
+            selectedTab = selectedTab,
+            onTabSelected = onTabSelected,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
                 onSearchClick = onSearchClick
         )
-    }
-}
-
-@Composable
-fun Header(onNavigateToProfile: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.logoapp),
-            contentDescription = "App Logo",
-            modifier = Modifier.size(50.dp)
-        )
-        IconButton(onClick = { onNavigateToProfile() }) {
-            Image(
-                painter = painterResource(id = R.drawable.profileicon),
-                contentDescription = "Profile Icon",
-                modifier = Modifier.size(42.dp)
-
-            )
-        }
     }
 }
 
@@ -189,7 +175,7 @@ fun PlaceholderRestaurantCard(
                     text = placeName,
                     fontSize = 20.sp,
                     fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
-                    color = Color(0xFF2A9D8F),
+                    color = corporationGreen,
                     modifier = Modifier
                         .padding(bottom = 5.dp)
                 )
@@ -216,13 +202,13 @@ fun PlaceholderRestaurantCard(
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = "Rating",
-                            tint = Color(0xFF2A9D8F),
+                            tint = corporationGreen,
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
                             text = rating.toString(),
                             fontSize = 14.sp,
-                            color = Color(0xFF2A9D8F),
+                            color = corporationGreen,
                             modifier = Modifier.padding(start = 4.dp)
                         )
                     }
@@ -253,37 +239,3 @@ fun PlaceholderRestaurantCard(
     }
 }
 
-@Composable
-fun BottomNavigationBar(modifier: Modifier = Modifier, onSearchClick: () -> Unit) {
-    val items = listOf(R.drawable.restaurante, R.drawable.corazon, R.drawable.busqueda, R.drawable.marcador)
-    var selectedItem by remember { mutableStateOf(0) }
-
-    NavigationBar(
-        modifier = modifier.fillMaxWidth(),
-        containerColor = Color.White
-    ) {
-        items.forEachIndexed { index, icon ->
-            NavigationBarItem(
-                selected = selectedItem == index,
-                onClick = {
-                    selectedItem = index
-                    if (index == 2) { // Cuando el ítem de búsqueda es clickeado (ítem 2)
-                        onSearchClick() // Llamamos a la función de navegación
-                    }
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(id = icon),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color.Transparent,
-                    selectedIconColor = Color(0xFF38677A),
-                    unselectedIconColor = Color.Gray
-                )
-            )
-        }
-    }
-}

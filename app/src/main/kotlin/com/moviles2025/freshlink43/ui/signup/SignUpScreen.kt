@@ -1,6 +1,8 @@
 package com.moviles2025.freshlink43.ui.signup
 
+import android.widget.DatePicker
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,7 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moviles2025.freshlink43.R
-
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import com.moviles2025.freshlink43.ui.utils.*
 
 @Composable
 fun SignUpScreen(
@@ -60,7 +66,17 @@ fun SignUpScreen(
                 text = "Sign Up",
                 fontFamily = montserratBold,
                 fontSize = 20.sp,
-                color = Color(0xFF2F2F2F)
+                color = corporationBlack
+            )
+
+            OutlinedTextField(
+                value = uiState.name,
+                onValueChange = { viewModel.onNameChanged(it) },
+                label = { Text("Name", fontFamily = montserratRegular) },
+                singleLine = true,
+                textStyle = LocalTextStyle.current.copy(fontFamily = montserratRegular),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
@@ -72,6 +88,36 @@ fun SignUpScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically // Alinea los elementos verticalmente
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically) // Asegura alineación vertical
+                ) {
+                    DatePickerField(
+                        selectedDate = uiState.birthday,
+                        onDateSelected = { viewModel.onBirthdayChanged(it) }
+                    )
+                }
+
+                OutlinedTextField(
+                    value = uiState.address,
+                    onValueChange = { viewModel.onAddressChanged(it) },
+                    label = { Text("Address", fontFamily = montserratRegular) },
+                    singleLine = true,
+                    textStyle = LocalTextStyle.current.copy(fontFamily = montserratRegular),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically) // Asegura alineación vertical
+                )
+            }
+
 
             PasswordField(
                 label = { Text("Password", fontFamily = montserratRegular) },
@@ -89,7 +135,7 @@ fun SignUpScreen(
             Button(
                 onClick = { viewModel.signUp(context) },
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38677A)),
+                colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Sign Up", fontFamily = montserratSemiBold)
@@ -97,13 +143,13 @@ fun SignUpScreen(
 
             Text(
                 text = "Already have an account?",
-                color = Color(0xFF38677A),
+                color = corporationBlue,
                 fontFamily = montserratRegular
             )
 
             Text(
                 text = "Log In",
-                color = Color(0xFF38677A),
+                color = corporationBlue,
                 fontFamily = montserratSemiBold,
                 modifier = Modifier.clickable { onNavigateToLogin() }
             )
@@ -150,5 +196,56 @@ fun PasswordField(
     )
     if (error != null) {
         Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+    }
+}
+
+
+
+@Composable
+fun DatePickerField(
+    selectedDate: String,
+    onDateSelected: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val datePickerDialog = remember {
+        android.app.DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                val selectedDateFormatted =
+                    String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                onDateSelected(selectedDateFormatted)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+
+        OutlinedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(59.dp)
+                .clickable { datePickerDialog.show() }, // Simula el clic en un TextField
+            shape = RoundedCornerShape(5.dp),
+            border = BorderStroke(1.dp, Color.Gray)
+        ) {
+            Box(
+                contentAlignment = Alignment.CenterStart,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text(
+                    text = if (selectedDate.isEmpty()) "Select Birthday" else selectedDate,
+                    color = if (selectedDate.isEmpty()) Color.Gray else Color.Black,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
+                )
+            }
+        }
     }
 }
