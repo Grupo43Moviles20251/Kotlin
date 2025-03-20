@@ -1,11 +1,16 @@
 package com.moviles2025.freshlink43.ui.login
 
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,22 +27,49 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.GoogleAuthProvider
 import com.moviles2025.freshlink43.R
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import com.moviles2025.freshlink43.ui.navigation.NavRoutes
 import com.moviles2025.freshlink43.ui.utils.*
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel,
-    onNavigateToSignUp: () -> Unit,
-    onLoginSuccess: () -> Unit,
-    onGoogleSignIn: () -> Unit,
-    onNavigateToForgotPassword: () -> Unit
+    navController: NavController,
+    viewModel: LoginViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val customFont = FontFamily(Font(R.font.montserratalternates_regular))
+
+    // Configuración de Google Sign-In
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            viewModel.loginWithGoogle(credential, context)
+
+        } catch (e: Exception) {
+            Log.e("GoogleSignIn", " Google Sign-In falló: ${e.localizedMessage}")
+            Toast.makeText(context, "Google Sign-In failed: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun launchGoogleSignIn() {
+        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        val googleSignInClient = GoogleSignIn.getClient(context, options)
+        googleSignInClient.signOut().addOnCompleteListener {
+            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -65,13 +97,10 @@ fun LoginScreen(
         OutlinedTextField(
             value = uiState.email,
             onValueChange = { viewModel.onEmailChanged(it) },
-            label = { Text(
-                "Email",
-                fontFamily = customFont
-            ) },
+            label = { Text("Email", fontFamily = customFont) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily(Font(R.font.montserratalternates_regular)))
+            textStyle = LocalTextStyle.current.copy(fontFamily = customFont)
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -81,14 +110,11 @@ fun LoginScreen(
         OutlinedTextField(
             value = uiState.password,
             onValueChange = { viewModel.onPasswordChanged(it) },
-            label = { Text(
-                "Password",
-                fontFamily = customFont
-            ) },
+            label = { Text("Password", fontFamily = customFont) },
             singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily(Font(R.font.montserratalternates_regular))),
+            textStyle = LocalTextStyle.current.copy(fontFamily = customFont),
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
@@ -110,8 +136,7 @@ fun LoginScreen(
             modifier = Modifier
                 .padding(top = 8.dp)
                 .clickable {
-                    Toast.makeText(context, "Redirect to recover password", Toast.LENGTH_SHORT).show()
-                    onNavigateToForgotPassword()
+                    navController.navigate(NavRoutes.ForgotPassword.route)
                 }
         )
 
@@ -125,26 +150,12 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(
-                "Sign In",
-                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
-            )
+            Text("Sign In", fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            "Or you can",
-            fontSize = 14.sp,
-            fontFamily = FontFamily(Font(R.font.montserratalternates_medium)),
-            color = corporationBlue,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        GoogleSignInButton(onClick = onGoogleSignIn)
+        GoogleSignInButton(onClick = { launchGoogleSignIn() })
 
         Spacer(modifier = Modifier.height(15.dp))
 
@@ -165,18 +176,17 @@ fun LoginScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(top = 8.dp)
-                .clickable { onNavigateToSignUp() }
+                .clickable { navController.navigate("signup") }
         )
 
         uiState.loginResult?.let { result ->
             LaunchedEffect(result) {
                 Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
-                if (uiState.loginSuccess) onLoginSuccess()
+                if (uiState.loginSuccess) navController.navigate("home")
             }
         }
     }
 }
-
 @Composable
 fun GoogleSignInButton(
     onClick: () -> Unit

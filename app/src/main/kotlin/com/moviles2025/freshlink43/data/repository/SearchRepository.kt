@@ -14,7 +14,7 @@ class SearchRepository {
     // Llamada a la API para obtener los restaurantes
     fun getFilteredRestaurants(query:String, callback: (List<Restaurant>?, String?) -> Unit) {
         val request = Request.Builder()
-            .url("http://10.0.2.2:8000/restaurants/search/$query")
+            .url("http://10.0.2.2:8080/restaurants/search/$query")
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {

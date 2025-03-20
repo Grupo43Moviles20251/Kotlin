@@ -12,6 +12,7 @@ data class ForgotPasswordUiState(
     val resetSuccess: Boolean = false
 )
 
+
 class ForgotPasswordViewModel : ViewModel() {
 
     private val repository = ForgotPasswordRepository()

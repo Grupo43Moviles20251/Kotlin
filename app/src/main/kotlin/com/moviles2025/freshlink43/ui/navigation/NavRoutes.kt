@@ -1,0 +1,12 @@
+package com.moviles2025.freshlink43.ui.navigation
+
+sealed class NavRoutes(val route: String) {
+    object Main : NavRoutes("main")
+    object Home : NavRoutes("home")
+    //object Profile : NavRoutes("profile")
+    object Search : NavRoutes("search")
+    object Ubication : NavRoutes("ubication")
+    object Login : NavRoutes("login")
+    object SignUp : NavRoutes("signup")
+    object ForgotPassword : NavRoutes("forgotpass")
+}

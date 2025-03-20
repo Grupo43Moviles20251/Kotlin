@@ -27,7 +27,7 @@ class HomeViewModel : ViewModel() {
 
 
     // Función para obtener los restaurantes
-    fun getRestaurants(context: Context) {
+    fun getRestaurants() {
         println("Llamando a getRestaurants")
         viewModelScope.launch {
             repository.getRestaurants { restaurants, error ->

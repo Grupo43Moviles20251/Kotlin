@@ -6,11 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,96 +16,73 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.moviles2025.freshlink43.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import coil.size.Size
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.ui.utils.*
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
-    onNavigateToProfile: () -> Unit,
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit,
-
+    navController: NavController,
+    viewModel: HomeViewModel
 ) {
-    val context = LocalContext.current
     val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
+
     // Cargar los restaurantes cuando se crea la pantalla
     LaunchedEffect(Unit) {
-        viewModel.getRestaurants(context)
+        viewModel.getRestaurants()
     }
 
     // Observar la lista de restaurantes
     val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Header(onNavigateToProfile)
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
 
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = Color.Gray.copy(alpha = 0.3f)
-        )
-
-        Text(
-            text = "Restaurants for you",
-            fontSize = 24.sp,
-            color = corporationGreen,
-            fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
-            modifier = Modifier.padding(bottom = 8.dp)
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .padding(top = 8.dp)
-        )
-
-        LazyColumn(
-            modifier = Modifier.weight(1f)
+    Scaffold(
+        topBar = { Header { navController.navigate("profile") } },
+        bottomBar = { BottomNavManager(navController, currentRoute) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            // Recorre la lista de restaurantes usando un for y crea una tarjeta para cada uno
-            items(restaurants.size) { index ->
-                val restaurant = restaurants[index] // Obtiene el restaurante de la lista
-                PlaceholderRestaurantCard(
-                    placeName = restaurant.name,
-                    productName = restaurant.products[0].productName,
-                    originalPrice = restaurant.products[0].originalPrice.toInt(),
-                    discountPrice = restaurant.products[0].discountPrice.toInt(),
-                    rating = restaurant.rating,
-                    image = restaurant.imageUrl
-                )
+            Text(
+                text = "Restaurants for you",
+                fontSize = 24.sp,
+                color = corporationGreen,
+                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                items(restaurants.size) { index ->
+                    val restaurant = restaurants[index]
+                    PlaceholderRestaurantCard(
+                        placeName = restaurant.name,
+                        productName = restaurant.products[0].productName,
+                        originalPrice = restaurant.products[0].originalPrice.toInt(),
+                        discountPrice = restaurant.products[0].discountPrice.toInt(),
+                        rating = restaurant.rating,
+                        image = restaurant.imageUrl
+                    )
+                }
             }
         }
-
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = Color.Gray.copy(alpha = 0.3f)
-        )
-
-        BottomNavManager(
-            context = LocalContext.current,
-            selectedTab = selectedTab,
-            onTabSelected = onTabSelected,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-        )
     }
 }
 
@@ -130,20 +103,17 @@ fun PlaceholderRestaurantCard(
     discountPrice: Int,
     rating: Double,
     image: String
-
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(8.dp)
             .height(220.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2))
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             val painter = rememberImagePainter(
                 data = image,
                 builder = {
@@ -172,8 +142,7 @@ fun PlaceholderRestaurantCard(
                     fontSize = 20.sp,
                     fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
                     color = corporationGreen,
-                    modifier = Modifier
-                        .padding(bottom = 5.dp)
+                    modifier = Modifier.padding(bottom = 5.dp)
                 )
 
                 Text(
@@ -191,7 +160,6 @@ fun PlaceholderRestaurantCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    // ⭐ Sección de Rating con Icono
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -209,11 +177,9 @@ fun PlaceholderRestaurantCard(
                         )
                     }
 
-
                     Row(
                         verticalAlignment = Alignment.Bottom
                     ) {
-                        // Precio tachado
                         Text(
                             text = "$${formatAmount(discountPrice)}",
                             fontSize = 15.sp,
@@ -221,12 +187,11 @@ fun PlaceholderRestaurantCard(
                             textDecoration = TextDecoration.LineThrough,
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
-                        // Precio final en verde
                         Text(
                             text = "$${formatAmount(originalPrice)}",
-                            fontSize = 24.sp,
+                            fontSize = 20.sp,
                             fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
-                            color = Color(0xFF2A9D8F)
+                            color = corporationGreen
                         )
                     }
                 }
@@ -234,4 +199,3 @@ fun PlaceholderRestaurantCard(
         }
     }
 }
-

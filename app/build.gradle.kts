@@ -6,6 +6,8 @@ plugins {
     id("com.google.firebase.crashlytics")
     //id("org.jetbrains.kotlin.android")
     alias(libs.plugins.compose.compiler)
+    id("com.google.dagger.hilt.android")
+    id("kotlin-kapt")
 
 }
 
@@ -62,6 +64,7 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics")
     implementation(libs.androidx.core.ktx)
     implementation("androidx.activity:activity-ktx:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.lifecycle.runtime.compose.android)
@@ -82,6 +85,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation ("androidx.navigation:navigation-compose:2.7.5")
+    implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     // (Opcional) Si usas ViewModel con Compose:
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
@@ -89,5 +93,16 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:1.6.0")
     debugImplementation("androidx.compose.ui:ui-tooling:1.6.0")
     implementation("io.coil-kt:coil-compose:2.1.0")
+    implementation ("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    //Room
+    //implementation(libs.room.runtime)
+    //kapt(libs.androidx.room.compiler)
+    //implementation(libs.androidx.room.ktx)
 
+    //Mapas
+    //implementation(libs.play.services.location)
+    //implementation(libs.maps.compose)
+    //implementation(libs.play.services.maps)
 }

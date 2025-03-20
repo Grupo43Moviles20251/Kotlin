@@ -19,17 +19,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.moviles2025.freshlink43.R
+import com.moviles2025.freshlink43.ui.navigation.NavRoutes
 
 @Composable
 fun ForgotPasswordScreen(
-    viewModel: ForgotPasswordViewModel,
-    onBackToLogin: () -> Unit
+    navController: NavController,
+    viewModel: ForgotPasswordViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    // Fuente personalizada usada en tu LoginScreen
     val customFont = FontFamily(Font(R.font.montserratalternates_regular))
 
     Column(
@@ -39,7 +40,6 @@ fun ForgotPasswordScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Imagen (logo) similar a la de Login
         Image(
             painter = painterResource(id = R.drawable.logoapp),
             contentDescription = "App Logo",
@@ -48,7 +48,6 @@ fun ForgotPasswordScreen(
                 .padding(bottom = 16.dp)
         )
 
-        // Título principal con estilo parecido a "Login"
         Text(
             text = "Forgot Password",
             fontSize = 20.sp,
@@ -57,26 +56,17 @@ fun ForgotPasswordScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Campo de texto para Email
         OutlinedTextField(
             value = uiState.email,
             onValueChange = { viewModel.onEmailChanged(it) },
-            label = {
-                Text(
-                    "Email",
-                    fontFamily = customFont
-                )
-            },
+            label = { Text("Email", fontFamily = customFont) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(
-                fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
-            )
+            textStyle = LocalTextStyle.current.copy(fontFamily = customFont)
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Botón para enviar el enlace de reseteo de contraseña
         Button(
             onClick = { viewModel.sendPasswordReset() },
             modifier = Modifier
@@ -85,13 +75,9 @@ fun ForgotPasswordScreen(
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38677A)),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(
-                text = "Send Reset Link",
-                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
-            )
+            Text("Send Reset Link", fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)))
         }
 
-        // Mostramos el mensaje de resultado (éxito o error) y el Toast
         uiState.resetResult?.let { message ->
             LaunchedEffect(message) {
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -100,7 +86,6 @@ fun ForgotPasswordScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Texto para regresar al Login
         Text(
             text = "Back to Login",
             fontSize = 14.sp,
@@ -109,7 +94,9 @@ fun ForgotPasswordScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(top = 8.dp)
-                .clickable { onBackToLogin() }
+                .clickable {
+                    navController.popBackStack() // Ahora usa NavController
+                }
         )
     }
 }

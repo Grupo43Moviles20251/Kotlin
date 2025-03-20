@@ -1,13 +1,12 @@
 package com.moviles2025.freshlink43.ui.signup
 
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -27,17 +26,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.moviles2025.freshlink43.R
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 import com.moviles2025.freshlink43.ui.utils.*
+import java.util.Calendar
 
 @Composable
 fun SignUpScreen(
-    viewModel: SignUpViewModel,
-    onNavigateToLogin: () -> Unit
+    navController: NavController,
+    viewModel: SignUpViewModel
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -54,7 +51,7 @@ fun SignUpScreen(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp) // Espaciado consistente
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.logoapp),
@@ -74,8 +71,7 @@ fun SignUpScreen(
                 onValueChange = { viewModel.onNameChanged(it) },
                 label = { Text("Name", fontFamily = montserratRegular) },
                 singleLine = true,
-                textStyle = LocalTextStyle.current.copy(fontFamily = montserratRegular),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -84,7 +80,6 @@ fun SignUpScreen(
                 onValueChange = { viewModel.onEmailChanged(it) },
                 label = { Text("Email", fontFamily = montserratRegular) },
                 singleLine = true,
-                textStyle = LocalTextStyle.current.copy(fontFamily = montserratRegular),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -118,7 +113,6 @@ fun SignUpScreen(
                 )
             }
 
-
             PasswordField(
                 label = { Text("Password", fontFamily = montserratRegular) },
                 password = uiState.password,
@@ -151,7 +145,7 @@ fun SignUpScreen(
                 text = "Log In",
                 color = corporationBlue,
                 fontFamily = montserratSemiBold,
-                modifier = Modifier.clickable { onNavigateToLogin() }
+                modifier = Modifier.clickable { navController.popBackStack() }
             )
         }
     }
@@ -160,7 +154,7 @@ fun SignUpScreen(
         LaunchedEffect(result) {
             Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
             if (uiState.signUpSuccess) {
-                onNavigateToLogin()
+                navController.popBackStack()
             }
         }
     }
@@ -174,14 +168,12 @@ fun PasswordField(
     error: String? = null
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
-    val montserratRegular = FontFamily(Font(R.font.montserratalternates_regular))
 
     OutlinedTextField(
         value = password,
         onValueChange = onPasswordChange,
         label = label,
         singleLine = true,
-        textStyle = LocalTextStyle.current.copy(fontFamily = montserratRegular),
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -198,8 +190,6 @@ fun PasswordField(
         Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
     }
 }
-
-
 
 @Composable
 fun DatePickerField(
