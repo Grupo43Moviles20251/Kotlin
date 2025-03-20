@@ -5,27 +5,26 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.draw.clip
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.layout.ContentScale
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberImagePainter
 import coil.size.Size
-import androidx.compose.runtime.LaunchedEffect
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
@@ -49,8 +48,10 @@ fun HomeScreen(
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
 
     Scaffold(
+         // Ajuste edge-to-edge
         topBar = { Header { navController.navigate("profile") } },
-        bottomBar = { BottomNavManager(navController, currentRoute) }
+        bottomBar = { BottomNavManager(navController, currentRoute) },
+        modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -68,7 +69,7 @@ fun HomeScreen(
             )
 
             LazyColumn(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxSize()
             ) {
                 items(restaurants.size) { index ->
                     val restaurant = restaurants[index]

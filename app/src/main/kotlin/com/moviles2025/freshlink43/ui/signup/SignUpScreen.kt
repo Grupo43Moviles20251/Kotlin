@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -49,104 +48,121 @@ fun SignUpScreen(
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logoapp),
-                contentDescription = "App Logo",
-                modifier = Modifier.size(150.dp)
-            )
-
-            Text(
-                text = "Sign Up",
-                fontFamily = montserratBold,
-                fontSize = 20.sp,
-                color = corporationBlack
-            )
-
-            OutlinedTextField(
-                value = uiState.name,
-                onValueChange = { viewModel.onNameChanged(it) },
-                label = { Text("Name", fontFamily = montserratRegular) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = uiState.email,
-                onValueChange = { viewModel.onEmailChanged(it) },
-                label = { Text("Email", fontFamily = montserratRegular) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically // Alinea los elementos verticalmente
+        if (uiState.isLoading) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically) // Asegura alineación vertical
+                CircularProgressIndicator(color = corporationBlue)
+                Spacer(modifier = Modifier.height(16.dp)) // Espacio adecuado entre el círculo y el texto
+                Text(
+                    text = "Registering user...",
+                    fontSize = 16.sp,
+                    fontFamily = montserratSemiBold,
+                    color = corporationBlue
+                )
+            }
+        } else {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logoapp),
+                    contentDescription = "App Logo",
+                    modifier = Modifier.size(150.dp)
+                )
+
+                Text(
+                    text = "Sign Up",
+                    fontFamily = montserratBold,
+                    fontSize = 20.sp,
+                    color = corporationBlack
+                )
+
+                OutlinedTextField(
+                    value = uiState.name,
+                    onValueChange = { viewModel.onNameChanged(it) },
+                    label = { Text("Name", fontFamily = montserratRegular) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = uiState.email,
+                    onValueChange = { viewModel.onEmailChanged(it) },
+                    label = { Text("Email", fontFamily = montserratRegular) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    DatePickerField(
-                        selectedDate = uiState.birthday,
-                        onDateSelected = { viewModel.onBirthdayChanged(it) }
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        DatePickerField(
+                            selectedDate = uiState.birthday,
+                            onDateSelected = { viewModel.onBirthdayChanged(it) }
+                        )
+                    }
+
+                    OutlinedTextField(
+                        value = uiState.address,
+                        onValueChange = { viewModel.onAddressChanged(it) },
+                        label = { Text("Address", fontFamily = montserratRegular) },
+                        singleLine = true,
+                        textStyle = LocalTextStyle.current.copy(fontFamily = montserratRegular),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.CenterVertically)
                     )
                 }
 
-                OutlinedTextField(
-                    value = uiState.address,
-                    onValueChange = { viewModel.onAddressChanged(it) },
-                    label = { Text("Address", fontFamily = montserratRegular) },
-                    singleLine = true,
-                    textStyle = LocalTextStyle.current.copy(fontFamily = montserratRegular),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically) // Asegura alineación vertical
+                PasswordField(
+                    label = { Text("Password", fontFamily = montserratRegular) },
+                    password = uiState.password,
+                    onPasswordChange = { viewModel.onPasswordChanged(it) }
+                )
+
+                PasswordField(
+                    label = { Text("Confirm Password", fontFamily = montserratRegular) },
+                    password = uiState.confirmPassword,
+                    onPasswordChange = { viewModel.onConfirmPasswordChanged(it) },
+                    error = uiState.confirmPasswordError
+                )
+
+                Button(
+                    onClick = { viewModel.signUp(context) },
+                    enabled = !uiState.isLoading, // Deshabilita el botón mientras carga
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Sign Up", fontFamily = montserratSemiBold)
+                }
+
+                Text(
+                    text = "Already have an account?",
+                    color = corporationBlue,
+                    fontFamily = montserratRegular
+                )
+
+                Text(
+                    text = "Log In",
+                    color = corporationBlue,
+                    fontFamily = montserratSemiBold,
+                    modifier = Modifier.clickable { navController.popBackStack() }
                 )
             }
-
-            PasswordField(
-                label = { Text("Password", fontFamily = montserratRegular) },
-                password = uiState.password,
-                onPasswordChange = { viewModel.onPasswordChanged(it) }
-            )
-
-            PasswordField(
-                label = { Text("Confirm Password", fontFamily = montserratRegular) },
-                password = uiState.confirmPassword,
-                onPasswordChange = { viewModel.onConfirmPasswordChanged(it) },
-                error = uiState.confirmPasswordError
-            )
-
-            Button(
-                onClick = { viewModel.signUp(context) },
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Sign Up", fontFamily = montserratSemiBold)
-            }
-
-            Text(
-                text = "Already have an account?",
-                color = corporationBlue,
-                fontFamily = montserratRegular
-            )
-
-            Text(
-                text = "Log In",
-                color = corporationBlue,
-                fontFamily = montserratSemiBold,
-                modifier = Modifier.clickable { navController.popBackStack() }
-            )
         }
     }
 
@@ -219,7 +235,7 @@ fun DatePickerField(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(59.dp)
-                .clickable { datePickerDialog.show() }, // Simula el clic en un TextField
+                .clickable { datePickerDialog.show() },
             shape = RoundedCornerShape(5.dp),
             border = BorderStroke(1.dp, Color.Gray)
         ) {

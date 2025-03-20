@@ -12,7 +12,8 @@ data class LoginUiState(
     val email: String = "",
     val password: String = "",
     val loginResult: String? = null,
-    val loginSuccess: Boolean = false
+    val loginSuccess: Boolean = false,
+    val isLoading: Boolean = false
 )
 
 class LoginViewModel : ViewModel() {
@@ -25,15 +26,19 @@ class LoginViewModel : ViewModel() {
     fun onEmailChanged(email: String) = _uiState.update { it.copy(email = email) }
     fun onPasswordChanged(password: String) = _uiState.update { it.copy(password = password) }
 
-    fun login(context: Context) {  // 👈 Agregar Context como parámetro
+    fun login(context: Context) {
+        _uiState.update { it.copy(isLoading = true) }  // Mostrar indicador de carga
+
         repository.loginWithEmail(uiState.value.email, uiState.value.password, context) { success, message ->
-            _uiState.update { it.copy(loginResult = message, loginSuccess = success) }
+            _uiState.update { it.copy(loginResult = message, loginSuccess = success, isLoading = false) }  // Ocultar carga
         }
     }
 
-    fun loginWithGoogle(credential: AuthCredential, context: Context) {  // 👈 Agregar Context
+    fun loginWithGoogle(credential: AuthCredential, context: Context) {
+        _uiState.update { it.copy(isLoading = true) }  // Mostrar indicador de carga
+
         repository.loginWithGoogle(credential, context) { success, message ->
-            _uiState.update { it.copy(loginResult = message, loginSuccess = success) }
+            _uiState.update { it.copy(loginResult = message, loginSuccess = success, isLoading = false) }  // Ocultar carga
         }
     }
 }

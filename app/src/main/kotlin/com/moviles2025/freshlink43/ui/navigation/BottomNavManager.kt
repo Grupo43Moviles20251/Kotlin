@@ -10,6 +10,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.moviles2025.freshlink43.R
+import com.moviles2025.freshlink43.ui.utils.corporationBlue
 
 @Composable
 fun BottomNavManager(
@@ -51,7 +52,7 @@ fun BottomNavManager(
                 },
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = Color.Transparent,
-                    selectedIconColor = Color(0xFF38677A),
+                    selectedIconColor = corporationBlue,
                     unselectedIconColor = Color.Gray
                 )
             )

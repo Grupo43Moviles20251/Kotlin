@@ -47,6 +47,8 @@ class SignUpViewModel : ViewModel() {
             return
         }
 
+        _uiState.value = _uiState.value.copy(isLoading = true) // Activar carga
+
         viewModelScope.launch {
             repository.signUpWithEmail(
                 context = context,
@@ -58,7 +60,8 @@ class SignUpViewModel : ViewModel() {
             ) { success, message ->
                 _uiState.value = _uiState.value.copy(
                     signUpResult = message,
-                    signUpSuccess = success
+                    signUpSuccess = success,
+                    isLoading = false // Desactivar carga al terminar
                 )
             }
         }
@@ -74,5 +77,6 @@ data class SignUpUiState(
     val birthday: String = "",
     val confirmPasswordError: String? = null,
     val signUpResult: String? = null,
-    val signUpSuccess: Boolean = false
+    val signUpSuccess: Boolean = false,
+    val isLoading: Boolean = false // Estado de carga
 )

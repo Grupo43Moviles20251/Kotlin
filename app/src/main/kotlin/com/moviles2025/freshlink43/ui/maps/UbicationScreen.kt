@@ -6,35 +6,35 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.moviles2025.freshlink43.ui.home.Restaurant
+import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
+import com.moviles2025.freshlink43.ui.navigation.Header
+import com.moviles2025.freshlink43.ui.utils.corporationBlue
 
 @Composable
-fun UbicationScreen(navController: NavController,
-                    viewModel: UbicationViewModel) {
+fun UbicationScreen(navController: NavController, viewModel: UbicationViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val userLocation by viewModel.userLocation.collectAsStateWithLifecycle()
     val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
 
     var hasLocationPermission by remember {
         mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        context, Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         )
     }
 
@@ -45,6 +45,7 @@ fun UbicationScreen(navController: NavController,
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
     }
 
+    // Solicita permisos solo si aún no han sido concedidos
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
             requestPermissionsLauncher.launch(
@@ -56,31 +57,31 @@ fun UbicationScreen(navController: NavController,
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        when {
-            hasLocationPermission -> {
-                userLocation?.let { location ->
-                    MapViewComponent(viewModel, location, restaurants)
-                } ?: run {
-                    Text("Obteniendo ubicación...", modifier = Modifier.align(Alignment.Center))
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "Ubication"
+
+    Scaffold(
+        topBar = { Header { navController.navigate("profile") } },
+        bottomBar = { BottomNavManager(navController, currentRoute) }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            when {
+                hasLocationPermission -> {
+                    userLocation?.let { location ->
+                        MapViewComponent(viewModel, location, restaurants) // 📌 Aquí se pasa el mapa correctamente
+                    } ?: Text("Obtaining location...", modifier = Modifier.align(Alignment.Center))
                 }
-            }
-            else -> {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Se necesitan permisos de ubicación para mostrar restaurantes cercanos.")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = {
+                else -> {
+                    PermissionRequestView {
                         requestPermissionsLauncher.launch(
                             arrayOf(
                                 Manifest.permission.ACCESS_FINE_LOCATION,
                                 Manifest.permission.ACCESS_COARSE_LOCATION
                             )
                         )
-                    }) {
-                        Text("Solicitar permisos")
                     }
                 }
             }
@@ -88,31 +89,19 @@ fun UbicationScreen(navController: NavController,
     }
 }
 
-@SuppressLint("MissingPermission")
 @Composable
-fun MapViewComponent(viewModel: UbicationViewModel, userLocation: LatLng, restaurants: List<Restaurant>) {
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(userLocation, 15f)
-    }
-
-    GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState,
-        properties = MapProperties(isMyLocationEnabled = true),
-        uiSettings = MapUiSettings(zoomControlsEnabled = true)
+fun PermissionRequestView(onRequestPermissions: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Marker(
-            state = MarkerState(position = userLocation),
-            title = "Tu ubicación",
-            snippet = "Aquí estás"
-        )
-
-        restaurants.forEach { restaurant ->
-            Marker(
-                state = MarkerState(position = LatLng(restaurant.latitude, restaurant.longitude)),
-                title = restaurant.name,
-                snippet = "Descuento: ${restaurant.products[0].discountPrice}$"
-            )
+        Text("We need your location to show you nearby restaurants")
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = onRequestPermissions) {
+            Text("Grant permission")
         }
     }
 }

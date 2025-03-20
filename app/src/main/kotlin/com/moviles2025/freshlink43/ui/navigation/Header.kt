@@ -15,7 +15,8 @@ fun Header(onNavigateToProfile: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp), // Ajusta padding
+            .windowInsetsPadding(WindowInsets.statusBars) // ✅ Ajusta el header al tamaño de la barra de estado
+            .padding(horizontal = 14.dp, vertical = 0.dp), // 🔹 Ajusta padding pero sin empujar de más
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
