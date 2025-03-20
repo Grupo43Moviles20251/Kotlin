@@ -38,12 +38,10 @@ fun MapViewComponent(viewModel: UbicationViewModel, userLocation: LatLng, restau
             properties = MapProperties(isMyLocationEnabled = true),
             uiSettings = MapUiSettings(zoomControlsEnabled = true)
         ) {
-            // 🔹 Inicializar el mapa correctamente con MapEffect
             MapEffect(viewModel) { map ->
-                viewModel.initializeMap(map, userLocation) // Ahora sí pasa el GoogleMap al ViewModel
+                viewModel.initializeMap(map, userLocation)
             }
 
-            // Marcador de ubicación del usuario
             Marker(
                 state = MarkerState(position = userLocation),
                 title = "Your Location",
@@ -63,7 +61,7 @@ fun MapViewComponent(viewModel: UbicationViewModel, userLocation: LatLng, restau
         FloatingActionButton(
             onClick = { cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(userLocation, 15f)) },
             modifier = Modifier
-                .align(Alignment.BottomEnd)
+                .align(Alignment.BottomStart)
                 .padding(16.dp),
             containerColor = corporationBlue
         ) {

@@ -101,7 +101,30 @@ class UbicationViewModel  @Inject constructor(
                         rating = 4.2,
                         type = 2,
                         products = emptyList() // 🔹 Se deja vacío para no mostrar productos
-                    )
+                    ),
+                    Restaurant(
+                        name = "One burrito",
+                        imageUrl = "https://example.com/burger.jpg",
+                        description = "burritos",
+                        latitude = location.latitude - 0.004,
+                        longitude = location.longitude - 0.004,
+                        address = "cerca al ML",
+                        rating = 4.0,
+                        type = 2,
+                        products = emptyList() // 🔹 Se deja vacío para no mostrar productos
+                    ),
+                    Restaurant(
+                        name = "Wok",
+                        imageUrl = "https://example.com/burger.jpg",
+                        description = "Comida oriental",
+                        latitude = location.latitude + 0.004,
+                        longitude = location.longitude - 0.004,
+                        address = "City U",
+                        rating = 4.0,
+                        type = 2,
+                        products = emptyList() // 🔹 Se deja vacío para no mostrar productos
+                    ),
+
                 )
             }
         }
