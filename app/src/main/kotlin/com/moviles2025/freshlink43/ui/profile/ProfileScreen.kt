@@ -63,6 +63,20 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
 
         Button(
             onClick = {
+                navController.popBackStack() // Regresa a la pantalla anterior
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = corporationGreen)
+        ) {
+            Text(
+                "Go back",
+                color = Color.White,
+                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
                 FirebaseAuth.getInstance().signOut() // Cierra sesión
                 navController.navigate(NavRoutes.Main.route) {
                     popUpTo(NavRoutes.Home.route) { inclusive = true } // Elimina Home del historial

@@ -118,6 +118,7 @@ fun SearchBar(query: MutableState<TextFieldValue>) {
             Icon(Icons.Filled.Search, contentDescription = "Search Icon")
         },
         shape = MaterialTheme.shapes.medium
+
     )
 }
 
