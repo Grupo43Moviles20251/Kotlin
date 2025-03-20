@@ -12,12 +12,12 @@ import com.moviles2025.freshlink43.ui.home.HomeViewModel
 import com.moviles2025.freshlink43.ui.login.LoginScreen
 import com.moviles2025.freshlink43.ui.login.LoginViewModel
 import com.moviles2025.freshlink43.ui.main.MainScreen
-import com.moviles2025.freshlink43.ui.profile.ProfileScreen
 import com.moviles2025.freshlink43.ui.search.SearchScreen
 import com.moviles2025.freshlink43.ui.search.SearchViewModel
 import com.moviles2025.freshlink43.ui.signup.SignUpScreen
 import com.moviles2025.freshlink43.ui.signup.SignUpViewModel
-import com.moviles2025.freshlink43.ui.ubication.UbicationScreen
+import com.moviles2025.freshlink43.ui.maps.UbicationScreen
+import com.moviles2025.freshlink43.ui.maps.UbicationViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -41,7 +41,13 @@ fun NavGraph(navController: NavHostController) {
                 viewModel = viewModel
             )
         }
-        composable(NavRoutes.Ubication.route) { UbicationScreen() }
+        composable(NavRoutes.Ubication.route) {
+            val viewModel: UbicationViewModel = hiltViewModel()
+            UbicationScreen(
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
 
         composable(NavRoutes.ForgotPassword.route) {
             val viewModel: ForgotPasswordViewModel = hiltViewModel()

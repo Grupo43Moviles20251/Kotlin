@@ -102,7 +102,7 @@ dependencies {
     //implementation(libs.androidx.room.ktx)
 
     //Mapas
-    //implementation(libs.play.services.location)
-    //implementation(libs.maps.compose)
-    //implementation(libs.play.services.maps)
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.maps.android:maps-compose:2.11.4") // Google Maps para Jetpack Compose
+    implementation("com.google.maps.android:maps-utils-ktx:3.4.0")
 }
