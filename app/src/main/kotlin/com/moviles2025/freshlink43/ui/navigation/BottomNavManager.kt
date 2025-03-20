@@ -19,7 +19,7 @@ fun BottomNavManager(
 ) {
     val items = listOf(
         BottomNavItem("home", R.drawable.restaurante), // Home
-        BottomNavItem("favorites", R.drawable.corazon), // Favoritos
+        //BottomNavItem("favorites", R.drawable.corazon), // Favoritos
         BottomNavItem("search", R.drawable.busqueda),   // Búsqueda
         BottomNavItem("ubication", R.drawable.marcador) // Ubicación
     )
@@ -32,6 +32,7 @@ fun BottomNavManager(
             NavigationBarItem(
                 selected = selectedTab == item.route,
                 onClick = {
+
                     if (selectedTab != item.route) {
                         navController.navigate(item.route) {
                             popUpTo("home") { inclusive = false }
