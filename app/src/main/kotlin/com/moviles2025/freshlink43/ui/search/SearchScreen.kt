@@ -75,16 +75,21 @@ fun SearchScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp)
             ) {
-                items(restaurants.size) { index ->
-                    val restaurant = restaurants[index]
-                    PlaceholderRestaurantCard(
-                        placeName = restaurant.name,
-                        productName = restaurant.products[0].productName,
-                        originalPrice = restaurant.products[0].originalPrice.toInt(),
-                        discountPrice = restaurant.products[0].discountPrice.toInt(),
-                        rating = restaurant.rating,
-                        image = restaurant.imageUrl
-                    )
+                if (restaurants.isEmpty()) {
+                    viewModel.getAllRestaurants()
+                }
+                else {
+                    items(restaurants.size) { index ->
+                        val restaurant = restaurants[index]
+                        PlaceholderRestaurantCard(
+                            placeName = restaurant.name,
+                            productName = restaurant.products[0].productName,
+                            originalPrice = restaurant.products[0].originalPrice.toInt(),
+                            discountPrice = restaurant.products[0].discountPrice.toInt(),
+                            rating = restaurant.rating,
+                            image = restaurant.imageUrl
+                        )
+                    }
                 }
             }
         }
