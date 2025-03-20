@@ -14,7 +14,32 @@ class SearchRepository {
     // Llamada a la API para obtener los restaurantes
     fun getFilteredRestaurants(query:String, callback: (List<Restaurant>?, String?) -> Unit) {
         val request = Request.Builder()
-            .url("http://10.0.2.2:8080/restaurants/search/$query")
+            .url("http://10.0.2.2:8000/restaurants/search/$query")
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                callback(null, "Error al obtener los restaurantes: ${e.localizedMessage}")
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+                    responseBody?.let {
+                        // Convertir la respuesta JSON a objetos Restaurant
+                        val restaurants = parseRestaurantsJson(it)
+                        callback(restaurants, null)
+                    }
+                } else {
+                    callback(null, "Error en la respuesta de la API: ${response.message}")
+                }
+            }
+        })
+    }
+
+    fun getAllRestaurants(callback: (List<Restaurant>?, String?) -> Unit) {
+        val request = Request.Builder()
+            .url("http://10.0.2.2:8000/restaurants")
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
@@ -39,7 +64,7 @@ class SearchRepository {
 
     fun getFilteredRestaurantsByType(type:String, callback: (List<Restaurant>?, String?) -> Unit) {
         val request = Request.Builder()
-            .url("http://10.0.2.2:8000/restaurants/type/$type")
+            .url("http://10.0.2.2:8080/restaurants/type/$type")
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
