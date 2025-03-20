@@ -4,8 +4,6 @@ import android.icu.text.DecimalFormat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -38,21 +36,17 @@ fun SearchScreen(
     navController: NavController,
     viewModel: SearchViewModel
 ) {
-    val context = LocalContext.current
     val query = remember { mutableStateOf(TextFieldValue("")) }
+    val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
 
     LaunchedEffect(query.value.text) {
-        if (query.value.text.isNotEmpty()) {
-            viewModel.getFilteredRestaurants(query.value.text)
-        }
+        viewModel.getFilteredRestaurants(query.value.text)
     }
 
-    val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize()
     ) {
         Header { navController.navigate("profile") }
 
@@ -70,17 +64,28 @@ fun SearchScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(restaurants.size) { index ->
-                val restaurant = restaurants[index]
-                PlaceholderRestaurantCard(
-                    placeName = restaurant.name,
-                    productName = restaurant.products[0].productName,
-                    originalPrice = restaurant.products[0].originalPrice.toInt(),
-                    discountPrice = restaurant.products[0].discountPrice.toInt(),
-                    rating = restaurant.rating,
-                    image = restaurant.imageUrl
-                )
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = corporationGreen)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
+            ) {
+                items(restaurants.size) { index ->
+                    val restaurant = restaurants[index]
+                    PlaceholderRestaurantCard(
+                        placeName = restaurant.name,
+                        productName = restaurant.products[0].productName,
+                        originalPrice = restaurant.products[0].originalPrice.toInt(),
+                        discountPrice = restaurant.products[0].discountPrice.toInt(),
+                        rating = restaurant.rating,
+                        image = restaurant.imageUrl
+                    )
+                }
             }
         }
 
@@ -118,7 +123,11 @@ fun SearchBar(query: MutableState<TextFieldValue>) {
 
 @Composable
 fun FilterButtons(viewModel: SearchViewModel) {
-    Column(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
         FilterButton("Café", R.drawable.iconoseacrh) { viewModel.getFilteredRestaurantsByType("1") }
         FilterButton("Restaurants", R.drawable.iconorest) { viewModel.getFilteredRestaurantsByType("2") }
         FilterButton("Supermarkets", R.drawable.iconosuper) { viewModel.getFilteredRestaurantsByType("3") }

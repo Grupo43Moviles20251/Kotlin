@@ -22,20 +22,26 @@ class SearchViewModel : ViewModel() {
     val errorMessage: StateFlow<String?> get() = _errorMessage
 
     private val repository = SearchRepository()
-
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
+    init {
+        getFilteredRestaurants("") // 🔥 Carga todos los restaurantes al abrir la pantalla
+    }
     fun getFilteredRestaurants(query: String) {
         println("Llamando a getFilteredRestaurants con el query: $query")
         viewModelScope.launch {
+            _isLoading.value = true // Empieza a cargar
             repository.getFilteredRestaurants(query) { restaurants, error ->
+                _isLoading.value = false // Termina de cargar
                 if (restaurants != null) {
                     _restaurants.value = restaurants
-                    println("Lista de restaurantes filtrada cargada correctamente: $restaurants")
                 } else {
                     _errorMessage.value = error
                 }
             }
         }
     }
+
 
     fun getFilteredRestaurantsByType(type: String) {
         println("Llamando a getFilteredRestaurantsByType con el tipo: $type")
