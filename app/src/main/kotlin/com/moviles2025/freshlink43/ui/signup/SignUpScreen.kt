@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.moviles2025.freshlink43.R
+import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.ui.utils.*
 import java.util.Calendar
 
@@ -35,6 +36,9 @@ fun SignUpScreen(
     navController: NavController,
     viewModel: SignUpViewModel
 ) {
+    LaunchedEffect(Unit) {
+        AnalyticsManager.logFeatureUsage("SignUpScreen")
+    }
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
