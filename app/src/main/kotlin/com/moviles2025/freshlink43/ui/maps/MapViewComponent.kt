@@ -60,14 +60,7 @@ fun MapViewComponent(
                 viewModel.initializeMap(map, userLocation)
             }
 
-            // Marcador del usuario
-            Marker(
-                state = MarkerState(position = userLocation),
-                title = "Tu Ubicación",
-                snippet = "Aquí estás"
-            )
 
-            // Marcadores de restaurantes
             restaurants.forEach { restaurant ->
                 Marker(
                     state = MarkerState(position = LatLng(restaurant.latitude, restaurant.longitude)),
