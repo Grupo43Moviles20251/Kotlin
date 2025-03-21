@@ -18,12 +18,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = getColor(R.color.black) // Usa el color de fondo correcto
+        window.statusBarColor = getColor(R.color.black)
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         setContent {
             FreshLinkTheme(darkTheme = false) {
                 val navController = rememberNavController()
-                NavGraph(navController) // 🔹 Llamamos a la navegación aquí
+                NavGraph(navController)
             }
         }
     }

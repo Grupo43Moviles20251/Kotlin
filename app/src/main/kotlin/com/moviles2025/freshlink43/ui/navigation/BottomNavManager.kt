@@ -46,7 +46,7 @@ fun BottomNavManager(
                         painter = painterResource(id = item.icon),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(32.dp) // Aumenta el tamaño del ícono (antes 24.dp)
+                            .size(32.dp)
                             .padding(4.dp)
                     )
                 },

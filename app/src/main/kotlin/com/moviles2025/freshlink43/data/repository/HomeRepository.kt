@@ -27,7 +27,6 @@ class HomeRepository {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
                     responseBody?.let {
-                        // Convertir la respuesta JSON a objetos Restaurant
                         val restaurants = parseRestaurantsJson(it)
                         callback(restaurants, null)
                     }
@@ -38,7 +37,6 @@ class HomeRepository {
         })
     }
 
-    // Función para convertir el JSON a una lista de objetos Restaurant
     private fun parseRestaurantsJson(responseBody: String): List<Restaurant> {
         val restaurantsList = mutableListOf<Restaurant>()
         val jsonArray = JSONArray(responseBody)

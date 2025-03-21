@@ -100,7 +100,7 @@ fun ForgotPasswordScreen(
             modifier = Modifier
                 .padding(top = 8.dp)
                 .clickable {
-                    navController.popBackStack() // Ahora usa NavController
+                    navController.popBackStack()
                 }
         )
     }

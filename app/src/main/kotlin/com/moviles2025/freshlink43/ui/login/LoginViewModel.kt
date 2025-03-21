@@ -27,7 +27,7 @@ class LoginViewModel : ViewModel() {
     fun onPasswordChanged(password: String) = _uiState.update { it.copy(password = password) }
 
     fun login(context: Context) {
-        _uiState.update { it.copy(isLoading = true) }  // Mostrar indicador de carga
+        _uiState.update { it.copy(isLoading = true) }
 
         repository.loginWithEmail(uiState.value.email, uiState.value.password, context) { success, message ->
             _uiState.update { it.copy(loginResult = message, loginSuccess = success, isLoading = false) }  // Ocultar carga
@@ -35,7 +35,7 @@ class LoginViewModel : ViewModel() {
     }
 
     fun loginWithGoogle(credential: AuthCredential, context: Context) {
-        _uiState.update { it.copy(isLoading = true) }  // Mostrar indicador de carga
+        _uiState.update { it.copy(isLoading = true) }
 
         repository.loginWithGoogle(credential, context) { success, message ->
             _uiState.update { it.copy(loginResult = message, loginSuccess = success, isLoading = false) }  // Ocultar carga

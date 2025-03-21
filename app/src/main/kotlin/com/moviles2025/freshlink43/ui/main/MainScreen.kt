@@ -56,7 +56,7 @@ fun MainScreen(navController: NavController) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
-                onClick = { navController.navigate("login") }, // 🔄 Usa NavController
+                onClick = { navController.navigate("login") },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor, contentColor = Color.White),
                 modifier = Modifier.weight(1f).padding(end = 8.dp)
@@ -65,7 +65,7 @@ fun MainScreen(navController: NavController) {
             }
 
             Button(
-                onClick = { navController.navigate("signup") }, // 🔄 Usa NavController
+                onClick = { navController.navigate("signup") },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor, contentColor = Color.White),
                 modifier = Modifier.weight(1f)

@@ -38,7 +38,7 @@ fun NavGraph(navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.Main.route // 🔹 Siempre inicia en "Main"
+        startDestination = NavRoutes.Main.route
     ) {
         composable(NavRoutes.Main.route) { MainScreen(navController) }
 
@@ -57,7 +57,6 @@ fun NavGraph(navController: NavHostController) {
             ForgotPasswordScreen(navController, viewModel)
         }
 
-        // 🔹 Pantallas protegidas (requieren autenticación)
         composable(NavRoutes.Home.route) {
             if (FirebaseAuth.getInstance().currentUser != null) {
                 val viewModel: HomeViewModel = hiltViewModel()

@@ -76,7 +76,6 @@ class UbicationViewModel  @Inject constructor(
         userLocation.value?.let { location ->
             viewModelScope.launch {
                 // Simulación de carga de datos mientras el repositorio no está implementado
-                // _restaurants.value = repository.getNearbyRestaurants(location)  // Descomentar cuando el repo esté listo
 
                 // TODO: Simulación de datos para pruebas SIN productos
                 _restaurants.value = listOf(
@@ -89,7 +88,7 @@ class UbicationViewModel  @Inject constructor(
                         address = "Calle 123",
                         rating = 4.5,
                         type = 2,
-                        products = emptyList() // 🔹 Se deja vacío para no mostrar productos
+                        products = emptyList()
                     ),
                     Restaurant(
                         name = "Burger King",
@@ -100,7 +99,7 @@ class UbicationViewModel  @Inject constructor(
                         address = "Avenida 456",
                         rating = 4.2,
                         type = 2,
-                        products = emptyList() // 🔹 Se deja vacío para no mostrar productos
+                        products = emptyList()
                     ),
                     Restaurant(
                         name = "One burrito",
@@ -111,7 +110,7 @@ class UbicationViewModel  @Inject constructor(
                         address = "cerca al ML",
                         rating = 4.0,
                         type = 2,
-                        products = emptyList() // 🔹 Se deja vacío para no mostrar productos
+                        products = emptyList()
                     ),
                     Restaurant(
                         name = "Wok",
@@ -122,7 +121,7 @@ class UbicationViewModel  @Inject constructor(
                         address = "City U",
                         rating = 4.0,
                         type = 2,
-                        products = emptyList() // 🔹 Se deja vacío para no mostrar productos
+                        products = emptyList()
                     ),
 
                 )

@@ -61,13 +61,13 @@ class LoginRepository {
                             val idToken = tokenTask.result?.token
                             Log.d("GoogleSignIn", "Token obtenido: $idToken")
                             if (idToken != null) {
-                                // 🔍 Verificar si el usuario ya existe en Firestore a través del backend
+                                //Verificar si el usuario ya existe en Firestore a través del backend
                                 verifyUserWithBackend(idToken, context) { success, message ->
                                     if (!success) {
-                                        // 🔹 Si el usuario no existe en Firestore, lo registramos con Google Sign Up
+                                        //Si el usuario no existe en Firestore, lo registramos con Google Sign Up
                                         registerUserWithGoogle(idToken, context, callback)
                                     } else {
-                                        callback(success, message) // Usuario encontrado, inicia sesión normal
+                                        callback(success, message)
                                     }
                                 }
                             } else {
@@ -85,8 +85,7 @@ class LoginRepository {
 
     private fun verifyUserWithBackend(idToken: String, context: Context, callback: (Boolean, String) -> Unit) {
         val request = Request.Builder()
-            .url("http://10.0.2.2:8000/users/me") // Verificar si el usuario existe
-            .get()
+            .url("http://10.0.2.2:8000/users/me")
             .addHeader("Authorization", "Bearer $idToken")
             .build()
 
@@ -137,18 +136,18 @@ class LoginRepository {
         val json = JSONObject().apply {
             put("name", name)
             put("email", email)
-            put("password", "google_auth")  // No se usa realmente, solo para cumplir el esquema
+            put("password", "google_auth")
             put("address", "Unknown")
-            put("birthday", "2000-01-01")  // Valor por defecto si el backend lo requiere
-            put("photoUrl", photoUrl)  // Enviar la foto de perfil si el backend la acepta
+            put("birthday", "2000-01-01")
+            put("photoUrl", photoUrl)
         }
 
         val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("http://10.0.2.2:8000/signup") // Endpoint para registrar usuarios
+            .url("http://10.0.2.2:8000/signup")
             .post(requestBody)
-            .addHeader("Authorization", "Bearer $idToken") // Enviar el token de Firebase
+            .addHeader("Authorization", "Bearer $idToken")
             .build()
 
         client.newCall(request).enqueue(object : Callback {

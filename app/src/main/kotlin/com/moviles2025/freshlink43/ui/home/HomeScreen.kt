@@ -54,19 +54,16 @@ fun HomeScreen(
 ) {
     val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
 
-    // Cargar los restaurantes cuando se crea la pantalla
     LaunchedEffect(Unit) {
         AnalyticsManager.logFeatureUsage("HomeScreen")
         viewModel.getRestaurants()
     }
 
-    // Observar la lista de restaurantes
     val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
 
     Scaffold(
-         // Ajuste edge-to-edge
         topBar = { Header { navController.navigate("profile") } },
         bottomBar = { BottomNavManager(navController, currentRoute) },
         modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)

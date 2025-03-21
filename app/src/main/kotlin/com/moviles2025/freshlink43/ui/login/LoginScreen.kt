@@ -48,7 +48,8 @@ fun LoginScreen(
     val context = LocalContext.current
     val customFont = FontFamily(Font(R.font.montserratalternates_regular))
     val montserratSemiBold = FontFamily(Font(R.font.montserratalternates_semibold))
-    // Configuración de Google Sign-In
+
+    //sign in
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -159,7 +160,7 @@ fun LoginScreen(
 
                 Button(
                     onClick = { viewModel.login(context) },
-                    enabled = !uiState.isLoading, // Deshabilitar mientras carga
+                    enabled = !uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),

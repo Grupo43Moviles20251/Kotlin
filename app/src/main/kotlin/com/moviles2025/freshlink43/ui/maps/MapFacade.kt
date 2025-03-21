@@ -11,7 +11,7 @@ import java.util.*
 
 class MapFacade(private val context: Context) {
 
-    private var googleMap: GoogleMap? = null  // 🔹 Guardamos la referencia al mapa
+    private var googleMap: GoogleMap? = null
 
     fun initializeMap(map: GoogleMap, userLocation: LatLng) {
         googleMap = map

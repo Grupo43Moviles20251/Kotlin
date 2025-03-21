@@ -20,22 +20,21 @@ object AnalyticsManager {
         usageRef.get().addOnSuccessListener { document ->
             val currentCount = document.getLong(featureName) ?: 0
 
-            // 🔹 Guarda los datos de uso con merge para no sobreescribir datos anteriores
             val updateData = mapOf(
                 featureName to currentCount + 1,
-                "last_used_by" to userId  // Último usuario que usó la función
+                "last_used_by" to userId
             )
 
             usageRef.set(updateData, SetOptions.merge())
                 .addOnSuccessListener {
-                    Log.d("Analytics", "✅ Uso de $featureName registrado exitosamente")
+                    Log.d("Analytics", "Uso de $featureName registrado exitosamente")
                 }
                 .addOnFailureListener { e ->
-                    Log.e("Analytics", "❌ Error registrando uso: ${e.message}")
+                    Log.e("Analytics", "Error registrando uso: ${e.message}")
                 }
 
         }.addOnFailureListener { e ->
-            Log.e("Analytics", "❌ Error obteniendo documento de Firestore: ${e.message}")
+            Log.e("Analytics", "Error obteniendo documento de Firestore: ${e.message}")
         }
     }
 }

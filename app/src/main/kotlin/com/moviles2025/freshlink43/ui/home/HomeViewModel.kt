@@ -26,7 +26,6 @@ class HomeViewModel : ViewModel() {
     private val repository = HomeRepository()
 
 
-    // Función para obtener los restaurantes
     fun getRestaurants() {
         println("Llamando a getRestaurants")
         viewModelScope.launch {
