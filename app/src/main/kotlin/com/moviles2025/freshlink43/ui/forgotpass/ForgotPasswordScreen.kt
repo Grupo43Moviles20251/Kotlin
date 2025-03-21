@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.moviles2025.freshlink43.R
+import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.ui.navigation.NavRoutes
 
 @Composable
@@ -28,10 +29,14 @@ fun ForgotPasswordScreen(
     navController: NavController,
     viewModel: ForgotPasswordViewModel
 ) {
+    LaunchedEffect(Unit) {
+        AnalyticsManager.logFeatureUsage("ForgotPasswordScreen")
+    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val customFont = FontFamily(Font(R.font.montserratalternates_regular))
+
 
     Column(
         modifier = Modifier

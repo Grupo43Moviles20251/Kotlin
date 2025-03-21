@@ -32,6 +32,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.GoogleAuthProvider
 import com.moviles2025.freshlink43.R
+import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.ui.navigation.NavRoutes
 import com.moviles2025.freshlink43.ui.utils.*
 
@@ -40,6 +41,9 @@ fun LoginScreen(
     navController: NavController,
     viewModel: LoginViewModel
 ) {
+    LaunchedEffect(Unit) {
+        AnalyticsManager.logFeatureUsage("LoginScreen")
+    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val customFont = FontFamily(Font(R.font.montserratalternates_regular))

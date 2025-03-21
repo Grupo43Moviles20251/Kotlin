@@ -26,6 +26,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberImagePainter
 import coil.size.Size
 import com.moviles2025.freshlink43.R
+import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.ui.utils.*
@@ -39,6 +40,7 @@ fun HomeScreen(
 
     // Cargar los restaurantes cuando se crea la pantalla
     LaunchedEffect(Unit) {
+        AnalyticsManager.logFeatureUsage("HomeScreen")
         viewModel.getRestaurants()
     }
 
