@@ -1,34 +1,52 @@
 package com.moviles2025.freshlink43.ui.maps
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapEffect
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.*
+import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.ui.utils.corporationBlue
 
 @SuppressLint("MissingPermission")
 @Composable
-fun MapViewComponent(viewModel: UbicationViewModel, userLocation: LatLng, restaurants: List<com.moviles2025.freshlink43.ui.home.Restaurant>) {
+fun MapViewComponent(
+    viewModel: UbicationViewModel,
+    userLocation: LatLng,
+    restaurants: List<Restaurant>
+) {
+    val context = LocalContext.current
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(userLocation, 15f)
+    }
+
+    var selectedRestaurant by remember { mutableStateOf<Restaurant?>(null) }
+
+    LaunchedEffect(restaurants) {
+        viewModel.updateMapMarkers()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -42,18 +60,16 @@ fun MapViewComponent(viewModel: UbicationViewModel, userLocation: LatLng, restau
                 viewModel.initializeMap(map, userLocation)
             }
 
-            Marker(
-                state = MarkerState(position = userLocation),
-                title = "Your Location",
-                snippet = "You are here",
-            )
-
 
             restaurants.forEach { restaurant ->
                 Marker(
                     state = MarkerState(position = LatLng(restaurant.latitude, restaurant.longitude)),
                     title = restaurant.name,
-                    snippet = "Discount: ${restaurant.products.getOrNull(0)?.discountPrice ?: "N/A"}$"
+                    snippet = restaurant.address,
+                    onClick = {
+                        selectedRestaurant = restaurant
+                        false
+                    }
                 )
             }
         }
@@ -65,7 +81,113 @@ fun MapViewComponent(viewModel: UbicationViewModel, userLocation: LatLng, restau
                 .padding(16.dp),
             containerColor = corporationBlue
         ) {
-            Icon(imageVector = Icons.Default.LocationOn, contentDescription = "Center map on user location")
+            Icon(imageVector = Icons.Default.LocationOn, contentDescription = "Centrar mapa en tu ubicación")
+        }
+
+        AnimatedVisibility(
+            visible = selectedRestaurant != null,
+            enter = slideInVertically(initialOffsetY = { it }),
+            exit = slideOutVertically(targetOffsetY = { it }),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            selectedRestaurant?.let { restaurant ->
+                RestaurantCard(
+                    restaurant = restaurant,
+                    onClose = { selectedRestaurant = null },
+                    onNavigate = {
+                        val gmmIntentUri =
+                            Uri.parse("google.navigation:q=${restaurant.latitude},${restaurant.longitude}")
+                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                            setPackage("com.google.android.apps.maps")
+                        }
+                        context.startActivity(mapIntent)
+                    }
+                )
+            }
+        }
+
+        // Botón para centrar en la ubicación del usuario
+
+    }
+}
+
+@Composable
+fun RestaurantCard(
+    restaurant: Restaurant,
+    onClose: () -> Unit,
+    onNavigate: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Image(
+                painter = rememberImagePainter(restaurant.imageUrl),
+                contentDescription = restaurant.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .height(150.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = restaurant.name,
+                style = MaterialTheme.typography.headlineMedium,
+                color = corporationBlue,
+                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
+            )
+            Text(
+                text = restaurant.address,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray,
+                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
+            )
+            Text(
+                text = restaurant.description,
+                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(imageVector = Icons.Default.Star, contentDescription = "Rating", tint = Color.Yellow)
+                Text(
+                    text = restaurant.rating.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Common ticket: $${restaurant.products.firstOrNull()?.discountPrice ?: "N/A"}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black,
+                    fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(onClick = onNavigate) {
+                    Text("How to go",
+                        fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)))
+                }
+                OutlinedButton(onClick = onClose) {
+                    Text("Close",
+                        fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)))
+                }
+            }
         }
     }
 }

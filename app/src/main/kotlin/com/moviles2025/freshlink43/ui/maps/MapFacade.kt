@@ -6,12 +6,12 @@ import android.util.Log
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
-import com.moviles2025.freshlink43.ui.home.Restaurant
+import com.moviles2025.freshlink43.ui.maps.Restaurant
 import java.util.*
 
 class MapFacade(private val context: Context) {
 
-    private var googleMap: GoogleMap? = null  // 🔹 Guardamos la referencia al mapa
+    private var googleMap: GoogleMap? = null
 
     fun initializeMap(map: GoogleMap, userLocation: LatLng) {
         googleMap = map
@@ -26,7 +26,7 @@ class MapFacade(private val context: Context) {
 
     fun addRestaurantMarkers(restaurants: List<Restaurant>) {
         googleMap?.let { map ->
-            map.clear() // 🔹 Limpiar marcadores previos
+            map.clear()
             restaurants.forEach { restaurant ->
                 val position = LatLng(restaurant.latitude, restaurant.longitude)
                 val marker = map.addMarker(

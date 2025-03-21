@@ -1,5 +1,6 @@
 package com.moviles2025.freshlink43.ui.home
 
+
 data class Restaurant(
     val name: String,
     val imageUrl: String,
