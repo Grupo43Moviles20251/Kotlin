@@ -37,7 +37,7 @@ class SignUpRepository {
                 val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
                 val request = Request.Builder()
-                    .url("http://10.0.2.2:8000/signup")
+                    .url("http://34.60.49.32:8000/signup")
                     .post(requestBody)
                     .header("Content-Type", "application/json")
                     .build()
