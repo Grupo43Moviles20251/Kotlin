@@ -3,7 +3,7 @@ package com.moviles2025.freshlink43.ui.login
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.AuthCredential
-import com.moviles2025.freshlink43.data.repository.LoginRepository
+import com.moviles2025.freshlink43.data.services.LoginService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -18,7 +18,7 @@ data class LoginUiState(
 
 class LoginViewModel : ViewModel() {
 
-    private val repository = LoginRepository()
+    private val repository = LoginService()
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState

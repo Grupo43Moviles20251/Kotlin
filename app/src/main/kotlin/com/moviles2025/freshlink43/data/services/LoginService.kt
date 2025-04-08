@@ -1,4 +1,4 @@
-package com.moviles2025.freshlink43.data.repository
+package com.moviles2025.freshlink43.data.services
 
 import android.content.Context
 import android.os.Handler
@@ -7,18 +7,18 @@ import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
+import com.moviles2025.freshlink43.utils.Constants
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 
-class LoginRepository {
+class LoginService {
 
 
 
@@ -85,7 +85,7 @@ class LoginRepository {
 
     private fun verifyUserWithBackend(idToken: String, context: Context, callback: (Boolean, String) -> Unit) {
         val request = Request.Builder()
-            .url("http://34.60.49.32:8000/users/me") // Verificar si el usuario existe
+            .url("${Constants.BASE_URL}/users/me") // Verificar si el usuario existe
             .get()
             .addHeader("Authorization", "Bearer $idToken")
             .build()
@@ -146,7 +146,7 @@ class LoginRepository {
         val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("http://34.60.49.32:8000/signup") // Endpoint para registrar usuarios
+            .url("${Constants.BASE_URL}/signup") // Endpoint para registrar usuarios
             .post(requestBody)
             .addHeader("Authorization", "Bearer $idToken") // Enviar el token de Firebase
             .build()

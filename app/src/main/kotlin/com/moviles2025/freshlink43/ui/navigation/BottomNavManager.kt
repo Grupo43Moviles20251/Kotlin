@@ -10,7 +10,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.moviles2025.freshlink43.R
-import com.moviles2025.freshlink43.ui.utils.corporationBlue
+import com.moviles2025.freshlink43.utils.corporationBlue
 
 @Composable
 fun BottomNavManager(
@@ -20,7 +20,7 @@ fun BottomNavManager(
 ) {
     val items = listOf(
         BottomNavItem("home", R.drawable.restaurante), // Home
-        //BottomNavItem("favorites", R.drawable.corazon), // Favoritos
+        BottomNavItem("favorites", R.drawable.corazon), // Favoritos
         BottomNavItem("search", R.drawable.busqueda),   // Búsqueda
         BottomNavItem("ubication", R.drawable.marcador) // Ubicación
     )

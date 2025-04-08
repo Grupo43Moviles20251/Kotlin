@@ -28,7 +28,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
-import com.moviles2025.freshlink43.ui.utils.*
+import com.moviles2025.freshlink43.utils.*
+import com.moviles2025.freshlink43.utils.corporationBlack
+import com.moviles2025.freshlink43.utils.corporationBlue
 import java.util.Calendar
 
 @Composable

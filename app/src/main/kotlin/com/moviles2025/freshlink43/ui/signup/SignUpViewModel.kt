@@ -3,14 +3,14 @@ package com.moviles2025.freshlink43.ui.signup
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.moviles2025.freshlink43.data.repository.SignUpRepository
+import com.moviles2025.freshlink43.data.services.SignUpService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SignUpViewModel : ViewModel() {
 
-    private val repository = SignUpRepository()
+    private val repository = SignUpService()
 
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState = _uiState.asStateFlow()

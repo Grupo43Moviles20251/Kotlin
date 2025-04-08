@@ -1,7 +1,8 @@
-package com.moviles2025.freshlink43.data.repository
+package com.moviles2025.freshlink43.data.services
 
 import android.content.Context
 import android.widget.Toast
+import com.moviles2025.freshlink43.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -10,7 +11,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
-class SignUpRepository {
+class SignUpService {
 
     private val client = OkHttpClient()
 
@@ -37,7 +38,7 @@ class SignUpRepository {
                 val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
                 val request = Request.Builder()
-                    .url("http://34.60.49.32:8000/signup")
+                    .url("${Constants.BASE_URL}/signup")
                     .post(requestBody)
                     .header("Content-Type", "application/json")
                     .build()

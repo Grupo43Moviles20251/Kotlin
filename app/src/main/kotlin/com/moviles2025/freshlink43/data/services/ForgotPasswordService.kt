@@ -1,8 +1,8 @@
-package com.moviles2025.freshlink43.data.repository
+package com.moviles2025.freshlink43.data.services
 
 import com.google.firebase.auth.FirebaseAuth
 
-class ForgotPasswordRepository {
+class ForgotPasswordService {
 
     fun sendPasswordResetEmail(email: String, callback: (Boolean, String) -> Unit) {
         if (email.isBlank()) {

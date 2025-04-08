@@ -1,70 +1,20 @@
-package com.moviles2025.freshlink43.data.repository
+package com.moviles2025.freshlink43.data.services
 
-import android.content.Context
-import com.moviles2025.freshlink43.ui.home.Product
-import com.moviles2025.freshlink43.ui.home.Restaurant
+import com.moviles2025.freshlink43.model.Product
+import com.moviles2025.freshlink43.model.Restaurant
+import com.moviles2025.freshlink43.utils.Constants
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import org.json.JSONArray
-import org.json.JSONObject
 
-class SearchRepository {
+class HomeService {
     private val client = OkHttpClient()
+
     // Llamada a la API para obtener los restaurantes
-    fun getFilteredRestaurants(query:String, callback: (List<Restaurant>?, String?) -> Unit) {
+    fun getRestaurants(callback: (List<Restaurant>?, String?) -> Unit) {
         val request = Request.Builder()
-            .url("http://34.60.49.32:8000/restaurants/search/$query")
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                callback(null, "Error al obtener los restaurantes: ${e.localizedMessage}")
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string()
-                    responseBody?.let {
-                        // Convertir la respuesta JSON a objetos Restaurant
-                        val restaurants = parseRestaurantsJson(it)
-                        callback(restaurants, null)
-                    }
-                } else {
-                    callback(null, "Error en la respuesta de la API: ${response.message}")
-                }
-            }
-        })
-    }
-
-    fun getAllRestaurants(callback: (List<Restaurant>?, String?) -> Unit) {
-        val request = Request.Builder()
-            .url("http://34.60.49.32:8000/restaurants")
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                callback(null, "Error al obtener los restaurantes: ${e.localizedMessage}")
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string()
-                    responseBody?.let {
-                        // Convertir la respuesta JSON a objetos Restaurant
-                        val restaurants = parseRestaurantsJson(it)
-                        callback(restaurants, null)
-                    }
-                } else {
-                    callback(null, "Error en la respuesta de la API: ${response.message}")
-                }
-            }
-        })
-    }
-
-    fun getFilteredRestaurantsByType(type:String, callback: (List<Restaurant>?, String?) -> Unit) {
-        val request = Request.Builder()
-            .url("http://34.60.49.32:8000/restaurants/type/$type")
+            .url("${Constants.BASE_URL}/restaurants")
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {

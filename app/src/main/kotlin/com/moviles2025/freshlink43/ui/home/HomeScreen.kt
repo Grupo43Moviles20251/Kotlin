@@ -45,7 +45,7 @@ import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
-import com.moviles2025.freshlink43.ui.utils.corporationGreen
+import com.moviles2025.freshlink43.utils.corporationGreen
 
 @Composable
 fun HomeScreen(

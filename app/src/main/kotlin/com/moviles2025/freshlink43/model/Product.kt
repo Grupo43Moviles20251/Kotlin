@@ -1,4 +1,4 @@
-package com.moviles2025.freshlink43.ui.home
+package com.moviles2025.freshlink43.model
 
 data class Product(
     val productId: Int,

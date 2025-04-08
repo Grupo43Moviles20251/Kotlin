@@ -5,11 +5,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.moviles2025.freshlink43.data.repository.HomeRepository
-import android.content.Context
-import android.util.Log
-import com.moviles2025.freshlink43.data.repository.SearchRepository
-import com.moviles2025.freshlink43.ui.home.Restaurant
+import com.moviles2025.freshlink43.data.services.SearchService
+import com.moviles2025.freshlink43.model.Restaurant
 
 class SearchViewModel : ViewModel() {
 
@@ -21,7 +18,7 @@ class SearchViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> get() = _errorMessage
 
-    private val repository = SearchRepository()
+    private val repository = SearchService()
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> get() = _isLoading
     init {

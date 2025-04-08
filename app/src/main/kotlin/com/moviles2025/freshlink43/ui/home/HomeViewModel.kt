@@ -5,9 +5,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.moviles2025.freshlink43.data.repository.HomeRepository
-import android.content.Context
-import android.util.Log
+import com.moviles2025.freshlink43.data.services.HomeService
+import com.moviles2025.freshlink43.model.Restaurant
 
 
 class HomeViewModel : ViewModel() {
@@ -23,7 +22,7 @@ class HomeViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> get() = _errorMessage
 
-    private val repository = HomeRepository()
+    private val repository = HomeService()
 
 
     // Función para obtener los restaurantes

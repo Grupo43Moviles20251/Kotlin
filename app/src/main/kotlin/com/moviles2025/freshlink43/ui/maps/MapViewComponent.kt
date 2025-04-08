@@ -29,23 +29,24 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.moviles2025.freshlink43.R
-import com.moviles2025.freshlink43.ui.utils.corporationBlue
+import com.moviles2025.freshlink43.model.RestaurantMaps
+import com.moviles2025.freshlink43.utils.corporationBlue
 
 @SuppressLint("MissingPermission")
 @Composable
 fun MapViewComponent(
     viewModel: UbicationViewModel,
     userLocation: LatLng,
-    restaurants: List<Restaurant>
+    restaurantMaps: List<RestaurantMaps>
 ) {
     val context = LocalContext.current
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(userLocation, 15f)
     }
 
-    var selectedRestaurant by remember { mutableStateOf<Restaurant?>(null) }
+    var selectedRestaurant by remember { mutableStateOf<RestaurantMaps?>(null) }
 
-    LaunchedEffect(restaurants) {
+    LaunchedEffect(restaurantMaps) {
         viewModel.updateMapMarkers()
     }
 
@@ -61,7 +62,7 @@ fun MapViewComponent(
             }
 
 
-            restaurants.forEach { restaurant ->
+            restaurantMaps.forEach { restaurant ->
                 Marker(
                     state = MarkerState(position = LatLng(restaurant.latitude, restaurant.longitude)),
                     title = restaurant.name,
@@ -92,7 +93,7 @@ fun MapViewComponent(
         ) {
             selectedRestaurant?.let { restaurant ->
                 RestaurantCard(
-                    restaurant = restaurant,
+                    restaurantMaps = restaurant,
                     onClose = { selectedRestaurant = null },
                     onNavigate = {
                         val gmmIntentUri =
@@ -113,7 +114,7 @@ fun MapViewComponent(
 
 @Composable
 fun RestaurantCard(
-    restaurant: Restaurant,
+    restaurantMaps: RestaurantMaps,
     onClose: () -> Unit,
     onNavigate: () -> Unit
 ) {
@@ -126,8 +127,8 @@ fun RestaurantCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Image(
-                painter = rememberImagePainter(restaurant.imageUrl),
-                contentDescription = restaurant.name,
+                painter = rememberImagePainter(restaurantMaps.imageUrl),
+                contentDescription = restaurantMaps.name,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
@@ -138,19 +139,19 @@ fun RestaurantCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = restaurant.name,
+                text = restaurantMaps.name,
                 style = MaterialTheme.typography.headlineMedium,
                 color = corporationBlue,
                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
             )
             Text(
-                text = restaurant.address,
+                text = restaurantMaps.address,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
             )
             Text(
-                text = restaurant.description,
+                text = restaurantMaps.description,
                 style = MaterialTheme.typography.bodyMedium,
                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
             )
@@ -160,13 +161,13 @@ fun RestaurantCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(imageVector = Icons.Default.Star, contentDescription = "Rating", tint = Color.Yellow)
                 Text(
-                    text = restaurant.rating.toString(),
+                    text = restaurantMaps.rating.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Common ticket: $${restaurant.products.firstOrNull()?.discountPrice ?: "N/A"}",
+                    text = "Common ticket: $${restaurantMaps.products.firstOrNull()?.discountPrice ?: "N/A"}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black,
                     fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))

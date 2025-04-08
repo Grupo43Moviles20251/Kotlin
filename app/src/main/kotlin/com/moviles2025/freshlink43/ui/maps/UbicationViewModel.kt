@@ -10,8 +10,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.moviles2025.freshlink43.data.repository.RestaurantRepository
-import com.moviles2025.freshlink43.ui.maps.Restaurant
+import com.moviles2025.freshlink43.data.services.RestaurantService
+import com.moviles2025.freshlink43.model.RestaurantMaps
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
@@ -24,15 +24,15 @@ class UbicationViewModel  @Inject constructor(
     @ApplicationContext private val context: Context,
 
     //private val context: Context,
-    private val repository: RestaurantRepository,
+    private val repository: RestaurantService,
     val mapFacade: MapFacade
 ) : ViewModel() {
 
     private val _userLocation = MutableStateFlow<LatLng?>(null)
     val userLocation: StateFlow<LatLng?> = _userLocation.asStateFlow()
 
-    private val _restaurants = MutableStateFlow<List<Restaurant>>(emptyList())
-    val restaurants: StateFlow<List<Restaurant>> = _restaurants.asStateFlow()
+    private val _restaurants = MutableStateFlow<List<RestaurantMaps>>(emptyList())
+    val restaurants: StateFlow<List<RestaurantMaps>> = _restaurants.asStateFlow()
 
 
     private val fusedLocationClient: FusedLocationProviderClient =

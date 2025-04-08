@@ -18,8 +18,10 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
-import com.moviles2025.freshlink43.ui.utils.*
+import com.moviles2025.freshlink43.utils.*
 import com.moviles2025.freshlink43.ui.navigation.NavRoutes
+import com.moviles2025.freshlink43.utils.corporationGreen
+import com.moviles2025.freshlink43.utils.corporationOrange
 
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {

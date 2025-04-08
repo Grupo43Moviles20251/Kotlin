@@ -1,7 +1,7 @@
 package com.moviles2025.freshlink43.di
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.moviles2025.freshlink43.data.repository.RestaurantRepository
+import com.moviles2025.freshlink43.data.services.RestaurantService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,7 +16,7 @@ object RepositoryModule {
     @Singleton
     fun provideRestaurantRepository(
         firestore: FirebaseFirestore
-    ): RestaurantRepository {
-        return RestaurantRepository(firestore)
+    ): RestaurantService {
+        return RestaurantService(firestore)
     }
 }

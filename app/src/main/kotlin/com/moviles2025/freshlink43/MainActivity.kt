@@ -8,7 +8,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.rememberNavController
 import com.moviles2025.freshlink43.ui.navigation.NavGraph
-import com.moviles2025.freshlink43.ui.utils.FreshLinkTheme
+import com.moviles2025.freshlink43.utils.FreshLinkTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 
