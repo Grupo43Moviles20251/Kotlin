@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.auth.FirebaseAuth
+import com.moviles2025.freshlink43.ui.favorites.FavoritesScreen
 import com.moviles2025.freshlink43.ui.favorites.FavoritesViewModel
 import com.moviles2025.freshlink43.ui.forgotpass.ForgotPasswordScreen
 import com.moviles2025.freshlink43.ui.forgotpass.ForgotPasswordViewModel
@@ -68,7 +69,7 @@ fun NavGraph(navController: NavHostController) {
             }
         }
 
-/*
+
         composable(NavRoutes.Favorites.route) {
             if (FirebaseAuth.getInstance().currentUser != null) {
                 val viewModel: FavoritesViewModel = hiltViewModel()
@@ -78,7 +79,7 @@ fun NavGraph(navController: NavHostController) {
             }
         }
 
- */
+
 
         composable(NavRoutes.Search.route) {
             if (FirebaseAuth.getInstance().currentUser != null) {
