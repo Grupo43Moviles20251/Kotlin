@@ -1,9 +1,9 @@
-package com.moviles2025.freshlink43.ui.maps
+package com.moviles2025.freshlink43.data.dto
 
-import com.moviles2025.freshlink43.ui.maps.Product
+import com.moviles2025.freshlink43.model.Product
 
 
-data class Restaurant(
+data class RestaurantMaps(
     val name: String = "",
     val description: String = "",
     val imageUrl: String = "",

@@ -45,7 +45,7 @@ import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
-import com.moviles2025.freshlink43.ui.utils.corporationGreen
+import com.moviles2025.freshlink43.utils.corporationGreen
 
 @Composable
 fun HomeScreen(
@@ -93,9 +93,9 @@ fun HomeScreen(
                     val restaurant = restaurants[index]
                     PlaceholderRestaurantCard(
                         placeName = restaurant.name,
-                        productName = restaurant.products[0].productName,
-                        originalPrice = restaurant.products[0].originalPrice.toInt(),
-                        discountPrice = restaurant.products[0].discountPrice.toInt(),
+                        productName = restaurant.products.getOrNull(0)?.productName ?: "No product available",
+                        originalPrice = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0,
+                        discountPrice = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0,
                         rating = restaurant.rating,
                         image = restaurant.imageUrl
                     )

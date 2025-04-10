@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.auth.FirebaseAuth
+import com.moviles2025.freshlink43.ui.favorites.FavoritesScreen
+import com.moviles2025.freshlink43.ui.favorites.FavoritesViewModel
 import com.moviles2025.freshlink43.ui.forgotpass.ForgotPasswordScreen
 import com.moviles2025.freshlink43.ui.forgotpass.ForgotPasswordViewModel
 import com.moviles2025.freshlink43.ui.home.HomeScreen
@@ -21,6 +23,7 @@ import com.moviles2025.freshlink43.ui.maps.UbicationScreen
 import com.moviles2025.freshlink43.ui.maps.UbicationViewModel
 import com.moviles2025.freshlink43.ui.profile.ProfileScreen
 import com.moviles2025.freshlink43.ui.profile.ProfileViewModel
+import com.moviles2025.freshlink43.ui.splash.SplashScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -38,8 +41,10 @@ fun NavGraph(navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.Main.route // 🔹 Siempre inicia en "Main"
+        startDestination = NavRoutes.Splash.route // Siempre inicia en Main
     ) {
+        composable(NavRoutes.Splash.route) { SplashScreen(navController) }
+
         composable(NavRoutes.Main.route) { MainScreen(navController) }
 
         composable(NavRoutes.Login.route) {
@@ -66,6 +71,18 @@ fun NavGraph(navController: NavHostController) {
                 LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
             }
         }
+
+
+        composable(NavRoutes.Favorites.route) {
+            if (FirebaseAuth.getInstance().currentUser != null) {
+                val viewModel: FavoritesViewModel = hiltViewModel()
+                FavoritesScreen(navController, viewModel)
+            } else {
+                LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
+            }
+        }
+
+
 
         composable(NavRoutes.Search.route) {
             if (FirebaseAuth.getInstance().currentUser != null) {

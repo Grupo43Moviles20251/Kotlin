@@ -1,4 +1,4 @@
-package com.moviles2025.freshlink43.ui.utils
+package com.moviles2025.freshlink43.utils
 
 import androidx.compose.ui.graphics.Color
 

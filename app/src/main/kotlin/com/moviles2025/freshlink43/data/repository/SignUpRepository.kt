@@ -1,21 +1,13 @@
 package com.moviles2025.freshlink43.data.repository
 
-import android.content.Context
-import android.widget.Toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
+import com.moviles2025.freshlink43.data.dto.UserDto
+import com.moviles2025.freshlink43.data.serviceadapters.BackendServiceAdapter
+import javax.inject.Inject
 
-class SignUpRepository {
-
-    private val client = OkHttpClient()
-
+class SignUpRepository @Inject constructor(
+    private val backendServiceAdapter: BackendServiceAdapter
+) {
     suspend fun signUpWithEmail(
-        context: Context,
         name: String,
         email: String,
         password: String,
@@ -23,42 +15,12 @@ class SignUpRepository {
         birthday: String,
         callback: (Boolean, String) -> Unit
     ) {
-        withContext(Dispatchers.IO) {
-            try {
-
-                val json = JSONObject().apply {
-                    put("name", name)
-                    put("email", email)
-                    put("password", password)
-                    put("address", address)
-                    put("birthday", birthday)
-                }
-
-                val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
-
-                val request = Request.Builder()
-                    .url("http://34.60.49.32:8000/signup")
-                    .post(requestBody)
-                    .header("Content-Type", "application/json")
-                    .build()
-
-                val response = client.newCall(request).execute()
-
-                if (response.isSuccessful) {
-                    callback(true, "User registered successfully!")
-                } else {
-                    val errorMessage = response.body?.string() ?: "Unknown error"
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                    }
-                    callback(false, errorMessage)
-                }
-
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Sign-up Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-                callback(false, "Sign-up Error: ${e.message}")
+        val userDto = UserDto(name, email, password, address, birthday)
+        backendServiceAdapter.registerUserWithEmail(userDto) { success, error ->
+            if (success) {
+                callback(true, "User registered successfully!")
+            } else {
+                callback(false, error ?: "Sign-up failed")
             }
         }
     }

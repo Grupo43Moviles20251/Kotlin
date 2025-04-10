@@ -7,8 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.rememberNavController
+import com.moviles2025.freshlink43.data.repository.FavoriteRepository
 import com.moviles2025.freshlink43.ui.navigation.NavGraph
-import com.moviles2025.freshlink43.ui.utils.FreshLinkTheme
+import com.moviles2025.freshlink43.utils.FreshLinkTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -18,12 +19,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = getColor(R.color.black) // Usa el color de fondo correcto
+        window.statusBarColor = getColor(R.color.white) // Usa el color de fondo correcto
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         setContent {
             FreshLinkTheme(darkTheme = false) {
                 val navController = rememberNavController()
-                NavGraph(navController) // 🔹 Llamamos a la navegación aquí
+                NavGraph(navController) //  Llamamos a la navegación aquí
             }
         }
     }

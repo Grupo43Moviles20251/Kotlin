@@ -34,7 +34,9 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.ui.navigation.NavRoutes
-import com.moviles2025.freshlink43.ui.utils.*
+import com.moviles2025.freshlink43.utils.*
+import com.moviles2025.freshlink43.utils.corporationBlack
+import com.moviles2025.freshlink43.utils.corporationBlue
 
 @Composable
 fun LoginScreen(

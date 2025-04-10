@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.moviles2025.freshlink43.data.serviceadapters.FirebaseServiceAdapter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -39,5 +40,9 @@ class ProfileViewModel : ViewModel() {
                     _user.value = null
                 }
         }
+    }
+    fun signOut() {
+        FirebaseServiceAdapter().signOut()
+        _user.value = null
     }
 }
