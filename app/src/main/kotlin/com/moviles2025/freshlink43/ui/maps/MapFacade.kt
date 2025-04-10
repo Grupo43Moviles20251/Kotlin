@@ -13,6 +13,7 @@ class MapFacade(private val context: Context) {
 
     private var googleMap: GoogleMap? = null
 
+
     fun initializeMap(map: GoogleMap, userLocation: LatLng) {
         googleMap = map
         googleMap?.apply {
@@ -25,22 +26,32 @@ class MapFacade(private val context: Context) {
     }
 
     fun addRestaurantMarkers(restaurantMaps: List<RestaurantMaps>) {
-        googleMap?.let { map ->
-            map.clear()
+        if (googleMap == null) {
+            Log.e("MapFacade", "GoogleMap no está inicializado")
+            return
+        }
+
+        googleMap?.apply {
+            clear()
             restaurantMaps.forEach { restaurant ->
                 val position = LatLng(restaurant.latitude, restaurant.longitude)
-                val marker = map.addMarker(
+                val discountText = restaurant.products.firstOrNull()?.discountPrice?.let {
+                    "$$it"
+                } ?: "No products"
+
+                val marker = addMarker(
                     MarkerOptions()
                         .position(position)
                         .title(restaurant.name)
-                        .snippet("Descuento: $${restaurant.products.getOrNull(0)?.discountPrice ?: "N/A"}")
+                        .snippet("Descuento: $discountText")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                 )
                 marker?.tag = restaurant
             }
-        } ?: Log.e("MapFacade", "GoogleMap no está inicializado")
+        }
     }
 
+/*
     fun getAddressFromCoordinates(latLng: LatLng): String? {
         return try {
             val geocoder = Geocoder(context, Locale.getDefault())
@@ -51,6 +62,8 @@ class MapFacade(private val context: Context) {
             null
         }
     }
+
+ */
 
     fun moveCameraToLocation(location: LatLng, zoomLevel: Float = 15f) {
         googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel))

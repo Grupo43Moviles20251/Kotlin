@@ -23,6 +23,7 @@ import com.moviles2025.freshlink43.ui.maps.UbicationScreen
 import com.moviles2025.freshlink43.ui.maps.UbicationViewModel
 import com.moviles2025.freshlink43.ui.profile.ProfileScreen
 import com.moviles2025.freshlink43.ui.profile.ProfileViewModel
+import com.moviles2025.freshlink43.ui.splash.SplashScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -40,8 +41,10 @@ fun NavGraph(navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.Main.route // Siempre inicia en Main
+        startDestination = NavRoutes.Splash.route // Siempre inicia en Main
     ) {
+        composable(NavRoutes.Splash.route) { SplashScreen(navController) }
+
         composable(NavRoutes.Main.route) { MainScreen(navController) }
 
         composable(NavRoutes.Login.route) {

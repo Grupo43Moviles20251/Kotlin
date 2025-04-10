@@ -1,6 +1,6 @@
 package com.moviles2025.freshlink43.data.dto
 
-import com.moviles2025.freshlink43.ui.maps.Product
+import com.moviles2025.freshlink43.model.Product
 
 
 data class RestaurantMaps(
