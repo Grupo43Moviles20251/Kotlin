@@ -41,69 +41,78 @@ fun SearchScreen(
     val query = remember { mutableStateOf(TextFieldValue("")) }
     val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "search"
+
+    LaunchedEffect(Unit) {
+        AnalyticsManager.logFeatureUsage("SearchScreen")
+    }
 
     LaunchedEffect(query.value.text) {
-        AnalyticsManager.logFeatureUsage("SearchScreen")
         viewModel.getFilteredRestaurants(query.value.text)
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Header { navController.navigate("profile") }
-
-        SearchBar(query)
-
-        FilterButtons(viewModel)
-
-        Text(
-            text = "Last Offers",
-            fontSize = 24.sp,
-            color = corporationGreen,
-            fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
+    Scaffold(
+        topBar = { Header { navController.navigate("profile") } },
+        bottomBar = { BottomNavManager(navController, currentRoute) },
+        modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            SearchBar(query)
 
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = corporationGreen)
-            }
-        } else {
-            LazyColumn(
+            FilterButtons(viewModel)
+
+            Text(
+                text = "Last Offers",
+                fontSize = 24.sp,
+                color = corporationGreen,
+                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
                 modifier = Modifier
-                    .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp)
-            ) {
-                if (restaurants.isEmpty()) {
-                    viewModel.getAllRestaurants()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = corporationGreen)
                 }
-                else {
-                    items(restaurants.size) { index ->
-                        val restaurant = restaurants[index]
-                        PlaceholderRestaurantCard(
-                            placeName = restaurant.name,
-                            productName = restaurant.products[0].productName,
-                            originalPrice = restaurant.products[0].originalPrice.toInt(),
-                            discountPrice = restaurant.products[0].discountPrice.toInt(),
-                            rating = restaurant.rating,
-                            image = restaurant.imageUrl
-                        )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
+                ) {
+                    if (restaurants.isEmpty()) {
+                        viewModel.getAllRestaurants()
+                    } else {
+                        items(restaurants.size) { index ->
+                            val restaurant = restaurants[index]
+                            PlaceholderRestaurantCard(
+                                placeName = restaurant.name,
+                                productName = restaurant.products.firstOrNull()?.productName.orEmpty(),
+                                originalPrice = restaurant.products.firstOrNull()?.originalPrice?.toInt() ?: 0,
+                                discountPrice = restaurant.products.firstOrNull()?.discountPrice?.toInt() ?: 0,
+                                rating = restaurant.rating,
+                                image = restaurant.imageUrl
+                            )
+                        }
                     }
                 }
             }
+
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = Color.Gray.copy(alpha = 0.3f)
+            )
         }
-
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = Color.Gray.copy(alpha = 0.3f)
-        )
-
-        BottomNavManager(navController, currentRoute)
     }
 }
 

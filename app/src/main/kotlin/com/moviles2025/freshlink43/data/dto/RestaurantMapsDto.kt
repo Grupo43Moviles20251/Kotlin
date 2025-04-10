@@ -1,4 +1,4 @@
-package com.moviles2025.freshlink43.model
+package com.moviles2025.freshlink43.data.dto
 
 import com.moviles2025.freshlink43.ui.maps.Product
 

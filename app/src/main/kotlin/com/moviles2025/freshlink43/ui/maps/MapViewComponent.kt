@@ -29,7 +29,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.moviles2025.freshlink43.R
-import com.moviles2025.freshlink43.model.RestaurantMaps
+import com.moviles2025.freshlink43.data.dto.RestaurantMaps
 import com.moviles2025.freshlink43.utils.corporationBlue
 
 @SuppressLint("MissingPermission")

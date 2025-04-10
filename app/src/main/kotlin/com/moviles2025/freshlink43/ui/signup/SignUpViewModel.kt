@@ -3,14 +3,17 @@ package com.moviles2025.freshlink43.ui.signup
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.moviles2025.freshlink43.data.services.SignUpService
+import com.moviles2025.freshlink43.data.repository.SignUpRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SignUpViewModel : ViewModel() {
-
-    private val repository = SignUpService()
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
+    private val repository: SignUpRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState = _uiState.asStateFlow()
@@ -39,7 +42,7 @@ class SignUpViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(birthday = birthday)
     }
 
-    fun signUp(context: Context) {
+    fun signUp() {
         val state = _uiState.value
 
         if (state.password != state.confirmPassword) {
@@ -47,11 +50,10 @@ class SignUpViewModel : ViewModel() {
             return
         }
 
-        _uiState.value = _uiState.value.copy(isLoading = true) // Activar carga
+        _uiState.value = _uiState.value.copy(isLoading = true)
 
         viewModelScope.launch {
             repository.signUpWithEmail(
-                context = context,
                 name = state.name,
                 email = state.email,
                 password = state.password,
@@ -61,7 +63,7 @@ class SignUpViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     signUpResult = message,
                     signUpSuccess = success,
-                    isLoading = false // Desactivar carga al terminar
+                    isLoading = false
                 )
             }
         }

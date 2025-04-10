@@ -147,7 +147,7 @@ fun SignUpScreen(
                 )
 
                 Button(
-                    onClick = { viewModel.signUp(context) },
+                    onClick = { viewModel.signUp() },
                     enabled = !uiState.isLoading, // Deshabilita el botón mientras carga
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),

@@ -83,7 +83,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
 
         Button(
             onClick = {
-                FirebaseAuth.getInstance().signOut() // Cierra sesión
+                viewModel.signOut() // Cierra sesión
                 navController.navigate(NavRoutes.Main.route) {
                     popUpTo(NavRoutes.Home.route) { inclusive = true } // Elimina Home del historial
                 }

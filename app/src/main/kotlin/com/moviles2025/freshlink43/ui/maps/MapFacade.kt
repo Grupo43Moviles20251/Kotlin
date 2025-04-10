@@ -6,7 +6,7 @@ import android.util.Log
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
-import com.moviles2025.freshlink43.model.RestaurantMaps
+import com.moviles2025.freshlink43.data.dto.RestaurantMaps
 import java.util.*
 
 class MapFacade(private val context: Context) {

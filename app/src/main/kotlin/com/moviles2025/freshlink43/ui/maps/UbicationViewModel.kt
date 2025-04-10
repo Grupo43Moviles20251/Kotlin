@@ -10,8 +10,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.moviles2025.freshlink43.data.services.RestaurantService
-import com.moviles2025.freshlink43.model.RestaurantMaps
+import com.moviles2025.freshlink43.data.repository.RestaurantRepository
+import com.moviles2025.freshlink43.data.dto.RestaurantMaps
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
@@ -24,7 +24,7 @@ class UbicationViewModel  @Inject constructor(
     @ApplicationContext private val context: Context,
 
     //private val context: Context,
-    private val repository: RestaurantService,
+    private val repository: RestaurantRepository,
     val mapFacade: MapFacade
 ) : ViewModel() {
 

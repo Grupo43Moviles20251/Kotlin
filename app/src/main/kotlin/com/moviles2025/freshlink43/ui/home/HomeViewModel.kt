@@ -2,30 +2,28 @@ package com.moviles2025.freshlink43.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moviles2025.freshlink43.data.repository.HomeRepository
+import com.moviles2025.freshlink43.model.Restaurant
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.moviles2025.freshlink43.data.services.HomeService
-import com.moviles2025.freshlink43.model.Restaurant
+import javax.inject.Inject
 
-
-class HomeViewModel : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val repository: HomeRepository
+) : ViewModel() {
 
     private val _welcomeMessage = MutableStateFlow("Welcome to FreshLink!")
     val welcomeMessage: StateFlow<String> = _welcomeMessage
 
-    // Estado para la lista de restaurantes
     private val _restaurants = MutableStateFlow<List<Restaurant>>(emptyList())
-    val restaurants: StateFlow<List<Restaurant>> get() = _restaurants
+    val restaurants: StateFlow<List<Restaurant>> = _restaurants
 
-    // Estado para manejar errores
     private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> get() = _errorMessage
+    val errorMessage: StateFlow<String?> = _errorMessage
 
-    private val repository = HomeService()
-
-
-    // Función para obtener los restaurantes
     fun getRestaurants() {
         println("Llamando a getRestaurants")
         viewModelScope.launch {
@@ -33,7 +31,6 @@ class HomeViewModel : ViewModel() {
                 if (restaurants != null) {
                     _restaurants.value = restaurants
                     println("Lista de restaurantes cargada correctamente: $restaurants")
-
                 } else {
                     _errorMessage.value = error
                 }
