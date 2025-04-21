@@ -28,7 +28,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import coil.size.Size
 import com.moviles2025.freshlink43.R
@@ -38,7 +37,6 @@ import com.moviles2025.freshlink43.ui.home.formatAmount
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.corporationGreen
-import com.moviles2025.freshlink43.utils.corporationBlue
 
 @Composable
 fun FavoritesScreen(
@@ -46,8 +44,8 @@ fun FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
     val favorites by viewModel.favorites.collectAsStateWithLifecycle()
-
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "favorites"
+    val currentRoute =
+        navController.currentBackStackEntryAsState().value?.destination?.route ?: "favorites"
 
     LaunchedEffect(Unit) {
         AnalyticsManager.logFeatureUsage("FavoritesScreen")
@@ -73,91 +71,124 @@ fun FavoritesScreen(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(favorites) { restaurant ->
-                    CardFavoriteRestaurant(
-                        placeName = restaurant.name,
-                        productName = restaurant.products.getOrNull(0)?.productName ?: "No product",
-                        originalPrice = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0,
-                        discountPrice = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0,
-                        rating = restaurant.rating,
-                        image = restaurant.imageUrl,
-                        isFavorite = true,
-                        onFavoriteClick = {
-                            //viewModel.removeFavorite(restaurant) // 🔥 Aquí llamas tu ViewModel para quitarlo
+            if (favorites.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.FavoriteBorder,
+                            contentDescription = "No favorites",
+                            tint = Color.LightGray,
+                            modifier = Modifier.size(96.dp)
+                        )
+                        Text(
+                            text = "Oops! No favorites yet.",
+                            fontSize = 18.sp,
+                            color = Color.Gray,
+                            fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
+                        )
+                        Text(
+                            text = "Browse restaurants and add your favorite spots.",
+                            fontSize = 14.sp,
+                            color = Color.LightGray,
+                            fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(favorites) { restaurant ->
+                        CardFavoriteRestaurant(
+                            restaurant = restaurant,
+                            isFavorite = true,
+                            onFavoriteClick = { viewModel.toggleFavorite(it) }
+                        )
+                    }
+
+                    if (favorites.size == 1) {
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.FavoriteBorder,
+                                    contentDescription = "More favorites",
+                                    tint = Color.LightGray,
+                                    modifier = Modifier.size(64.dp)
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    text = "Only one? There are more waiting for you!",
+                                    fontSize = 16.sp,
+                                    color = Color.LightGray,
+                                    fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Search restaurants and build your favorite list :)",
+                                    fontSize = 12.sp,
+                                    color = Color.LightGray,
+                                    fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
+                                )
+                            }
                         }
-                    )
+                    }
                 }
             }
         }
     }
 }
 
-
 @Composable
 fun CardFavoriteRestaurant(
-    placeName: String,
-    productName: String,
-    originalPrice: Int,
-    discountPrice: Int,
-    rating: Double,
-    image: String,
+    restaurant: Restaurant,
     isFavorite: Boolean,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: (Restaurant) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .height(240.dp), // Aumentamos un poquito el alto
+            .height(240.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = corporationGreen)
     ) {
-        Box {
-            Column(modifier = Modifier.fillMaxSize()) {
-                val painter = rememberImagePainter(
-                    data = image,
-                    builder = {
-                        size(Size.ORIGINAL)
-                        crossfade(true)
-                    }
-                )
-                Box {
-                    Image(
-                        painter = painter,
-                        contentDescription = "Restaurant Image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp)
-                            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                    )
-
-                    IconButton(
-                        onClick = { onFavoriteClick() },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Favorite Icon",
-                            tint = Color.Red
-                        )
-                    }
+        Column(modifier = Modifier.fillMaxSize()) {
+            val painter = rememberImagePainter(
+                data = restaurant.imageUrl,
+                builder = {
+                    size(Size.ORIGINAL)
+                    crossfade(true)
                 }
+            )
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(16.dp)
-                ) {
+            Image(
+                painter = painter,
+                contentDescription = "Restaurant Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
                     Text(
-                        text = placeName,
+                        text = restaurant.name,
                         fontSize = 20.sp,
                         fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
                         color = Color.White,
@@ -165,7 +196,7 @@ fun CardFavoriteRestaurant(
                     )
 
                     Text(
-                        text = productName,
+                        text = restaurant.products.getOrNull(0)?.productName ?: "No product",
                         fontSize = 14.sp,
                         color = Color.LightGray
                     )
@@ -179,9 +210,7 @@ fun CardFavoriteRestaurant(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.Bottom
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Filled.Star,
                                 contentDescription = "Rating",
@@ -189,31 +218,43 @@ fun CardFavoriteRestaurant(
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
-                                text = rating.toString(),
+                                text = restaurant.rating.toString(),
                                 fontSize = 14.sp,
                                 color = Color.White,
                                 modifier = Modifier.padding(start = 4.dp)
                             )
                         }
 
-                        Row(
-                            verticalAlignment = Alignment.Bottom
-                        ) {
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            val discount = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
+                            val original = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
+
                             Text(
-                                text = "$${formatAmount(discountPrice)}",
+                                text = "$${formatAmount(discount)}",
                                 fontSize = 15.sp,
                                 color = Color.LightGray,
                                 textDecoration = TextDecoration.LineThrough,
                                 modifier = Modifier.padding(horizontal = 8.dp)
                             )
                             Text(
-                                text = "$${formatAmount(originalPrice)}",
+                                text = "$${formatAmount(original)}",
                                 fontSize = 20.sp,
                                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
                                 color = Color.White
                             )
                         }
                     }
+                }
+
+                IconButton(
+                    onClick = { onFavoriteClick(restaurant) },
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Remove from favorites",
+                        tint = Color.Red
+                    )
                 }
             }
         }

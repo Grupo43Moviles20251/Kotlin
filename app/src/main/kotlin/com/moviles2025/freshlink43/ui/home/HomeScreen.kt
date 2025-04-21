@@ -3,6 +3,7 @@ package com.moviles2025.freshlink43.ui.home
 import android.icu.text.DecimalFormat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,15 +18,21 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +50,7 @@ import coil.compose.rememberImagePainter
 import coil.size.Size
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
+import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.corporationGreen
@@ -92,12 +100,9 @@ fun HomeScreen(
                 items(restaurants.size) { index ->
                     val restaurant = restaurants[index]
                     PlaceholderRestaurantCard(
-                        placeName = restaurant.name,
-                        productName = restaurant.products.getOrNull(0)?.productName ?: "No product available",
-                        originalPrice = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0,
-                        discountPrice = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0,
-                        rating = restaurant.rating,
-                        image = restaurant.imageUrl
+                        restaurant = restaurant,
+                        isInitiallyFavorite = viewModel.isFavorite(restaurant),
+                        onFavoriteClick = { viewModel.toggleFavorite(restaurant) }
                     )
                 }
             }
@@ -116,30 +121,30 @@ fun formatAmount(amount: Int): String {
 
 @Composable
 fun PlaceholderRestaurantCard(
-    placeName: String,
-    productName: String,
-    originalPrice: Int,
-    discountPrice: Int,
-    rating: Double,
-    image: String
+    restaurant: Restaurant,
+    isInitiallyFavorite: Boolean,
+    onFavoriteClick: (Restaurant) -> Unit
 ) {
+    var isFavorite by remember { mutableStateOf(isInitiallyFavorite) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .height(220.dp),
+            .height(240.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2))
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             val painter = rememberImagePainter(
-                data = image,
+                data = restaurant.imageUrl,
                 builder = {
                     size(Size.ORIGINAL)
                     crossfade(true)
                 }
             )
+
             Image(
                 painter = painter,
                 contentDescription = "Restaurant Image",
@@ -150,69 +155,84 @@ fun PlaceholderRestaurantCard(
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             )
 
-            Column(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+                    .fillMaxSize()
                     .padding(16.dp)
             ) {
-                Text(
-                    text = placeName,
-                    fontSize = 20.sp,
-                    fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
-                    color = corporationGreen,
-                    modifier = Modifier.padding(bottom = 5.dp)
-                )
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = restaurant.name,
+                        fontSize = 20.sp,
+                        fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
+                        color = corporationGreen,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
 
-                Text(
-                    text = productName,
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+                    Text(
+                        text = restaurant.products.getOrNull(0)?.productName ?: "No product available",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = "Rating",
-                            tint = corporationGreen,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = rating.toString(),
-                            fontSize = 14.sp,
-                            color = corporationGreen,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                    }
+                    Spacer(modifier = Modifier.weight(1f))
 
                     Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.Bottom
                     ) {
-                        Text(
-                            text = "$${formatAmount(discountPrice)}",
-                            fontSize = 15.sp,
-                            color = Color.Gray,
-                            textDecoration = TextDecoration.LineThrough,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                        Text(
-                            text = "$${formatAmount(originalPrice)}",
-                            fontSize = 20.sp,
-                            fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
-                            color = corporationGreen
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Filled.Star,
+                                contentDescription = "Rating",
+                                tint = corporationGreen,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = restaurant.rating.toString(),
+                                fontSize = 14.sp,
+                                color = corporationGreen,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            val discount = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
+                            val original = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
+
+                            Text(
+                                text = "$${formatAmount(discount)}",
+                                fontSize = 15.sp,
+                                color = Color.Gray,
+                                textDecoration = TextDecoration.LineThrough,
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                            Text(
+                                text = "$${formatAmount(original)}",
+                                fontSize = 20.sp,
+                                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
+                                color = corporationGreen
+                            )
+                        }
                     }
+                }
+
+                // 🔴 Ícono de favorito arriba a la derecha del área blanca
+                IconButton(
+                    onClick = {
+                        isFavorite = !isFavorite
+                        onFavoriteClick(restaurant)
+                    },
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorite Icon",
+                        tint = Color.Red
+                    )
                 }
             }
         }
