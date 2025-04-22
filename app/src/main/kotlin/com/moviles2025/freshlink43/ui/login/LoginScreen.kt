@@ -46,11 +46,16 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         AnalyticsManager.logFeatureUsage("LoginScreen")
     }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarMessage by viewModel.snackbarMessage.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val customFont = FontFamily(Font(R.font.montserratalternates_regular))
     val montserratSemiBold = FontFamily(Font(R.font.montserratalternates_semibold))
-    // Configuración de Google Sign-In
+
+    // Google Sign-In launcher
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -60,8 +65,8 @@ fun LoginScreen(
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             viewModel.loginWithGoogle(credential, context)
         } catch (e: Exception) {
-            Log.e("GoogleSignIn", "Google Sign-In falló: ${e.localizedMessage}")
-            Toast.makeText(context, "Google Sign-In failed: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            Log.e("GoogleSignIn", "Google Sign-In failed: ${e.localizedMessage}")
+            viewModel.showSnackbarMessage("Google Sign-In failed: ${e.localizedMessage}")
         }
     }
 
@@ -76,132 +81,140 @@ fun LoginScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        if (uiState.isLoading) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                CircularProgressIndicator(color = corporationBlue)
-                Spacer(modifier = Modifier.height(16.dp)) // Espacio adecuado entre el círculo y el texto
-                Text(
-                    text = "Signing in...",
-                    fontSize = 16.sp,
-                    fontFamily = montserratSemiBold,
-                    color = corporationBlue
-                )
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logoapp),
-                    contentDescription = "App Logo",
-                    modifier = Modifier.size(150.dp).padding(bottom = 16.dp)
-                )
+    // Mostrar mensajes de snackbar desde el ViewModel
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearSnackbarMessage()
+            if (uiState.loginSuccess) navController.navigate("home")
+        }
+    }
 
-                Text(
-                    text = "Login",
-                    fontSize = 20.sp,
-                    color = corporationBlack,
-                    fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                OutlinedTextField(
-                    value = uiState.email,
-                    onValueChange = { viewModel.onEmailChanged(it) },
-                    label = { Text("Email", fontFamily = customFont) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = LocalTextStyle.current.copy(fontFamily = customFont)
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                var passwordVisible by remember { mutableStateOf(false) }
-
-                OutlinedTextField(
-                    value = uiState.password,
-                    onValueChange = { viewModel.onPasswordChanged(it) },
-                    label = { Text("Password", fontFamily = customFont) },
-                    singleLine = true,
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = LocalTextStyle.current.copy(fontFamily = customFont),
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
-                            )
-                        }
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    "Forgot your password?",
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.montserratalternates_medium)),
-                    color = corporationBlue,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .clickable { navController.navigate(NavRoutes.ForgotPassword.route) }
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = { viewModel.login(context) },
-                    enabled = !uiState.isLoading, // Deshabilitar mientras carga
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Sign In", fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)))
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            if (uiState.isLoading) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = corporationBlue)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Signing in...",
+                        fontSize = 16.sp,
+                        fontFamily = montserratSemiBold,
+                        color = corporationBlue
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                GoogleSignInButton(onClick = { launchGoogleSignIn() })
-
-                Spacer(modifier = Modifier.height(15.dp))
-
-                Text(
-                    "Never Experienced FreshLink?",
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.montserratalternates_medium)),
-                    color = corporationBlue,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                Text(
-                    "Sign Up",
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.montserratalternates_extrabold)),
-                    color = corporationBlue,
-                    textAlign = TextAlign.Center,
+            } else {
+                Column(
                     modifier = Modifier
-                        .padding(top = 8.dp)
-                        .clickable { navController.navigate("signup") }
-                )
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.logoapp),
+                        contentDescription = "App Logo",
+                        modifier = Modifier.size(150.dp).padding(bottom = 16.dp)
+                    )
 
-                uiState.loginResult?.let { result ->
-                    LaunchedEffect(result) {
-                        Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
-                        if (uiState.loginSuccess) navController.navigate("home")
+                    Text(
+                        text = "Login",
+                        fontSize = 20.sp,
+                        color = corporationBlack,
+                        fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = uiState.email,
+                        onValueChange = { viewModel.onEmailChanged(it) },
+                        label = { Text("Email", fontFamily = customFont) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current.copy(fontFamily = customFont)
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    var passwordVisible by remember { mutableStateOf(false) }
+
+                    OutlinedTextField(
+                        value = uiState.password,
+                        onValueChange = { viewModel.onPasswordChanged(it) },
+                        label = { Text("Password", fontFamily = customFont) },
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current.copy(fontFamily = customFont),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                )
+                            }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        "Forgot your password?",
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily(Font(R.font.montserratalternates_medium)),
+                        color = corporationBlue,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .clickable { navController.navigate(NavRoutes.ForgotPassword.route) }
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = { viewModel.login(context) },
+                        enabled = !uiState.isLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Sign In", fontFamily = montserratSemiBold)
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    GoogleSignInButton(onClick = { launchGoogleSignIn() })
+
+                    Spacer(modifier = Modifier.height(15.dp))
+
+                    Text(
+                        "Never Experienced FreshLink?",
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily(Font(R.font.montserratalternates_medium)),
+                        color = corporationBlue,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+
+                    Text(
+                        "Sign Up",
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily(Font(R.font.montserratalternates_extrabold)),
+                        color = corporationBlue,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .clickable { navController.navigate("signup") }
+                    )
                 }
             }
         }

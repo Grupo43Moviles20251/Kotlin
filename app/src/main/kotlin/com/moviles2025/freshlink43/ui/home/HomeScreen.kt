@@ -101,8 +101,8 @@ fun HomeScreen(
                     val restaurant = restaurants[index]
                     PlaceholderRestaurantCard(
                         restaurant = restaurant,
-                        isInitiallyFavorite = viewModel.isFavorite(restaurant),
-                        onFavoriteClick = { viewModel.toggleFavorite(restaurant) }
+                        viewModel = viewModel, // pasas el ViewModel aquí
+                        onFavoriteClick = { viewModel.toggleFavorite(it) }
                     )
                 }
             }
@@ -122,10 +122,17 @@ fun formatAmount(amount: Int): String {
 @Composable
 fun PlaceholderRestaurantCard(
     restaurant: Restaurant,
-    isInitiallyFavorite: Boolean,
+    viewModel: HomeViewModel,
     onFavoriteClick: (Restaurant) -> Unit
 ) {
-    var isFavorite by remember { mutableStateOf(isInitiallyFavorite) }
+    var isFavorite by remember { mutableStateOf(false) }
+
+    // 🔍 Consultamos si es favorito en un hilo de fondo
+    LaunchedEffect(restaurant) {
+        viewModel.isFavorite(restaurant) { result ->
+            isFavorite = result
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -220,7 +227,6 @@ fun PlaceholderRestaurantCard(
                     }
                 }
 
-                // 🔴 Ícono de favorito arriba a la derecha del área blanca
                 IconButton(
                     onClick = {
                         isFavorite = !isFavorite

@@ -28,22 +28,66 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
+    private val _snackbarMessage = MutableStateFlow<String?>(null)
+    val snackbarMessage: StateFlow<String?> = _snackbarMessage
+
     fun onEmailChanged(email: String) = _uiState.update { it.copy(email = email) }
     fun onPasswordChanged(password: String) = _uiState.update { it.copy(password = password) }
 
     fun login(context: Context) {
+        val email = uiState.value.email.trim()
+        val password = uiState.value.password
+
+        if (email.isEmpty() || password.isEmpty()) {
+            _uiState.update { it.copy(isLoading = false) }
+            showSnackbarMessage("Please enter both email and password")
+            return
+        }
+
+        if (!isConnected(context)) {
+            showSnackbarMessage("Oops! No internet connection. Please try again later.")
+            return
+        }
+
         _uiState.update { it.copy(isLoading = true) }
 
-        repository.loginWithEmail(uiState.value.email, uiState.value.password, context) { success, message ->
-            _uiState.update { it.copy(loginResult = message, loginSuccess = success, isLoading = false) }
+        repository.loginWithEmail(email, password, context) { success, message ->
+            _uiState.update { it.copy(isLoading = false) }
+
+            if (success) {
+                _uiState.update { it.copy(loginSuccess = true) }
+                showSnackbarMessage("Login successful!")
+            } else {
+                showSnackbarMessage(message)
+            }
         }
+    }
+
+    fun isConnected(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     fun loginWithGoogle(credential: AuthCredential, context: Context) {
         _uiState.update { it.copy(isLoading = true) }
 
         repository.loginWithGoogle(credential, context) { success, message ->
-            _uiState.update { it.copy(loginResult = message, loginSuccess = success, isLoading = false) }
+            _uiState.update { it.copy(loginSuccess = success, isLoading = false) }
+            showSnackbarMessage(message)
         }
+    }
+
+    fun clearLoginResult() {
+        _uiState.update { it.copy(loginResult = null) }
+    }
+
+    fun showSnackbarMessage(message: String) {
+        _snackbarMessage.value = message
+    }
+
+    fun clearSnackbarMessage() {
+        _snackbarMessage.value = null
     }
 }

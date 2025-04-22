@@ -20,7 +20,7 @@ class FavoritesViewModel @Inject constructor(
     private val _favorites = MutableStateFlow<List<Restaurant>>(emptyList())
     val favorites: StateFlow<List<Restaurant>> = _favorites
 
-    private var allRestaurants = listOf<Restaurant>() // Aquí guardamos todos para filtrar
+    private var allRestaurants = listOf<Restaurant>()
 
     init {
         fetchRestaurants()
@@ -40,19 +40,26 @@ class FavoritesViewModel @Inject constructor(
     }
 
     private fun updateFavorites() {
-        _favorites.value = favoriteRepository.getFavorites(allRestaurants)
+        viewModelScope.launch {
+            _favorites.value = favoriteRepository.getFavorites(allRestaurants)
+        }
     }
 
     fun toggleFavorite(restaurant: Restaurant) {
-        if (favoriteRepository.isFavorite(restaurant)) {
-            favoriteRepository.removeFavorite(restaurant)
-        } else {
-            favoriteRepository.addFavorite(restaurant)
+        viewModelScope.launch {
+            if (favoriteRepository.isFavorite(restaurant)) {
+                favoriteRepository.removeFavorite(restaurant)
+            } else {
+                favoriteRepository.addFavorite(restaurant)
+            }
+            updateFavorites()
         }
-        updateFavorites()
     }
 
-    fun isFavorite(restaurant: Restaurant): Boolean {
-        return favoriteRepository.isFavorite(restaurant)
+    fun isFavorite(restaurant: Restaurant, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = favoriteRepository.isFavorite(restaurant)
+            callback(result)
+        }
     }
 }
