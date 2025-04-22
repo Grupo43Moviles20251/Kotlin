@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.auth.FirebaseAuth
+import com.moviles2025.freshlink43.ui.detail.DetailScreen
+import com.moviles2025.freshlink43.ui.detail.DetailViewModel
 import com.moviles2025.freshlink43.ui.favorites.FavoritesScreen
 import com.moviles2025.freshlink43.ui.favorites.FavoritesViewModel
 import com.moviles2025.freshlink43.ui.forgotpass.ForgotPasswordScreen
@@ -106,6 +108,15 @@ fun NavGraph(navController: NavHostController) {
             if (FirebaseAuth.getInstance().currentUser != null) {
                 val viewModel: ProfileViewModel = hiltViewModel()
                 ProfileScreen(navController, viewModel)
+            } else {
+                LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
+            }
+        }
+
+        composable(NavRoutes.Detail.route) {
+            if (FirebaseAuth.getInstance().currentUser != null) {
+                val viewModel: DetailViewModel = hiltViewModel()
+                DetailScreen(navController, viewModel)
             } else {
                 LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
             }
