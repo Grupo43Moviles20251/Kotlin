@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import com.moviles2025.freshlink43.model.Restaurant
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Singleton
 class FavoriteRepository @Inject constructor(
@@ -14,25 +16,25 @@ class FavoriteRepository @Inject constructor(
         PREFS_NAME, Context.MODE_PRIVATE
     )
 
-    fun addFavorite(restaurant: Restaurant) {
+    suspend fun addFavorite(restaurant: Restaurant) = withContext(Dispatchers.IO) {
         val favorites = getFavoriteNames().toMutableSet()
         favorites.add(restaurant.name)
         saveFavoriteNames(favorites)
     }
 
-    fun removeFavorite(restaurant: Restaurant) {
+    suspend fun removeFavorite(restaurant: Restaurant) = withContext(Dispatchers.IO) {
         val favorites = getFavoriteNames().toMutableSet()
         favorites.remove(restaurant.name)
         saveFavoriteNames(favorites)
     }
 
-    fun isFavorite(restaurant: Restaurant): Boolean {
-        return getFavoriteNames().contains(restaurant.name)
+    suspend fun isFavorite(restaurant: Restaurant): Boolean = withContext(Dispatchers.IO) {
+        getFavoriteNames().contains(restaurant.name)
     }
 
-    fun getFavorites(allRestaurants: List<Restaurant>): List<Restaurant> {
+    suspend fun getFavorites(allRestaurants: List<Restaurant>): List<Restaurant> = withContext(Dispatchers.IO) {
         val favorites = getFavoriteNames()
-        return allRestaurants.filter { favorites.contains(it.name) }
+        allRestaurants.filter { it.name in favorites }
     }
 
     private fun getFavoriteNames(): Set<String> {

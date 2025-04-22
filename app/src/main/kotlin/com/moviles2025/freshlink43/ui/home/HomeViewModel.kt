@@ -43,14 +43,20 @@ class HomeViewModel @Inject constructor(
     }
 
     fun toggleFavorite(restaurant: Restaurant) {
-        if (favoriteRepository.isFavorite(restaurant)) {
-            favoriteRepository.removeFavorite(restaurant)
-        } else {
-            favoriteRepository.addFavorite(restaurant)
+        viewModelScope.launch {
+            if (favoriteRepository.isFavorite(restaurant)) {
+                favoriteRepository.removeFavorite(restaurant)
+            } else {
+                favoriteRepository.addFavorite(restaurant)
+            }
+            //updateFavorites()
         }
     }
 
-    fun isFavorite(restaurant: Restaurant): Boolean {
-        return favoriteRepository.isFavorite(restaurant)
+    fun isFavorite(restaurant: Restaurant, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = favoriteRepository.isFavorite(restaurant)
+            callback(result)
+        }
     }
 }
