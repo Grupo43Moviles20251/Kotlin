@@ -2,6 +2,7 @@ package com.moviles2025.freshlink43.ui.home
 
 import android.icu.text.DecimalFormat
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,6 +52,7 @@ import coil.size.Size
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.model.Restaurant
+import com.moviles2025.freshlink43.ui.detail.DetailViewModel
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.corporationGreen
@@ -58,7 +60,8 @@ import com.moviles2025.freshlink43.utils.corporationGreen
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    detailViewModel: DetailViewModel
 ) {
     val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
 
@@ -102,7 +105,9 @@ fun HomeScreen(
                     PlaceholderRestaurantCard(
                         restaurant = restaurant,
                         isInitiallyFavorite = viewModel.isFavorite(restaurant),
-                        onFavoriteClick = { viewModel.toggleFavorite(restaurant) }
+                        onFavoriteClick = { viewModel.toggleFavorite(restaurant) },
+                        navController = navController,
+                        detailViewModel = detailViewModel
                     )
                 }
             }
@@ -123,7 +128,9 @@ fun formatAmount(amount: Int): String {
 fun PlaceholderRestaurantCard(
     restaurant: Restaurant,
     isInitiallyFavorite: Boolean,
-    onFavoriteClick: (Restaurant) -> Unit
+    onFavoriteClick: (Restaurant) -> Unit,
+    navController: NavController,
+    detailViewModel: DetailViewModel
 ) {
     var isFavorite by remember { mutableStateOf(isInitiallyFavorite) }
 
@@ -131,7 +138,11 @@ fun PlaceholderRestaurantCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .height(240.dp),
+            .height(240.dp)
+            .clickable {
+                val productId = restaurant.products[0].productId
+                navController.navigate("detail/${productId}")
+            },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2))
@@ -220,7 +231,7 @@ fun PlaceholderRestaurantCard(
                     }
                 }
 
-                // 🔴 Ícono de favorito arriba a la derecha del área blanca
+                // Ícono de favorito
                 IconButton(
                     onClick = {
                         isFavorite = !isFavorite

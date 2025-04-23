@@ -68,7 +68,8 @@ fun NavGraph(navController: NavHostController) {
         composable(NavRoutes.Home.route) {
             if (FirebaseAuth.getInstance().currentUser != null) {
                 val viewModel: HomeViewModel = hiltViewModel()
-                HomeScreen(navController, viewModel)
+                val detailViewModel : DetailViewModel = hiltViewModel()
+                HomeScreen(navController, viewModel, detailViewModel)
             } else {
                 LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
             }
@@ -113,13 +114,21 @@ fun NavGraph(navController: NavHostController) {
             }
         }
 
-        composable(NavRoutes.Detail.route) {
-            if (FirebaseAuth.getInstance().currentUser != null) {
+        composable("detail/{productId}") { backStackEntry ->
+            val productIdString = backStackEntry.arguments?.getString("productId")
+            val productId = productIdString?.toIntOrNull()
+
+            if (productId != null) {
                 val viewModel: DetailViewModel = hiltViewModel()
-                DetailScreen(navController, viewModel)
+                val ubicationViewModel: UbicationViewModel = hiltViewModel()
+                DetailScreen(navController = navController, viewModel = viewModel, ubicationViewModel = ubicationViewModel ,productId = productId)
             } else {
-                LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
+                LaunchedEffect(Unit) {
+                    navController.navigate(NavRoutes.Main.route)
+                }
             }
         }
+
+
     }
 }

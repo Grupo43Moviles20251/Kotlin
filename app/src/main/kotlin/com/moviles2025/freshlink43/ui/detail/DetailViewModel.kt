@@ -18,14 +18,15 @@ class DetailViewModel @Inject constructor(
     private val _restaurant = MutableStateFlow<Restaurant>(Restaurant())
     val restaurant: StateFlow<Restaurant> = _restaurant
 
-    fun getRestaurantDetail(productId:Int) {
+    fun getRestaurantDetail(productId: Int) {
         viewModelScope.launch {
             repository.getRestaurantDetail(productId) { restaurant, error ->
-                if (restaurant != null) {
-                    _restaurant.value = restaurant
-                }
+                println("Datos recibidos: $restaurant")
+                _restaurant.value = restaurant
+                println("Restaurante actualizado: ${_restaurant.value}")
             }
         }
     }
+
 
 }

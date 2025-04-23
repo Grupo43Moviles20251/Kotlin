@@ -7,7 +7,7 @@ data class ProductDto(
     val productName: String,
     val amount: Int,
     val available: Boolean,
-        val discountPrice: Double,
+    val discountPrice: Double,
     val originalPrice: Double
 ) {
     fun toDomain(): Product {
