@@ -29,12 +29,10 @@ class HomeViewModel @Inject constructor(
 
 
     fun getRestaurants() {
-        println("Llamando a getRestaurants")
         viewModelScope.launch {
             repository.getRestaurants { restaurants, error ->
                 if (restaurants != null) {
                     _restaurants.value = restaurants
-                    println("Lista de restaurantes cargada correctamente: $restaurants")
                 } else {
                     _errorMessage.value = error
                 }

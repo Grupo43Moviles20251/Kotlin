@@ -12,6 +12,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import android.content.Context
+import com.moviles2025.freshlink43.data.repository.DetailRepository
 import com.moviles2025.freshlink43.data.repository.ForgotPasswordRepository
 import com.moviles2025.freshlink43.data.repository.LoginRepository
 import com.moviles2025.freshlink43.data.repository.SearchRepository
@@ -90,5 +91,13 @@ object RepositoryModule {
         backendServiceAdapter: BackendServiceAdapter
     ): SearchRepository {
         return SearchRepository(backendServiceAdapter)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDetailRepository(
+        backendServiceAdapter: BackendServiceAdapter
+    ): DetailRepository {
+        return DetailRepository(backendServiceAdapter)
     }
 }

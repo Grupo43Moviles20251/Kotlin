@@ -12,7 +12,7 @@ data class RestaurantDto(
     val address: String,
     val rating: Double,
     val type: Int,
-    val products: List<ProductDto> // ⬅️ Agregamos los productos
+    val products: List<ProductDto>
 ) {
     fun toDomain(): Restaurant {
         return Restaurant(
@@ -22,7 +22,7 @@ data class RestaurantDto(
             latitude = latitude,
             longitude = longitude,
             address = address,
-            products = products.map { it.toDomain() }, // ⬅️ Convertir productos también
+            products = products.map { it.toDomain() },
             rating = rating,
             type = type
         )

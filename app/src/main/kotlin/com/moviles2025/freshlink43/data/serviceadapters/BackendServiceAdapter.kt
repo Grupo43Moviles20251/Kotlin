@@ -120,6 +120,31 @@ class BackendServiceAdapter {
         })
     }
 
+    fun fetchRestaurantDetails(
+        productId: Int,
+        callback: (RestaurantDto?, String?) -> Unit
+    ) {
+        val request = Request.Builder()
+            .url("${Constants.BASE_URL}/products/$productId")
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+                callback(null, e.localizedMessage)
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: Response) {
+                if (response.isSuccessful) {
+                    val body = response.body?.string()
+                    val restaurant = body?.let { parseRestaurantJson(it) }
+                    callback(restaurant, null)
+                } else {
+                    callback(null, response.message)
+                }
+            }
+        })
+    }
+
     /** Verificar si usuario existe en el backend **/
     fun verifyUser(idToken: String, callback: (Boolean, String?) -> Unit) {
         val request = Request.Builder()
@@ -218,4 +243,39 @@ class BackendServiceAdapter {
 
         return restaurantsList
     }
+
+    /** Conversor de restaurantes **/
+    private fun parseRestaurantJson(responseBody: String): RestaurantDto? {
+        val jsonObject = JSONObject(responseBody)
+
+        // Procesar los productos del restaurante
+        val productsList = mutableListOf<ProductDto>()
+        val productsJson = jsonObject.getJSONArray("products")
+        for (j in 0 until productsJson.length()) {
+            val productJson = productsJson.getJSONObject(j)
+            val product = ProductDto(
+                productId = productJson.getInt("productId"),
+                productName = productJson.getString("productName"),
+                amount = productJson.getInt("amount"),
+                available = productJson.getBoolean("available"),
+                discountPrice = productJson.getDouble("discountPrice"),
+                originalPrice = productJson.getDouble("originalPrice")
+            )
+            productsList.add(product)
+        }
+
+        // Crear el DTO del restaurante
+        return RestaurantDto(
+            name = jsonObject.getString("name"),
+            imageUrl = jsonObject.getString("imageUrl"),
+            description = jsonObject.getString("description"),
+            latitude = jsonObject.getDouble("latitude"),
+            longitude = jsonObject.getDouble("longitude"),
+            address = jsonObject.getString("address"),
+            rating = jsonObject.getDouble("rating"),
+            type = jsonObject.getInt("type"),
+            products = productsList
+        )
+    }
+
 }

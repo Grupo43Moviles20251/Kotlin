@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.auth.FirebaseAuth
+import com.moviles2025.freshlink43.ui.detail.DetailScreen
+import com.moviles2025.freshlink43.ui.detail.DetailViewModel
 import com.moviles2025.freshlink43.ui.favorites.FavoritesScreen
 import com.moviles2025.freshlink43.ui.favorites.FavoritesViewModel
 import com.moviles2025.freshlink43.ui.forgotpass.ForgotPasswordScreen
@@ -66,7 +68,8 @@ fun NavGraph(navController: NavHostController) {
         composable(NavRoutes.Home.route) {
             if (FirebaseAuth.getInstance().currentUser != null) {
                 val viewModel: HomeViewModel = hiltViewModel()
-                HomeScreen(navController, viewModel)
+                val detailViewModel : DetailViewModel = hiltViewModel()
+                HomeScreen(navController, viewModel, detailViewModel)
             } else {
                 LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
             }
@@ -110,5 +113,22 @@ fun NavGraph(navController: NavHostController) {
                 LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
             }
         }
+
+        composable("detail/{productId}") { backStackEntry ->
+            val productIdString = backStackEntry.arguments?.getString("productId")
+            val productId = productIdString?.toIntOrNull()
+
+            if (productId != null) {
+                val viewModel: DetailViewModel = hiltViewModel()
+                val ubicationViewModel: UbicationViewModel = hiltViewModel()
+                DetailScreen(navController = navController, viewModel = viewModel, ubicationViewModel = ubicationViewModel ,productId = productId)
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.navigate(NavRoutes.Main.route)
+                }
+            }
+        }
+
+
     }
 }
