@@ -52,14 +52,8 @@ class LoginViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true) }
 
         repository.loginWithEmail(email, password, context) { success, message ->
-            _uiState.update { it.copy(isLoading = false) }
+            _uiState.update { it.copy(loginResult = message, loginSuccess = success, isLoading = false)  }
 
-            if (success) {
-                _uiState.update { it.copy(loginSuccess = true) }
-                showSnackbarMessage("Login successful!")
-            } else {
-                showSnackbarMessage(message)
-            }
         }
     }
 
