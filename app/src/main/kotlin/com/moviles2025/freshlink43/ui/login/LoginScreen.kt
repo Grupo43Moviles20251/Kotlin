@@ -82,11 +82,18 @@ fun LoginScreen(
     }
 
     // Mostrar mensajes de snackbar desde el ViewModel
+    LaunchedEffect(uiState.loginSuccess) {
+        if (uiState.loginSuccess) {
+            navController.navigate("home") {
+                popUpTo("login") { inclusive = true }
+            }
+        }
+    }
+
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let {
             snackbarHostState.showSnackbar(it)
             viewModel.clearSnackbarMessage()
-            if (uiState.loginSuccess) navController.navigate("home")
         }
     }
 
