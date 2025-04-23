@@ -2,7 +2,6 @@ package com.moviles2025.freshlink43.ui.home
 
 import android.icu.text.DecimalFormat
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -77,7 +77,7 @@ fun HomeScreen(
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
 
     Scaffold(
-         // Ajuste edge-to-edge
+        // Ajuste edge-to-edge
         topBar = { Header { navController.navigate("profile") } },
         bottomBar = { BottomNavManager(navController, currentRoute) },
         modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
@@ -104,7 +104,9 @@ fun HomeScreen(
                     val restaurant = restaurants[index]
                     PlaceholderRestaurantCard(
                         restaurant = restaurant,
-                        viewModel = viewModel, // pasas el ViewModel aquí
+                        viewModel = viewModel,
+                        navController = navController,
+                        detailViewModel = detailViewModel,// pasas el ViewModel aquí
                         onFavoriteClick = { viewModel.toggleFavorite(it) }
                     )
                 }
@@ -126,6 +128,8 @@ fun formatAmount(amount: Int): String {
 fun PlaceholderRestaurantCard(
     restaurant: Restaurant,
     viewModel: HomeViewModel,
+    navController: NavController,
+    detailViewModel: DetailViewModel,
     onFavoriteClick: (Restaurant) -> Unit
 ) {
     var isFavorite by remember { mutableStateOf(false) }
@@ -233,7 +237,6 @@ fun PlaceholderRestaurantCard(
                         }
                     }
                 }
-
 
                 IconButton(
                     onClick = {
