@@ -38,22 +38,28 @@ class LoginViewModel @Inject constructor(
         val email = uiState.value.email.trim()
         val password = uiState.value.password
 
-        if (email.isEmpty() || password.isEmpty()) {
-            _uiState.update { it.copy(isLoading = false) }
-            showSnackbarMessage("Please enter both email and password")
-            return
-        }
+        viewModelScope.launch {
+            if (email.isEmpty() || password.isEmpty()) {
+                _uiState.update { it.copy(isLoading = false) }
+                showSnackbarMessage("Please enter both email and password")
+                return@launch
+            }
 
-        if (!isConnected(context)) {
-            showSnackbarMessage("Oops! No internet connection. Please try again later.")
-            return
-        }
+            if (!isConnected(context)) {
+                showSnackbarMessage("Oops! No internet connection. Please try again later.")
+                return@launch
+            }
 
-        _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true) }
 
-        repository.loginWithEmail(email, password, context) { success, message ->
-            _uiState.update { it.copy(loginResult = message, loginSuccess = success, isLoading = false)  }
-
+            val result = repository.loginWithEmail(email, password)
+            _uiState.update {
+                it.copy(
+                    loginSuccess = result.isSuccess,
+                    loginResult = result.getOrNull() ?: result.exceptionOrNull()?.localizedMessage,
+                    isLoading = false
+                )
+            }
         }
     }
 
@@ -64,12 +70,18 @@ class LoginViewModel @Inject constructor(
         return capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
-    fun loginWithGoogle(credential: AuthCredential, context: Context) {
-        _uiState.update { it.copy(isLoading = true) }
+    fun loginWithGoogle(credential: AuthCredential) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
 
-        repository.loginWithGoogle(credential, context) { success, message ->
-            _uiState.update { it.copy(loginSuccess = success, isLoading = false) }
-            showSnackbarMessage(message)
+            val result = repository.loginWithGoogle(credential)
+            _uiState.update {
+                it.copy(
+                    loginSuccess = result.isSuccess,
+                    loginResult = result.getOrNull() ?: result.exceptionOrNull()?.localizedMessage,
+                    isLoading = false
+                )
+            }
         }
     }
 

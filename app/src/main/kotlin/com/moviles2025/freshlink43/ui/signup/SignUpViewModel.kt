@@ -50,22 +50,22 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
-        _uiState.value = _uiState.value.copy(isLoading = true)
+        _uiState.value = state.copy(isLoading = true)
 
         viewModelScope.launch {
-            repository.signUpWithEmail(
+            val result = repository.signUpWithEmail(
                 name = state.name,
                 email = state.email,
                 password = state.password,
                 address = state.address,
                 birthday = state.birthday
-            ) { success, message ->
-                _uiState.value = _uiState.value.copy(
-                    signUpResult = message,
-                    signUpSuccess = success,
-                    isLoading = false
-                )
-            }
+            )
+
+            _uiState.value = _uiState.value.copy(
+                signUpSuccess = result.isSuccess,
+                signUpResult = result.getOrNull() ?: result.exceptionOrNull()?.localizedMessage,
+                isLoading = false
+            )
         }
     }
 }

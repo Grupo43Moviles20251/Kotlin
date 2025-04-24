@@ -32,42 +32,51 @@ class SearchViewModel @Inject constructor(
         println("Llamando a getFilteredRestaurants con el query: $query")
         viewModelScope.launch {
             _isLoading.value = true
-            repository.getFilteredRestaurants(query) { restaurants, error ->
-                _isLoading.value = false
-                if (restaurants != null) {
-                    _restaurants.value = restaurants
-                } else {
-                    _errorMessage.value = error
-                }
-            }
+
+            val result = repository.getFilteredRestaurants(query)
+            _isLoading.value = false
+
+            result
+                .onSuccess { _restaurants.value = it }
+                .onFailure { _errorMessage.value = it.localizedMessage ?: "Error al buscar restaurantes" }
         }
     }
 
     fun getAllRestaurants() {
         println("Llamando a getRestaurants")
         viewModelScope.launch {
-            repository.getAllRestaurants { restaurants, error ->
-                if (restaurants != null) {
-                    _restaurants.value = restaurants
-                    println("Lista de restaurantes cargada correctamente: $restaurants")
-                } else {
-                    _errorMessage.value = error
+            _isLoading.value = true
+
+            val result = repository.getAllRestaurants()
+            _isLoading.value = false
+
+            result
+                .onSuccess {
+                    _restaurants.value = it
+                    println("Lista de restaurantes cargada correctamente: $it")
                 }
-            }
+                .onFailure {
+                    _errorMessage.value = it.localizedMessage ?: "Error al cargar todos los restaurantes"
+                }
         }
     }
 
     fun getFilteredRestaurantsByType(type: String) {
         println("Llamando a getFilteredRestaurantsByType con el tipo: $type")
         viewModelScope.launch {
-            repository.getFilteredRestaurantsByType(type) { restaurants, error ->
-                if (restaurants != null) {
-                    _restaurants.value = restaurants
-                    println("Lista de restaurantes filtrada por tipo cargada correctamente: $restaurants")
-                } else {
-                    _errorMessage.value = error
+            _isLoading.value = true
+
+            val result = repository.getFilteredRestaurantsByType(type)
+            _isLoading.value = false
+
+            result
+                .onSuccess {
+                    _restaurants.value = it
+                    println("Lista filtrada por tipo cargada correctamente: $it")
                 }
-            }
+                .onFailure {
+                    _errorMessage.value = it.localizedMessage ?: "Error al filtrar por tipo"
+                }
         }
     }
 }

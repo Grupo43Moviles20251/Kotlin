@@ -28,14 +28,15 @@ class FavoritesViewModel @Inject constructor(
 
     private fun fetchRestaurants() {
         viewModelScope.launch {
-            homeRepository.getRestaurants { restaurants, error ->
-                if (restaurants != null) {
+            val result = homeRepository.getRestaurants()
+            result
+                .onSuccess { restaurants ->
                     allRestaurants = restaurants
                     updateFavorites()
-                } else {
-                    println("Error fetching favorites: $error")
                 }
-            }
+                .onFailure { error ->
+                    println("Error fetching favorites: ${error.localizedMessage}")
+                }
         }
     }
 

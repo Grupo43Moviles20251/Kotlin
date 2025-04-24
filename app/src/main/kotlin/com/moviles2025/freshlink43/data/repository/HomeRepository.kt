@@ -7,14 +7,14 @@ class HomeRepository(
     private val backendServiceAdapter: BackendServiceAdapter
 ) {
 
-    fun getRestaurants(callback: (List<Restaurant>?, String?) -> Unit) {
-        backendServiceAdapter.fetchRestaurants { dtoList, error ->
-            if (dtoList != null) {
-                val restaurants = dtoList.map { it.toDomain() }
-                callback(restaurants, null)
-            } else {
-                callback(null, error)
-            }
+    suspend fun getRestaurants(): Result<List<Restaurant>> {
+        val result = backendServiceAdapter.fetchRestaurants()
+
+        return if (result.isSuccess) {
+            val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
+            Result.success(dtoList.map { it.toDomain() })
+        } else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
         }
     }
 }

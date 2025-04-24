@@ -4,214 +4,168 @@ import com.moviles2025.freshlink43.data.dto.ProductDto
 import com.moviles2025.freshlink43.data.dto.RestaurantDto
 import com.moviles2025.freshlink43.data.dto.UserDto
 import com.moviles2025.freshlink43.utils.Constants
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.IOException
 
 class BackendServiceAdapter {
 
     private val client = OkHttpClient()
 
-    fun fetchRestaurantsByQuery(query: String, callback: (List<RestaurantDto>?, String?) -> Unit) {
-        val request = Request.Builder()
-            .url("${Constants.BASE_URL}/restaurants/search/$query")
-            .build()
+    suspend fun fetchRestaurants(): Result<List<RestaurantDto>> = withContext(Dispatchers.IO) {
+        try {
+            val request = Request.Builder().url("${Constants.BASE_URL}/restaurants").build()
+            val response = client.newCall(request).execute()
 
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                callback(null, e.localizedMessage)
+            if (response.isSuccessful) {
+                val body = response.body?.string() ?: return@withContext Result.failure(Exception("Empty body"))
+                Result.success(parseRestaurantsJson(body))
+            } else {
+                Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
             }
-
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                if (response.isSuccessful) {
-                    val body = response.body?.string()
-                    val restaurants = body?.let { parseRestaurantsJson(it) }
-                    callback(restaurants, null)
-                } else {
-                    callback(null, response.message)
-                }
-            }
-        })
-    }
-
-    fun fetchRestaurantsByType(type: String, callback: (List<RestaurantDto>?, String?) -> Unit) {
-        val request = Request.Builder()
-            .url("${Constants.BASE_URL}/restaurants/type/$type")
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                callback(null, e.localizedMessage)
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                if (response.isSuccessful) {
-                    val body = response.body?.string()
-                    val restaurants = body?.let { parseRestaurantsJson(it) }
-                    callback(restaurants, null)
-                } else {
-                    callback(null, response.message)
-                }
-            }
-        })
-    }
-    /** Obtener restaurantes **/
-    fun registerUserWithEmail(
-        userDto: UserDto,
-        callback: (Boolean, String?) -> Unit
-    ) {
-        val json = JSONObject().apply {
-            put("name", userDto.name)
-            put("email", userDto.email)
-            put("password", userDto.password)
-            put("address", userDto.address)
-            put("birthday", userDto.birthday)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-
-        val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
-
-        val request = Request.Builder()
-            .url("${Constants.BASE_URL}/signup")
-            .post(requestBody)
-            .header("Content-Type", "application/json")
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                callback(false, e.localizedMessage)
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                if (response.isSuccessful) {
-                    callback(true, null)
-                } else {
-                    callback(false, response.body?.string() ?: "Unknown error")
-                }
-            }
-        })
     }
 
-    fun fetchRestaurants(callback: (List<RestaurantDto>?, String?) -> Unit) {
-        val request = Request.Builder()
-            .url("${Constants.BASE_URL}/restaurants")
-            .build()
+    suspend fun fetchRestaurantsByQuery(query: String): Result<List<RestaurantDto>> = withContext(Dispatchers.IO) {
+        try {
+            val request = Request.Builder().url("${Constants.BASE_URL}/restaurants/search/$query").build()
+            val response = client.newCall(request).execute()
 
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                callback(null, "Error en fetchRestaurants: ${e.localizedMessage}")
+            if (response.isSuccessful) {
+                val body = response.body?.string() ?: return@withContext Result.failure(Exception("Empty body"))
+                Result.success(parseRestaurantsJson(body))
+            } else {
+                Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
             }
-
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string()
-                    responseBody?.let {
-                        val restaurants = parseRestaurantsJson(it)
-                        callback(restaurants, null)
-                    }
-                } else {
-                    callback(null, "Error de respuesta: ${response.message}")
-                }
-            }
-        })
-    }
-
-    fun fetchRestaurantDetails(
-        productId: Int,
-        callback: (RestaurantDto?, String?) -> Unit
-    ) {
-        val request = Request.Builder()
-            .url("${Constants.BASE_URL}/products/$productId")
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                callback(null, e.localizedMessage)
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                if (response.isSuccessful) {
-                    val body = response.body?.string()
-                    val restaurant = body?.let { parseRestaurantJson(it) }
-                    callback(restaurant, null)
-                } else {
-                    callback(null, response.message)
-                }
-            }
-        })
-    }
-
-    /** Verificar si usuario existe en el backend **/
-    fun verifyUser(idToken: String, callback: (Boolean, String?) -> Unit) {
-        val request = Request.Builder()
-            .url("${Constants.BASE_URL}/users/me")
-            .get()
-            .addHeader("Authorization", "Bearer $idToken")
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                callback(false, e.localizedMessage)
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                if (response.isSuccessful) {
-                    callback(true, null) // Usuario existe
-                } else if (response.code == 404) {
-                    callback(false, null) // Usuario no existe
-                } else {
-                    callback(false, response.message)
-                }
-            }
-        })
-    }
-
-    /** Registrar un nuevo usuario en el backend **/
-    fun registerUser(userDto: UserDto, idToken: String, callback: (Boolean, String?) -> Unit) {
-        val json = JSONObject().apply {
-            put("name", userDto.name)
-            put("email", userDto.email)
-            put("password", userDto.password)
-            put("address", userDto.address)
-            put("birthday", userDto.birthday)
-            //put("photoUrl", userDto.photoUrl)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-
-        val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
-
-        val request = Request.Builder()
-            .url("${Constants.BASE_URL}/signup")
-            .post(requestBody)
-            .addHeader("Authorization", "Bearer $idToken")
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                callback(false, e.localizedMessage)
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                if (response.isSuccessful) {
-                    callback(true, null)
-                } else {
-                    callback(false, response.message)
-                }
-            }
-        })
     }
 
-    /** Conversor de restaurantes **/
+    suspend fun fetchRestaurantsByType(type: String): Result<List<RestaurantDto>> = withContext(Dispatchers.IO) {
+        try {
+            val request = Request.Builder().url("${Constants.BASE_URL}/restaurants/type/$type").build()
+            val response = client.newCall(request).execute()
+
+            if (response.isSuccessful) {
+                val body = response.body?.string() ?: return@withContext Result.failure(Exception("Empty body"))
+                Result.success(parseRestaurantsJson(body))
+            } else {
+                Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun fetchRestaurantDetails(productId: Int): Result<RestaurantDto> = withContext(Dispatchers.IO) {
+        try {
+            val request = Request.Builder().url("${Constants.BASE_URL}/products/$productId").build()
+            val response = client.newCall(request).execute()
+
+            if (response.isSuccessful) {
+                val body = response.body?.string() ?: return@withContext Result.failure(Exception("Empty body"))
+                val restaurant = parseRestaurantJson(body) ?: return@withContext Result.failure(Exception("Invalid JSON"))
+                Result.success(restaurant)
+            } else {
+                Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun verifyUser(idToken: String): Result<Boolean> = withContext(Dispatchers.IO) {
+        try {
+            val request = Request.Builder()
+                .url("${Constants.BASE_URL}/users/me")
+                .get()
+                .addHeader("Authorization", "Bearer $idToken")
+                .build()
+
+            val response = client.newCall(request).execute()
+
+            when (response.code) {
+                200 -> Result.success(true)
+                404 -> Result.success(false)
+                else -> Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun registerUserWithEmail(userDto: UserDto): Result<Boolean> = withContext(Dispatchers.IO) {
+        try {
+            val json = JSONObject().apply {
+                put("name", userDto.name)
+                put("email", userDto.email)
+                put("password", userDto.password)
+                put("address", userDto.address)
+                put("birthday", userDto.birthday)
+            }
+
+            val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
+
+            val request = Request.Builder()
+                .url("${Constants.BASE_URL}/signup")
+                .post(requestBody)
+                .header("Content-Type", "application/json")
+                .build()
+
+            val response = client.newCall(request).execute()
+
+            if (response.isSuccessful) {
+                Result.success(true)
+            } else {
+                Result.failure(Exception(response.body?.string() ?: "Unknown error"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    suspend fun registerUser(userDto: UserDto, idToken: String): Result<Boolean> = withContext(Dispatchers.IO) {
+        try {
+            val json = JSONObject().apply {
+                put("name", userDto.name)
+                put("email", userDto.email)
+                put("password", userDto.password)
+                put("address", userDto.address)
+                put("birthday", userDto.birthday)
+            }
+
+            val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
+            val request = Request.Builder()
+                .url("${Constants.BASE_URL}/signup")
+                .post(requestBody)
+                .addHeader("Authorization", "Bearer $idToken")
+                .build()
+
+            val response = client.newCall(request).execute()
+
+            if (response.isSuccessful) {
+                Result.success(true)
+            } else {
+                Result.failure(Exception(response.body?.string() ?: "Unknown error"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private fun parseRestaurantsJson(responseBody: String): List<RestaurantDto> {
         val restaurantsList = mutableListOf<RestaurantDto>()
         val jsonArray = JSONArray(responseBody)
 
         for (i in 0 until jsonArray.length()) {
             val restaurantJson = jsonArray.getJSONObject(i)
-
             val productsList = mutableListOf<ProductDto>()
             val productsJson = restaurantJson.getJSONArray("products")
             for (j in 0 until productsJson.length()) {
@@ -240,15 +194,11 @@ class BackendServiceAdapter {
             )
             restaurantsList.add(restaurant)
         }
-
         return restaurantsList
     }
 
-    /** Conversor de restaurantes **/
     private fun parseRestaurantJson(responseBody: String): RestaurantDto? {
         val jsonObject = JSONObject(responseBody)
-
-        // Procesar los productos del restaurante
         val productsList = mutableListOf<ProductDto>()
         val productsJson = jsonObject.getJSONArray("products")
         for (j in 0 until productsJson.length()) {
@@ -263,8 +213,6 @@ class BackendServiceAdapter {
             )
             productsList.add(product)
         }
-
-        // Crear el DTO del restaurante
         return RestaurantDto(
             name = jsonObject.getString("name"),
             imageUrl = jsonObject.getString("imageUrl"),
@@ -277,5 +225,4 @@ class BackendServiceAdapter {
             products = productsList
         )
     }
-
 }
