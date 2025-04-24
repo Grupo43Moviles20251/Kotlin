@@ -44,6 +44,9 @@ class LoginRepository(
     private fun verifyUserWithBackend(idToken: String, context: Context, callback: (Boolean, String) -> Unit) {
         backendServiceAdapter.verifyUser(idToken) { success, errorMessage ->
             if (success) {
+                firebaseServiceAdapter.getCurrentUser()?.uid?.let {
+                    firebaseServiceAdapter.registerDeviceInfo(it)
+                }
                 callback(true, "Login successful!")
             } else {
                 callback(false, errorMessage ?: "Verification failed")

@@ -85,4 +85,28 @@ class FirebaseServiceAdapter {
     fun signOut() {
         auth.signOut()
     }
+
+    fun registerDeviceInfo(userId: String) {
+        val model = android.os.Build.MODEL ?: "Unknown"
+        val brand = android.os.Build.BRAND ?: "Unknown"
+        val osVersion = android.os.Build.VERSION.RELEASE ?: "Unknown"
+
+        val deviceData = mapOf(
+            "userId" to userId,
+            "model" to model,
+            "brand" to brand,
+            "osVersion" to osVersion,
+            "timestamp" to com.google.firebase.Timestamp.now()
+        )
+
+        firestore.collection("userDevices")
+            .document(userId) // sobrescribe si ya existe, no duplica
+            .set(deviceData)
+            .addOnSuccessListener {
+                Log.d("DeviceInfo", "Device info saved for user: $userId")
+            }
+            .addOnFailureListener { e ->
+                Log.e("DeviceInfo", "Failed to save device info: ${e.localizedMessage}")
+            }
+    }
 }
