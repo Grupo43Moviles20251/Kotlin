@@ -2,6 +2,7 @@ package com.moviles2025.freshlink43.ui.search
 
 import android.icu.text.DecimalFormat
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -28,6 +29,7 @@ import coil.compose.rememberImagePainter
 import coil.size.Size
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
+import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.*
@@ -95,12 +97,8 @@ fun SearchScreen(
                         items(restaurants.size) { index ->
                             val restaurant = restaurants[index]
                             PlaceholderRestaurantCard(
-                                placeName = restaurant.name,
-                                productName = restaurant.products.firstOrNull()?.productName.orEmpty(),
-                                originalPrice = restaurant.products.firstOrNull()?.originalPrice?.toInt() ?: 0,
-                                discountPrice = restaurant.products.firstOrNull()?.discountPrice?.toInt() ?: 0,
-                                rating = restaurant.rating,
-                                image = restaurant.imageUrl
+                                restaurant = restaurant,
+                                navController = navController
                             )
                         }
                     }
@@ -191,24 +189,24 @@ fun formatAmount(amount: Int): String {
 
 @Composable
 fun PlaceholderRestaurantCard(
-    placeName: String,
-    productName: String,
-    originalPrice: Int,
-    discountPrice: Int,
-    rating: Double,
-    image: String
+    restaurant: Restaurant,
+    navController: NavController
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
-            .height(220.dp),
+            .height(220.dp)
+            .clickable {
+                val productId = restaurant.products[0].productId
+                navController.navigate("detail/${productId}")
+            },
         shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2))
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            val painter = rememberImagePainter(data = image, builder = { size(Size.ORIGINAL) })
+            val painter = rememberImagePainter(data = restaurant.imageUrl, builder = { size(Size.ORIGINAL) })
             Image(
                 painter = painter,
                 contentDescription = "Restaurant Image",
@@ -224,14 +222,14 @@ fun PlaceholderRestaurantCard(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = placeName,
+                    text = restaurant.name,
                     fontSize = 20.sp,
                     fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
                     color = corporationGreen
                 )
 
                 Text(
-                    text = productName,
+                    text = restaurant.products.getOrNull(0)?.productName ?: "No product available",
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
@@ -245,18 +243,21 @@ fun PlaceholderRestaurantCard(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.Star, contentDescription = "Rating", tint = corporationGreen)
-                        Text(text = rating.toString(), fontSize = 14.sp, color = corporationGreen)
+                        Text(text = restaurant.rating.toString(), fontSize = 14.sp, color = corporationGreen)
                     }
 
                     Row(verticalAlignment = Alignment.Bottom) {
+                        val discount = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
+                        val original = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
+
                         Text(
-                            text = "$${formatAmount(discountPrice)}",
+                            text = "$${formatAmount(discount)}",
                             fontSize = 15.sp,
                             color = Color.Gray,
                             textDecoration = TextDecoration.LineThrough
                         )
                         Text(
-                            text = "$${formatAmount(originalPrice)}",
+                            text = "$${formatAmount(original)}",
                             fontSize = 20.sp,
                             fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
                             color = corporationGreen
