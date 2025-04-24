@@ -12,16 +12,15 @@ class SignUpRepository @Inject constructor(
         email: String,
         password: String,
         address: String,
-        birthday: String,
-        callback: (Boolean, String) -> Unit
-    ) {
+        birthday: String
+    ): Result<String> {
         val userDto = UserDto(name, email, password, address, birthday)
-        backendServiceAdapter.registerUserWithEmail(userDto) { success, error ->
-            if (success) {
-                callback(true, "User registered successfully!")
-            } else {
-                callback(false, error ?: "Sign-up failed")
-            }
+        val result = backendServiceAdapter.registerUserWithEmail(userDto)
+
+        return if (result.isSuccess) {
+            Result.success("User registered successfully!")
+        } else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Sign-up failed"))
         }
     }
 }

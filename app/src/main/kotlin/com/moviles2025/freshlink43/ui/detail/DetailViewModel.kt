@@ -20,11 +20,18 @@ class DetailViewModel @Inject constructor(
 
     fun getRestaurantDetail(productId: Int) {
         viewModelScope.launch {
-            repository.getRestaurantDetail(productId) { restaurant, error ->
-                println("Datos recibidos: $restaurant")
-                _restaurant.value = restaurant
-                println("Restaurante actualizado: ${_restaurant.value}")
-            }
+            val result = repository.getRestaurantDetail(productId)
+
+            result
+                .onSuccess { restaurant ->
+                    println("Datos recibidos: $restaurant")
+                    _restaurant.value = restaurant
+                    println("Restaurante actualizado: ${_restaurant.value}")
+                }
+                .onFailure { error ->
+                    println("Error obteniendo restaurante: ${error.localizedMessage}")
+                    // Aquí puedes mostrar un mensaje de error si quieres
+                }
         }
     }
 

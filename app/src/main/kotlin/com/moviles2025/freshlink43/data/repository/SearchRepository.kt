@@ -8,36 +8,33 @@ class SearchRepository @Inject constructor(
     private val backendServiceAdapter: BackendServiceAdapter
 ) {
 
-    fun getFilteredRestaurants(query: String, callback: (List<Restaurant>?, String?) -> Unit) {
-        backendServiceAdapter.fetchRestaurantsByQuery(query) { dtoList, error ->
-            if (dtoList != null) {
-                val restaurants = dtoList.map { it.toDomain() }
-                callback(restaurants, null)
-            } else {
-                callback(null, error)
-            }
+    suspend fun getFilteredRestaurants(query: String): Result<List<Restaurant>> {
+        val result = backendServiceAdapter.fetchRestaurantsByQuery(query)
+        return if (result.isSuccess) {
+            val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
+            Result.success(dtoList.map { it.toDomain() })
+        } else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
         }
     }
 
-    fun getAllRestaurants(callback: (List<Restaurant>?, String?) -> Unit) {
-        backendServiceAdapter.fetchRestaurants { dtoList, error ->
-            if (dtoList != null) {
-                val restaurants = dtoList.map { it.toDomain() }
-                callback(restaurants, null)
-            } else {
-                callback(null, error)
-            }
+    suspend fun getAllRestaurants(): Result<List<Restaurant>> {
+        val result = backendServiceAdapter.fetchRestaurants()
+        return if (result.isSuccess) {
+            val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
+            Result.success(dtoList.map { it.toDomain() })
+        } else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
         }
     }
 
-    fun getFilteredRestaurantsByType(type: String, callback: (List<Restaurant>?, String?) -> Unit) {
-        backendServiceAdapter.fetchRestaurantsByType(type) { dtoList, error ->
-            if (dtoList != null) {
-                val restaurants = dtoList.map { it.toDomain() }
-                callback(restaurants, null)
-            } else {
-                callback(null, error)
-            }
+    suspend fun getFilteredRestaurantsByType(type: String): Result<List<Restaurant>> {
+        val result = backendServiceAdapter.fetchRestaurantsByType(type)
+        return if (result.isSuccess) {
+            val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
+            Result.success(dtoList.map { it.toDomain() })
+        } else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
         }
     }
 }

@@ -6,33 +6,24 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.moviles2025.freshlink43.data.dto.RestaurantMaps
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class FirebaseServiceAdapter {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    fun signInWithEmail(
-        email: String,
-        password: String,
-        callback: (String?, String?) -> Unit
-    ) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    task.result?.user?.getIdToken(true)?.addOnCompleteListener { tokenTask ->
-                        if (tokenTask.isSuccessful) {
-                            val idToken = tokenTask.result?.token
-                            callback(idToken, null)
-                        } else {
-                            callback(null, tokenTask.exception?.localizedMessage)
-                        }
-                    }
-                } else {
-                    callback(null, task.exception?.localizedMessage)
-                }
-            }
+    suspend fun signInWithEmail(email: String, password: String): Pair<String?, String?> {
+        return try {
+            val authResult = auth.signInWithEmailAndPassword(email, password).await()
+            val tokenResult = authResult.user?.getIdToken(true)?.await()
+            val idToken = tokenResult?.token
+            Pair(idToken, null)
+        } catch (e: Exception) {
+            Pair(null, e.localizedMessage)
+        }
     }
 
     fun sendPasswordResetEmail(email: String, callback: (Boolean, String?) -> Unit) {
@@ -47,29 +38,19 @@ class FirebaseServiceAdapter {
             }
     }
 
-    fun signInWithGoogle(
-        credential: AuthCredential,
-        callback: (String?, String?) -> Unit
-    ) {
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    task.result?.user?.getIdToken(true)?.addOnCompleteListener { tokenTask ->
-                        if (tokenTask.isSuccessful) {
-                            val idToken = tokenTask.result?.token
-                            callback(idToken, null)
-                        } else {
-                            callback(null, tokenTask.exception?.localizedMessage)
-                        }
-                    }
-                } else {
-                    callback(null, task.exception?.localizedMessage)
-                }
-            }
+    suspend fun signInWithGoogle(credential: AuthCredential): Pair<String?, String?> {
+        return try {
+            val authResult = auth.signInWithCredential(credential).await()
+            val tokenResult = authResult.user?.getIdToken(true)?.await()
+            val idToken = tokenResult?.token
+            Pair(idToken, null)
+        } catch (e: Exception) {
+            Pair(null, e.localizedMessage)
+        }
     }
 
-    suspend fun getRestaurantsFromFirestore(): List<RestaurantMaps> {
-        return try {
+    suspend fun getRestaurantsFromFirestore(): List<RestaurantMaps> = withContext(Dispatchers.IO) {
+        try {
             val snapshot = firestore.collection("retaurants").get().await()
             snapshot.documents.mapNotNull { it.toObject(RestaurantMaps::class.java) }
         } catch (e: Exception) {

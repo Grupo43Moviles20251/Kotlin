@@ -30,13 +30,15 @@ class HomeViewModel @Inject constructor(
 
     fun getRestaurants() {
         viewModelScope.launch {
-            repository.getRestaurants { restaurants, error ->
-                if (restaurants != null) {
-                    _restaurants.value = restaurants
-                } else {
-                    _errorMessage.value = error
+            val result = repository.getRestaurants()
+
+            result
+                .onSuccess { restaurantList ->
+                    _restaurants.value = restaurantList
                 }
-            }
+                .onFailure { error ->
+                    _errorMessage.value = error.localizedMessage ?: "Error al cargar restaurantes"
+                }
         }
     }
 

@@ -63,7 +63,7 @@ fun LoginScreen(
         try {
             val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-            viewModel.loginWithGoogle(credential, context)
+            viewModel.loginWithGoogle(credential)
         } catch (e: Exception) {
             Log.e("GoogleSignIn", "Google Sign-In failed: ${e.localizedMessage}")
             viewModel.showSnackbarMessage("Google Sign-In failed: ${e.localizedMessage}")

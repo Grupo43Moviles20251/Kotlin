@@ -15,62 +15,72 @@ class LoginRepository(
     private val backendServiceAdapter: BackendServiceAdapter
 ) {
 
-    fun loginWithEmail(email: String, password: String, context: Context, callback: (Boolean, String) -> Unit) {
-        firebaseServiceAdapter.signInWithEmail(email, password) { idToken, error: String? ->
-            if (idToken != null) {
-                verifyUserWithBackend(idToken, context, callback)
-            } else {
-                callback(false, error ?: "Unknown error")
-            }
+    suspend fun loginWithEmail(email: String, password: String): Result<String> {
+        val (idToken, error) = firebaseServiceAdapter.signInWithEmail(email, password)
+
+        if (idToken == null) {
+            return Result.failure(Exception(error ?: "Login failed"))
+        }
+
+        val verification = verifyUserWithBackend(idToken)
+
+        return if (verification.isSuccess) {
+            Result.success("Login successful!")
+        } else {
+            Result.failure(verification.exceptionOrNull() ?: Exception("Backend verification failed"))
         }
     }
 
-    fun loginWithGoogle(credential: AuthCredential, context: Context, callback: (Boolean, String) -> Unit) {
-        firebaseServiceAdapter.signInWithGoogle(credential) { idToken, error ->
-            if (idToken != null) {
-                verifyUserWithBackend(idToken, context) { success, message ->
-                    if (!success) {
-                        registerUserWithGoogle(idToken, context, callback)
-                    } else {
-                        callback(true, "Login successful!")
-                    }
+    suspend fun loginWithGoogle(credential: AuthCredential): Result<String> {
+        return try {
+            val (idToken, error) = firebaseServiceAdapter.signInWithGoogle(credential)
+            if (idToken == null) return Result.failure(Exception(error ?: "Google Sign-In failed"))
+
+            val verification = verifyUserWithBackend(idToken)
+            if (verification.isSuccess) {
+                Result.success("Login successful!")
+            } else {
+                // usuario no existe, registrar
+                val user = firebaseServiceAdapter.getCurrentUser()
+                    ?: return Result.failure(Exception("No authenticated user found"))
+
+                val userDto = user.toDto()
+                val registration = backendServiceAdapter.registerUser(userDto, idToken)
+
+                if (registration.isSuccess) {
+                    Result.success("User registered successfully!")
+                } else {
+                    Result.failure(registration.exceptionOrNull() ?: Exception("Registration failed"))
                 }
-            } else {
-                callback(false, error ?: "Unknown error")
             }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
-    private fun verifyUserWithBackend(idToken: String, context: Context, callback: (Boolean, String) -> Unit) {
-        backendServiceAdapter.verifyUser(idToken) { success, errorMessage ->
-            if (success) {
-                firebaseServiceAdapter.getCurrentUser()?.uid?.let {
-                    firebaseServiceAdapter.registerDeviceInfo(it)
-                }
-                callback(true, "Login successful!")
-            } else {
-                callback(false, errorMessage ?: "Verification failed")
-            }
+    suspend fun verifyUserWithBackend(idToken: String): Result<Boolean> {
+        val result = backendServiceAdapter.verifyUser(idToken)
+
+        return if (result.isSuccess) {
+            val userId = firebaseServiceAdapter.getCurrentUser()?.uid
+            userId?.let { firebaseServiceAdapter.registerDeviceInfo(it) }
+            Result.success(true)
+        } else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Verification failed"))
         }
     }
 
-    private fun registerUserWithGoogle(idToken: String, context: Context, callback: (Boolean, String) -> Unit) {
+    suspend fun registerUserWithGoogle(idToken: String): Result<String> {
         val user = firebaseServiceAdapter.getCurrentUser()
-        if (user == null) {
-            callback(false, "No authenticated user found")
-            return
-        }
-
-
+            ?: return Result.failure(Exception("No authenticated user found"))
 
         val userDto = user.toDto()
 
-        backendServiceAdapter.registerUser(userDto, idToken) { success, errorMessage ->  // ✅ Ahora sí manda un UserDto
-            if (success) {
-                callback(true, "User registered successfully!")
-            } else {
-                callback(false, errorMessage ?: "Sign-up failed")
-            }
+        val result = backendServiceAdapter.registerUser(userDto, idToken)
+        return if (result.isSuccess) {
+            Result.success("User registered successfully!")
+        } else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Sign-up failed"))
         }
     }
 

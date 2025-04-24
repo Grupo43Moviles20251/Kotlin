@@ -99,6 +99,7 @@ dependencies {
     implementation ("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-android-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
     //Room
     //implementation(libs.room.runtime)
     //kapt(libs.androidx.room.compiler)
