@@ -33,6 +33,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
+import com.moviles2025.freshlink43.ui.navigation.Header
 
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
@@ -52,6 +53,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
         }
     }
     Scaffold(
+        topBar = { Header()},
         bottomBar = {
             BottomNavManager(
                 navController = navController,
