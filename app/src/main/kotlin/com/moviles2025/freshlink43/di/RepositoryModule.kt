@@ -103,8 +103,10 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideDetailRepository(
-        backendServiceAdapter: BackendServiceAdapter
+        backendServiceAdapter: BackendServiceAdapter,
+        connectivityHandler: ConnectivityHandler,
+        @ApplicationContext context: Context
     ): DetailRepository {
-        return DetailRepository(backendServiceAdapter)
+        return DetailRepository(backendServiceAdapter, connectivityHandler, context)
     }
 }

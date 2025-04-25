@@ -32,7 +32,7 @@ fun getRestaurantsFromCache(context: Context): List<Restaurant> {
     }
 }
 
-private fun clearCache(context: Context) {
+fun clearCache(context: Context) {
     val sharedPreferences = context.getSharedPreferences("restaurants_cache", Context.MODE_PRIVATE)
     sharedPreferences.edit() {
 
