@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moviles2025.freshlink43.data.repository.DetailRepository
 import com.moviles2025.freshlink43.model.Restaurant
+import com.moviles2025.freshlink43.network.ConnectivityHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,11 +13,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-    private val repository: DetailRepository
+    private val repository: DetailRepository,
+    private val connectivityHandler: ConnectivityHandler
 ) : ViewModel() {
 
     private val _restaurant = MutableStateFlow<Restaurant>(Restaurant())
     val restaurant: StateFlow<Restaurant> = _restaurant
+
+    val isConnected: StateFlow<Boolean> = connectivityHandler.isConnected
 
     fun getRestaurantDetail(productId: Int) {
         viewModelScope.launch {

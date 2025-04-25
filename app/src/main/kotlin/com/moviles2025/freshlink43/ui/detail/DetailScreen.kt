@@ -51,10 +51,12 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import android.content.Intent
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import com.google.maps.android.compose.MapEffect
 import com.moviles2025.freshlink43.ui.maps.UbicationViewModel
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.moviles2025.freshlink43.utils.NotConnection
 
 
 @Composable
@@ -69,6 +71,8 @@ fun DetailScreen(
 
     val context = LocalContext.current
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "detail"
+
+    val isConnected = viewModel.isConnected.collectAsState(initial = false).value
 
     Scaffold(
         topBar = { Header { navController.navigate("profile") } },
@@ -99,12 +103,7 @@ fun DetailScreen(
                         .fillMaxWidth()
                         .height(150.dp)
                 )
-                /* Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .background(Color.Gray.copy(alpha = 0.6f))
-                )
-                */
+
             }
 
             Text(
@@ -190,35 +189,38 @@ fun DetailScreen(
                 // Inicializamos la cámara con la ubicación del restaurante y un zoom adecuado
                 position = CameraPosition.fromLatLngZoom(restaurantLocation, 15f)
             }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-                    .padding(horizontal = 16.dp)
-            ) {
-                GoogleMap(
-                    modifier = Modifier.fillMaxSize(),
-                    cameraPositionState = cameraPositionState,
-                    properties = MapProperties(isMyLocationEnabled = true),
-                    uiSettings = MapUiSettings(zoomControlsEnabled = true)
+            if(isConnected) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                        .padding(horizontal = 16.dp)
                 ) {
-                    MapEffect(ubicationViewModel) { map ->
-                        ubicationViewModel.initializeMap(map, restaurantLocation)
-                    }
+                    GoogleMap(
+                        modifier = Modifier.fillMaxSize(),
+                        cameraPositionState = cameraPositionState,
+                        properties = MapProperties(isMyLocationEnabled = true),
+                        uiSettings = MapUiSettings(zoomControlsEnabled = true)
+                    ) {
+                        MapEffect(ubicationViewModel) { map ->
+                            ubicationViewModel.initializeMap(map, restaurantLocation)
+                        }
 
-                    // Mover la cámara para centrarla en la ubicación del restaurante
-                    LaunchedEffect(restaurantLocation) {
-                        cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(restaurantLocation, 15f))
-                    }
+                        // Mover la cámara para centrarla en la ubicación del restaurante
+                        LaunchedEffect(restaurantLocation) {
+                            cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(restaurantLocation, 15f))
+                        }
 
-                    // Marcador de la ubicación del restaurante
-                    Marker(
-                        state = MarkerState(position = restaurantLocation),
-                        title = restaurant.name,
-                        snippet = restaurant.address
-                    )
+                        // Marcador de la ubicación del restaurante
+                        Marker(
+                            state = MarkerState(position = restaurantLocation),
+                            title = restaurant.name,
+                            snippet = restaurant.address
+                        )
+                    }
                 }
+            } else{
+                NotConnection()
             }
         }
     }

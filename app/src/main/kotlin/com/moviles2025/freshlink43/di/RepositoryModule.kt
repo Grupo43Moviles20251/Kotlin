@@ -12,12 +12,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import android.content.Context
+import com.moviles2025.freshlink43.cache.AppDatabase
+import com.moviles2025.freshlink43.daos.RestaurantDao
 import com.moviles2025.freshlink43.data.repository.DetailRepository
 import com.moviles2025.freshlink43.data.repository.ForgotPasswordRepository
 import com.moviles2025.freshlink43.data.repository.LoginRepository
 import com.moviles2025.freshlink43.data.repository.SearchRepository
 import com.moviles2025.freshlink43.data.repository.SignUpRepository
 import com.moviles2025.freshlink43.data.serviceadapters.FirebaseServiceAdapter
+import com.moviles2025.freshlink43.network.ConnectivityHandler
 
 //import dagger.hilt.android.qualifiers.ApplicationContext
 
@@ -42,9 +45,18 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideHomeRepository(
-        backendServiceAdapter: BackendServiceAdapter
+        backendServiceAdapter: BackendServiceAdapter,
+        connectivityHandler: ConnectivityHandler,
+        restaurantDao: RestaurantDao,
+        database: AppDatabase
+
     ): HomeRepository {
-        return HomeRepository(backendServiceAdapter)
+        return HomeRepository(
+            backendServiceAdapter,
+            restaurantDao,
+            database,
+            connectivityHandler
+        )
     }
 
     @Provides
