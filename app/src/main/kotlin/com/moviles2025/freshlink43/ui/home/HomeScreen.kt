@@ -117,9 +117,9 @@ fun HomeScreen(
                 }
             }
         }
-        if(!isConnected){
-            NotConnection()
-        }
+    }
+    if(!isConnected){
+        NotConnection()
     }
 }
 
