@@ -56,6 +56,8 @@ import com.google.maps.android.compose.MapEffect
 import com.moviles2025.freshlink43.ui.maps.UbicationViewModel
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.CameraUpdateFactory
+import androidx.compose.material3.CircularProgressIndicator
+import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.utils.NotConnection
 
@@ -75,11 +77,26 @@ fun DetailScreen(
 
     val isConnected = viewModel.isConnected.collectAsState(initial = false).value
 
+    LaunchedEffect(productId) {
+        AnalyticsManager.logFeatureUsage("DetailScreen")
+        viewModel.getRestaurantDetail(productId)
+    }
     Scaffold(
         topBar = { Header { navController.navigate("profile") } },
         bottomBar = { BottomNavManager(navController, currentRoute) },
         modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
     ) { innerPadding ->
+        if (restaurant.name.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = corporationGreen)
+            }
+            return@Scaffold
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
