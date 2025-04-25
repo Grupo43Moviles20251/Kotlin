@@ -108,6 +108,27 @@ fun DetailScreen(
                             .height(150.dp)
                     )
 
+                // Precios a la derecha en una Row
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val original = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
+                    val discount = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
+
+                    Text(
+                        text = "$${formatAmount(discount)}",
+                        fontSize = 20.sp,
+                        color = Color.Gray,
+                        textDecoration = TextDecoration.LineThrough,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(
+                        text = "$${formatAmount(original)}",
+                        fontSize = 25.sp,
+                        fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
+                        color = corporationGreen
+                    )
                 }
 
                 Text(

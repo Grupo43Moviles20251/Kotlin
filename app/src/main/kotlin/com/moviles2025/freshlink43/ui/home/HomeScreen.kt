@@ -223,8 +223,8 @@ fun PlaceholderRestaurantCard(
                         }
 
                         Row(verticalAlignment = Alignment.Bottom) {
-                            val discount = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
-                            val original = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
+                            val original = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
+                            val discount = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
 
                             Text(
                                 text = "$${formatAmount(discount)}",
