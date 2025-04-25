@@ -118,9 +118,6 @@ fun HomeScreen(
             }
         }
     }
-    if(!isConnected){
-        NotConnection()
-    }
 }
 
 fun formatAmount(amount: Int): String {

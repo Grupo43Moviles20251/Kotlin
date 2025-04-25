@@ -3,6 +3,7 @@ package com.moviles2025.freshlink43.data.repository
 import androidx.compose.runtime.collectAsState
 import com.moviles2025.freshlink43.cacheHandler.getRestaurantsFromCache
 import com.moviles2025.freshlink43.cacheHandler.saveRestaurantsToCache
+import com.moviles2025.freshlink43.cacheHandler.clearCache
 import com.moviles2025.freshlink43.data.serviceadapters.BackendServiceAdapter
 import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.network.ConnectivityHandler
@@ -28,6 +29,7 @@ class HomeRepository(
                 val domainList = dtoList.map { it.toDomain() }
 
                 // Borramos el caché y luego guardamos los primeros 5 restaurantes
+                //clearCache(context)
                 saveRestaurantsToCache(context,domainList)
 
                 Result.success(domainList)
