@@ -97,12 +97,26 @@ fun SignUpScreen(
 
                 OutlinedTextField(
                     value = uiState.email,
-                    onValueChange = {if (it.length <= 35) viewModel.onEmailChanged(it) },
+                    onValueChange = {
+                        if (it.length <= 50) viewModel.onEmailChanged(it)
+                    },
                     label = { Text("Email", fontFamily = montserratRegular) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = uiState.emailError != null
                 )
+
+                if (uiState.emailError != null) {
+                    Text(
+                        text = uiState.emailError!!,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 12.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 4.dp)
+                    )
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
