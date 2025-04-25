@@ -60,7 +60,6 @@ import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.utils.NotConnection
 
 
-
 @Composable
 fun DetailScreen(
     navController: NavController,
@@ -72,8 +71,7 @@ fun DetailScreen(
     viewModel.getRestaurantDetail(productId)
 
     val context = LocalContext.current
-    val currentRoute =
-        navController.currentBackStackEntryAsState().value?.destination?.route ?: "detail"
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "detail"
 
     val isConnected = viewModel.isConnected.collectAsState(initial = false).value
 
@@ -87,9 +85,9 @@ fun DetailScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (!isConnected and restaurant.products.isEmpty()) {
+            if(!isConnected and restaurant.products.isEmpty()) {
                 NotConnection()
-            } else {
+            }else{
                 // Imagen del restaurante con opacidad
                 val painter = rememberImagePainter(
                     data = restaurant.imageUrl,
@@ -110,13 +108,68 @@ fun DetailScreen(
                             .height(150.dp)
                     )
 
+                }
+
+                Text(
+                    text = restaurant.name,
+                    fontSize = 40.sp,
+                    color = corporationGreen,
+                    fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Título del producto
+                Text(
+                    text = restaurant.products.getOrNull(0)?.productName ?: "No product available",
+                    fontSize = 25.sp,
+                    color = corporationGreen,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 5.dp)
+                )
+
+                // Descripción del producto
+                Text(
+                    text = restaurant.description,
+                    fontSize = 18.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 15.dp)
+                )
+
+                // Fila de botones y precios
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = { /* Implementar acción de orden */ },
+                        modifier = Modifier
+                            .widthIn(min = 0.dp, max = LocalConfiguration.current.screenWidthDp.dp / 3) // Ocupa un tercio del ancho de la pantalla
+                            .height(48.dp), // Ajusta la altura si es necesario
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = corporationGreen, // Color de fondo
+                            contentColor = Color.White  // Color del texto
+                        )
+                    ) {
+                        Text(
+                            text = "Order",
+                            fontSize = 20.sp,
+                        )
+                    }
+
                     // Precios a la derecha en una Row
                     Row(
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        val original = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
-                        val discount = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
+                        val discount = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
+                        val original = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
 
                         Text(
                             text = "$${formatAmount(discount)}",
@@ -132,142 +185,56 @@ fun DetailScreen(
                             color = corporationGreen
                         )
                     }
+                }
 
-                    Text(
-                        text = restaurant.name,
-                        fontSize = 40.sp,
-                        color = corporationGreen,
-                        fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Título del producto
-                    Text(
-                        text = restaurant.products.getOrNull(0)?.productName
-                            ?: "No product available",
-                        fontSize = 25.sp,
-                        color = corporationGreen,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 5.dp)
-                    )
-
-                    // Descripción del producto
-                    Text(
-                        text = restaurant.description,
-                        fontSize = 18.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 15.dp)
-                    )
-
-                    // Fila de botones y precios
-                    Row(
+                // Mapa con la ubicación del restaurante
+                val restaurantLocation = LatLng(restaurant.latitude, restaurant.longitude)
+                val cameraPositionState = rememberCameraPositionState {
+                    // Inicializamos la cámara con la ubicación del restaurante y un zoom adecuado
+                    position = CameraPosition.fromLatLngZoom(restaurantLocation, 15f)
+                }
+                if(isConnected) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(250.dp)
                             .padding(horizontal = 16.dp)
-                            .padding(bottom = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Button(
-                            onClick = { /* Implementar acción de orden */ },
-                            modifier = Modifier
-                                .widthIn(
-                                    min = 0.dp,
-                                    max = LocalConfiguration.current.screenWidthDp.dp / 3
-                                ) // Ocupa un tercio del ancho de la pantalla
-                                .height(48.dp), // Ajusta la altura si es necesario
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = corporationGreen, // Color de fondo
-                                contentColor = Color.White  // Color del texto
-                            )
+                        GoogleMap(
+                            modifier = Modifier.fillMaxSize(),
+                            cameraPositionState = cameraPositionState,
+                            properties = MapProperties(isMyLocationEnabled = true),
+                            uiSettings = MapUiSettings(zoomControlsEnabled = true)
                         ) {
-                            Text(
-                                text = "Order",
-                                fontSize = 20.sp,
-                            )
-                        }
-
-                        // Precios a la derecha en una Row
-                        Row(
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            val discount =
-                                restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
-                            val original =
-                                restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
-
-                            Text(
-                                text = "$${formatAmount(discount)}",
-                                fontSize = 20.sp,
-                                color = Color.Gray,
-                                textDecoration = TextDecoration.LineThrough,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            Text(
-                                text = "$${formatAmount(original)}",
-                                fontSize = 25.sp,
-                                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
-                                color = corporationGreen
-                            )
-                        }
-                    }
-
-                    // Mapa con la ubicación del restaurante
-                    val restaurantLocation = LatLng(restaurant.latitude, restaurant.longitude)
-                    val cameraPositionState = rememberCameraPositionState {
-                        // Inicializamos la cámara con la ubicación del restaurante y un zoom adecuado
-                        position = CameraPosition.fromLatLngZoom(restaurantLocation, 15f)
-                    }
-                    if (isConnected) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(250.dp)
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            GoogleMap(
-                                modifier = Modifier.fillMaxSize(),
-                                cameraPositionState = cameraPositionState,
-                                properties = MapProperties(isMyLocationEnabled = true),
-                                uiSettings = MapUiSettings(zoomControlsEnabled = true)
-                            ) {
-                                MapEffect(ubicationViewModel) { map ->
-                                    ubicationViewModel.initializeMap(map, restaurantLocation)
-                                }
-
-                                // Mover la cámara para centrarla en la ubicación del restaurante
-                                LaunchedEffect(restaurantLocation) {
-                                    cameraPositionState.move(
-                                        CameraUpdateFactory.newLatLngZoom(
-                                            restaurantLocation,
-                                            15f
-                                        )
-                                    )
-                                }
-
-                                // Marcador de la ubicación del restaurante
-                                Marker(
-                                    state = MarkerState(position = restaurantLocation),
-                                    title = restaurant.name,
-                                    snippet = restaurant.address
-                                )
+                            MapEffect(ubicationViewModel) { map ->
+                                ubicationViewModel.initializeMap(map, restaurantLocation)
                             }
+
+                            // Mover la cámara para centrarla en la ubicación del restaurante
+                            LaunchedEffect(restaurantLocation) {
+                                cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(restaurantLocation, 15f))
+                            }
+
+                            // Marcador de la ubicación del restaurante
+                            Marker(
+                                state = MarkerState(position = restaurantLocation),
+                                title = restaurant.name,
+                                snippet = restaurant.address
+                            )
                         }
-                    } else {
-                        NotConnection()
                     }
+                } else{
+                    NotConnection()
                 }
             }
         }
     }
 }
 
+
 fun formatAmount(amount: Int): String {
     val formatter = DecimalFormat("#,###")
     return formatter.format(amount)
 }
+
 
