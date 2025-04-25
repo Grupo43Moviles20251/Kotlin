@@ -32,6 +32,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.ui.layout.ContentScale
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 
@@ -82,6 +83,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel) {
                                 .build()
                         ),
                         contentDescription = "User Profile",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape)
