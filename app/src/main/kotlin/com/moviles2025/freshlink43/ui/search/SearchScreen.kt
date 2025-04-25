@@ -38,12 +38,13 @@ import com.moviles2025.freshlink43.utils.corporationGreen
 @Composable
 fun SearchScreen(
     navController: NavController,
-    viewModel: SearchViewModel
+    viewModel: SearchViewModel,
 ) {
     val query = remember { mutableStateOf(TextFieldValue("")) }
     val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "search"
+    val isConnected = viewModel.isConnected.collectAsState(initial = false).value
 
     LaunchedEffect(Unit) {
         AnalyticsManager.logFeatureUsage("SearchScreen")
@@ -76,30 +77,34 @@ fun SearchScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
-
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = corporationGreen)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp)
-                ) {
-                    if (restaurants.isEmpty()) {
-                        viewModel.getAllRestaurants()
-                    } else {
-                        items(restaurants.size) { index ->
-                            val restaurant = restaurants[index]
-                            PlaceholderRestaurantCard(
-                                restaurant = restaurant,
-                                navController = navController
-                            )
+            if(!isConnected) {
+                NotConnection()
+            }else{
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = corporationGreen)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp)
+                    ) {
+                        if (restaurants.isEmpty()) {
+                            viewModel.getAllRestaurants()
+                        }
+                        else {
+                            items(restaurants.size) { index ->
+                                val restaurant = restaurants[index]
+                                PlaceholderRestaurantCard(
+                                    restaurant = restaurant,
+                                    navController = navController
+                                )
+                            }
                         }
                     }
                 }
