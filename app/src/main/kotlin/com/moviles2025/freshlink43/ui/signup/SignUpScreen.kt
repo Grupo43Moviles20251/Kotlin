@@ -88,7 +88,7 @@ fun SignUpScreen(
 
                 OutlinedTextField(
                     value = uiState.name,
-                    onValueChange = { viewModel.onNameChanged(it) },
+                    onValueChange = { if (it.length <= 35) viewModel.onNameChanged(it) },
                     label = { Text("Name", fontFamily = montserratRegular) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -97,7 +97,7 @@ fun SignUpScreen(
 
                 OutlinedTextField(
                     value = uiState.email,
-                    onValueChange = { viewModel.onEmailChanged(it) },
+                    onValueChange = {if (it.length <= 35) viewModel.onEmailChanged(it) },
                     label = { Text("Email", fontFamily = montserratRegular) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -122,7 +122,7 @@ fun SignUpScreen(
 
                     OutlinedTextField(
                         value = uiState.address,
-                        onValueChange = { viewModel.onAddressChanged(it) },
+                        onValueChange = { if (it.length <= 30) viewModel.onAddressChanged(it) },
                         label = { Text("Address", fontFamily = montserratRegular) },
                         singleLine = true,
                         textStyle = LocalTextStyle.current.copy(fontFamily = montserratRegular),
@@ -136,13 +136,13 @@ fun SignUpScreen(
                 PasswordField(
                     label = { Text("Password", fontFamily = montserratRegular) },
                     password = uiState.password,
-                    onPasswordChange = { viewModel.onPasswordChanged(it) }
+                    onPasswordChange = { if (it.length <= 30) viewModel.onPasswordChanged(it) }
                 )
 
                 PasswordField(
                     label = { Text("Confirm Password", fontFamily = montserratRegular) },
                     password = uiState.confirmPassword,
-                    onPasswordChange = { viewModel.onConfirmPasswordChanged(it) },
+                    onPasswordChange = { if (it.length <= 30) viewModel.onConfirmPasswordChanged(it) },
                     error = uiState.confirmPasswordError
                 )
 
@@ -221,6 +221,11 @@ fun DatePickerField(
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
+    // Restamos 15 años
+    val maxDateCalendar = Calendar.getInstance().apply {
+        add(Calendar.YEAR, -15)
+    }
+
     val datePickerDialog = remember {
         android.app.DatePickerDialog(
             context,
@@ -232,11 +237,12 @@ fun DatePickerField(
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
-        )
+        ).apply {
+            datePicker.maxDate = maxDateCalendar.timeInMillis
+        }
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-
         OutlinedCard(
             modifier = Modifier
                 .fillMaxWidth()
