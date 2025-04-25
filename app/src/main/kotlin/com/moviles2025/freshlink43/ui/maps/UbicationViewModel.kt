@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.moviles2025.freshlink43.data.repository.RestaurantRepository
 import com.moviles2025.freshlink43.data.dto.RestaurantMaps
+import com.moviles2025.freshlink43.network.ConnectivityHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
@@ -25,7 +26,8 @@ class UbicationViewModel  @Inject constructor(
 
     //private val context: Context,
     private val repository: RestaurantRepository,
-    val mapFacade: MapFacade
+    val mapFacade: MapFacade,
+    private val connectivityHandler: ConnectivityHandler
 ) : ViewModel() {
 
     private val _userLocation = MutableStateFlow<LatLng?>(null)
@@ -34,6 +36,7 @@ class UbicationViewModel  @Inject constructor(
     private val _restaurants = MutableStateFlow<List<RestaurantMaps>>(emptyList())
     val restaurants: StateFlow<List<RestaurantMaps>> = _restaurants.asStateFlow()
 
+    val isConnected: StateFlow<Boolean> = connectivityHandler.isConnected
 
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)

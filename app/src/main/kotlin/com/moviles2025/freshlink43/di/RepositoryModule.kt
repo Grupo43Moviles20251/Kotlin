@@ -18,6 +18,7 @@ import com.moviles2025.freshlink43.data.repository.LoginRepository
 import com.moviles2025.freshlink43.data.repository.SearchRepository
 import com.moviles2025.freshlink43.data.repository.SignUpRepository
 import com.moviles2025.freshlink43.data.serviceadapters.FirebaseServiceAdapter
+import com.moviles2025.freshlink43.network.ConnectivityHandler
 
 //import dagger.hilt.android.qualifiers.ApplicationContext
 
@@ -42,9 +43,15 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideHomeRepository(
-        backendServiceAdapter: BackendServiceAdapter
+        backendServiceAdapter: BackendServiceAdapter,
+        connectivityHandler: ConnectivityHandler,
+        @ApplicationContext context: Context
     ): HomeRepository {
-        return HomeRepository(backendServiceAdapter)
+        return HomeRepository(
+            backendServiceAdapter,
+            connectivityHandler,
+            context
+        )
     }
 
     @Provides

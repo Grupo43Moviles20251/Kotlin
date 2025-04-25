@@ -1,6 +1,7 @@
 package com.moviles2025.freshlink43.model
 
 
+
 data class Restaurant(
     val name: String = "",
     val imageUrl: String = "",
@@ -12,4 +13,6 @@ data class Restaurant(
     val rating: Double = 0.0,
     val type: Int = 0
 )
+
+
 
