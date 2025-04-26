@@ -11,12 +11,12 @@ import androidx.compose.ui.unit.dp
 import com.moviles2025.freshlink43.R
 
 @Composable
-fun Header(onNavigateToProfile: () -> Unit) {
+fun Header(onNavigateToProfile: (() -> Unit)? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.statusBars) // Ajusta el header al tamaño de la barra de estado
-            .padding(horizontal = 14.dp, vertical = 0.dp), // Ajusta padding pero sin empujar de más
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(horizontal = 14.dp, vertical = 0.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -25,12 +25,16 @@ fun Header(onNavigateToProfile: () -> Unit) {
             contentDescription = "App Logo",
             modifier = Modifier.size(50.dp)
         )
-        IconButton(onClick = { onNavigateToProfile() }) {
-            Image(
-                painter = painterResource(id = R.drawable.profileicon),
-                contentDescription = "Profile Icon",
-                modifier = Modifier.size(40.dp)
-            )
+
+        // Solo muestra el icono si se proporciona la función
+        onNavigateToProfile?.let {
+            IconButton(onClick = it) {
+                Image(
+                    painter = painterResource(id = R.drawable.profileicon),
+                    contentDescription = "Profile Icon",
+                    modifier = Modifier.size(40.dp)
+                )
+            }
         }
     }
 }

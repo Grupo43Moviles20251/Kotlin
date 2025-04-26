@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.play.services.analytics.impl)
     implementation(libs.play.services.location)
+    implementation(libs.firebase.storage.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -109,4 +110,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.maps.android:maps-compose:2.11.4") // Google Maps para Jetpack Compose
     implementation("com.google.maps.android:maps-utils-ktx:3.4.0")
+
+    implementation("com.google.code.gson:gson:2.8.8")
+
 }

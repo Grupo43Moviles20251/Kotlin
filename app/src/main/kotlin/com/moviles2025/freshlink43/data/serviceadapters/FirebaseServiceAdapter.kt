@@ -9,6 +9,9 @@ import com.moviles2025.freshlink43.data.dto.RestaurantMaps
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import android.net.Uri
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.tasks.await
 
 class FirebaseServiceAdapter {
 
@@ -89,5 +92,33 @@ class FirebaseServiceAdapter {
             .addOnFailureListener { e ->
                 Log.e("DeviceInfo", "Failed to save device info: ${e.localizedMessage}")
             }
+    }
+
+
+
+    suspend fun uploadUserProfileImage(imageUri: Uri): Result<String> {
+        val uid = getCurrentUser()?.uid
+            ?: return Result.failure(Exception("No user logged in"))
+
+        return try {
+            val storageRef = FirebaseStorage.getInstance().reference
+                .child("profile_images/$uid.jpg")
+
+            // Subir archivo
+            storageRef.putFile(imageUri).await()
+
+            // Obtener URL de descarga
+            val url = storageRef.downloadUrl.await().toString()
+
+            // Actualizar el campo photoUrl en Firestore
+            firestore.collection("users")
+                .document(uid)
+                .update("photoUrl", url)
+                .await()
+
+            Result.success(url)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

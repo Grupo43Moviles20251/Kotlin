@@ -7,14 +7,19 @@ import com.moviles2025.freshlink43.data.repository.HomeRepository
 import com.moviles2025.freshlink43.model.Restaurant
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.flow.StateFlow
+import android.content.Context
+import com.moviles2025.freshlink43.network.ConnectivityHandler
+
+
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: HomeRepository,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val connectivityHandler: ConnectivityHandler
 ) : ViewModel() {
 
     private val _welcomeMessage = MutableStateFlow("Welcome to FreshLink!")
@@ -26,6 +31,7 @@ class HomeViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
+    val isConnected: StateFlow<Boolean> = connectivityHandler.isConnected
 
 
     fun getRestaurants() {

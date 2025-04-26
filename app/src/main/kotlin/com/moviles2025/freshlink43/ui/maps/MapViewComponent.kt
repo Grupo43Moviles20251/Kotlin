@@ -30,7 +30,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.dto.RestaurantMaps
+import com.moviles2025.freshlink43.utils.NotConnection
 import com.moviles2025.freshlink43.utils.corporationBlue
+import kotlinx.coroutines.delay
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -40,6 +42,8 @@ fun MapViewComponent(
     restaurantMaps: List<RestaurantMaps>
 ) {
     val context = LocalContext.current
+    val isConnected = viewModel.isConnected.collectAsState(initial = false).value
+
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(userLocation, 15f)
     }
@@ -50,66 +54,65 @@ fun MapViewComponent(
         viewModel.updateMapMarkers()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = true),
-            uiSettings = MapUiSettings(zoomControlsEnabled = true)
-        ) {
-            MapEffect(viewModel) { map ->
-                viewModel.initializeMap(map, userLocation)
-            }
+    //if(isConnected){
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(isMyLocationEnabled = true),
+                uiSettings = MapUiSettings(zoomControlsEnabled = true)
+            ) {
+                MapEffect(viewModel) { map ->
+                    viewModel.initializeMap(map, userLocation)
+                }
 
 
-            restaurantMaps.forEach { restaurant ->
-                Marker(
-                    state = MarkerState(position = LatLng(restaurant.latitude, restaurant.longitude)),
-                    title = restaurant.name,
-                    snippet = restaurant.address,
-                    onClick = {
-                        selectedRestaurant = restaurant
-                        false
-                    }
-                )
-            }
-        }
-
-        FloatingActionButton(
-            onClick = { cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(userLocation, 15f)) },
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp),
-            containerColor = corporationBlue
-        ) {
-            Icon(imageVector = Icons.Default.LocationOn, contentDescription = "Centrar mapa en tu ubicación")
-        }
-
-        AnimatedVisibility(
-            visible = selectedRestaurant != null,
-            enter = slideInVertically(initialOffsetY = { it }),
-            exit = slideOutVertically(targetOffsetY = { it }),
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            selectedRestaurant?.let { restaurant ->
-                RestaurantCard(
-                    restaurantMaps = restaurant,
-                    onClose = { selectedRestaurant = null },
-                    onNavigate = {
-                        val gmmIntentUri =
-                            Uri.parse("google.navigation:q=${restaurant.latitude},${restaurant.longitude}")
-                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-                            setPackage("com.google.android.apps.maps")
+                restaurantMaps.forEach { restaurant ->
+                    Marker(
+                        state = MarkerState(position = LatLng(restaurant.latitude, restaurant.longitude)),
+                        title = restaurant.name,
+                        snippet = restaurant.address,
+                        onClick = {
+                            selectedRestaurant = restaurant
+                            false
                         }
-                        context.startActivity(mapIntent)
-                    }
-                )
+                    )
+                }
+            }
+
+            FloatingActionButton(
+                onClick = { cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(userLocation, 15f)) },
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp),
+                containerColor = corporationBlue
+            ) {
+                Icon(imageVector = Icons.Default.LocationOn, contentDescription = "Centrar mapa en tu ubicación")
+            }
+
+            AnimatedVisibility(
+                visible = selectedRestaurant != null,
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it }),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                selectedRestaurant?.let { restaurant ->
+                    RestaurantCard(
+                        restaurantMaps = restaurant,
+                        onClose = { selectedRestaurant = null },
+                        onNavigate = {
+                            val gmmIntentUri =
+                                Uri.parse("google.navigation:q=${restaurant.latitude},${restaurant.longitude}")
+                            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                                setPackage("com.google.android.apps.maps")
+                            }
+                            context.startActivity(mapIntent)
+                        }
+                    )
+                }
             }
         }
-
-        // Botón para centrar en la ubicación del usuario
-
-    }
 }
 
 @Composable

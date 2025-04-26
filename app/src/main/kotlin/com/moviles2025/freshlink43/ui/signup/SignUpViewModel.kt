@@ -23,7 +23,7 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun onEmailChanged(email: String) {
-        _uiState.value = _uiState.value.copy(email = email)
+        _uiState.value = _uiState.value.copy(email = email, emailError = null)
     }
 
     fun onPasswordChanged(password: String) {
@@ -41,6 +41,8 @@ class SignUpViewModel @Inject constructor(
     fun onBirthdayChanged(birthday: String) {
         _uiState.value = _uiState.value.copy(birthday = birthday)
     }
+
+
 
     fun signUp() {
         val state = _uiState.value
@@ -61,9 +63,15 @@ class SignUpViewModel @Inject constructor(
                 birthday = state.birthday
             )
 
+            val errorMsg = result.exceptionOrNull()?.localizedMessage
+            val emailAlreadyExists = errorMsg?.contains("correo ya está registrado", ignoreCase = true) == true
+
             _uiState.value = _uiState.value.copy(
                 signUpSuccess = result.isSuccess,
-                signUpResult = result.getOrNull() ?: result.exceptionOrNull()?.localizedMessage,
+                signUpResult = if (result.isSuccess) "User registered successfully!"
+                else if (!emailAlreadyExists) errorMsg
+                else null,
+                emailError = if (emailAlreadyExists) errorMsg else null,
                 isLoading = false
             )
         }
@@ -78,6 +86,7 @@ data class SignUpUiState(
     val address: String = "",
     val birthday: String = "",
     val confirmPasswordError: String? = null,
+    val emailError: String? = null,
     val signUpResult: String? = null,
     val signUpSuccess: Boolean = false,
     val isLoading: Boolean = false // Estado de carga

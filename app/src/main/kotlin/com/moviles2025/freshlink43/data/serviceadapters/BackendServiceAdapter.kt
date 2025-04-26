@@ -125,7 +125,16 @@ class BackendServiceAdapter {
             if (response.isSuccessful) {
                 Result.success(true)
             } else {
-                Result.failure(Exception(response.body?.string() ?: "Unknown error"))
+                val errorBody = response.body?.string()
+                val errorMessage = try {
+                    // Intenta extraer el mensaje del JSON de error
+                    JSONObject(errorBody ?: "").getString("detail")
+                } catch (e: Exception) {
+                    // Si no se puede extraer, usa el texto crudo o un genérico
+                    errorBody ?: "Unknown error"
+                }
+
+                Result.failure(Exception(errorMessage))
             }
         } catch (e: Exception) {
             Result.failure(e)

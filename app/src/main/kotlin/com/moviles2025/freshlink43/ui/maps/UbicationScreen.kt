@@ -24,6 +24,7 @@ import com.google.maps.android.compose.*
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
+import com.moviles2025.freshlink43.utils.NotConnection
 import com.moviles2025.freshlink43.utils.corporationBlue
 
 @Composable
@@ -31,6 +32,9 @@ fun UbicationScreen(navController: NavController, viewModel: UbicationViewModel 
     LaunchedEffect(Unit) {
         AnalyticsManager.logFeatureUsage("UbicationScreen")
     }
+
+    val isConnected = viewModel.isConnected.collectAsState(initial = false).value
+
     val context = LocalContext.current
     val userLocation by viewModel.userLocation.collectAsStateWithLifecycle()
     val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
@@ -72,22 +76,26 @@ fun UbicationScreen(navController: NavController, viewModel: UbicationViewModel 
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            when {
-                hasLocationPermission -> {
-                    userLocation?.let { location ->
-                        MapViewComponent(viewModel, location, restaurants) // 📌 Aquí se pasa el mapa correctamente
-                    } ?: Text("Obtaining location...", modifier = Modifier.align(Alignment.Center))
-                }
-                else -> {
-                    PermissionRequestView {
-                        requestPermissionsLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
+            if(isConnected){
+                when {
+                    hasLocationPermission -> {
+                        userLocation?.let { location ->
+                            MapViewComponent(viewModel, location, restaurants)
+                        } ?: Text("Obtaining location...", modifier = Modifier.align(Alignment.Center))
+                    }
+                    else -> {
+                        PermissionRequestView {
+                            requestPermissionsLauncher.launch(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
                             )
-                        )
+                        }
                     }
                 }
+            } else {
+                NotConnection()
             }
         }
     }

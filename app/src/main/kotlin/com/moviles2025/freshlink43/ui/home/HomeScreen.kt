@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +57,8 @@ import com.moviles2025.freshlink43.ui.detail.DetailViewModel
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.corporationGreen
+import com.moviles2025.freshlink43.utils.NotConnection
+
 
 @Composable
 fun HomeScreen(
@@ -64,6 +67,8 @@ fun HomeScreen(
     detailViewModel: DetailViewModel
 ) {
     val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
+
+    val isConnected = viewModel.isConnected.collectAsState(initial = false).value
 
     // Cargar los restaurantes cuando se crea la pantalla
     LaunchedEffect(Unit) {
@@ -218,8 +223,8 @@ fun PlaceholderRestaurantCard(
                         }
 
                         Row(verticalAlignment = Alignment.Bottom) {
-                            val discount = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
-                            val original = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
+                            val original = restaurant.products.getOrNull(0)?.discountPrice?.toInt() ?: 0
+                            val discount = restaurant.products.getOrNull(0)?.originalPrice?.toInt() ?: 0
 
                             Text(
                                 text = "$${formatAmount(discount)}",
@@ -242,6 +247,7 @@ fun PlaceholderRestaurantCard(
                     onClick = {
                         isFavorite = !isFavorite
                         onFavoriteClick(restaurant)
+                        AnalyticsManager.logRestaurantVisit(restaurant.name)
                     },
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
