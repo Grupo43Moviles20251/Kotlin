@@ -247,6 +247,7 @@ fun PlaceholderRestaurantCard(
                     onClick = {
                         isFavorite = !isFavorite
                         onFavoriteClick(restaurant)
+                        AnalyticsManager.logRestaurantVisit(restaurant.name)
                     },
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
