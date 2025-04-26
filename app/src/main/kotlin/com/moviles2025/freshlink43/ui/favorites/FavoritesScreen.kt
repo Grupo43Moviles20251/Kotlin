@@ -1,6 +1,7 @@
 package com.moviles2025.freshlink43.ui.favorites
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -106,6 +107,7 @@ fun FavoritesScreen(
                         CardFavoriteRestaurant(
                             restaurant = restaurant,
                             isFavorite = true,
+                            navController = navController,
                             onFavoriteClick = { viewModel.toggleFavorite(it) }
                         )
                     }
@@ -151,13 +153,18 @@ fun FavoritesScreen(
 fun CardFavoriteRestaurant(
     restaurant: Restaurant,
     isFavorite: Boolean,
+    navController: NavController,
     onFavoriteClick: (Restaurant) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .height(240.dp),
+            .height(240.dp)
+            .clickable {
+                val productId = restaurant.products[0].productId
+                navController.navigate("detail/${productId}")
+            },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = corporationGreen)
