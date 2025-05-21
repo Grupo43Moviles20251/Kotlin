@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.moviles2025.freshlink43.data.repository.SignUpRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,6 +19,16 @@ class SignUpViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _snackbarMessage = MutableStateFlow<String?>(null)
+    val snackbarMessage: StateFlow<String?> = _snackbarMessage
+
+    fun showSnackbarMessage(message: String) {
+        _snackbarMessage.value = message
+    }
+
+    fun clearSnackbarMessage() {
+        _snackbarMessage.value = null
+    }
     fun onNameChanged(name: String) {
         _uiState.value = _uiState.value.copy(name = name)
     }
@@ -43,9 +54,20 @@ class SignUpViewModel @Inject constructor(
     }
 
 
+    fun isConnected(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
 
-    fun signUp() {
+    fun signUp(context: Context) {
         val state = _uiState.value
+
+        if (!isConnected(context)) {
+            showSnackbarMessage("Oops! No internet connection. Please try again later.")
+            return
+        }
 
         if (state.password != state.confirmPassword) {
             _uiState.value = state.copy(confirmPasswordError = "Passwords do not match")

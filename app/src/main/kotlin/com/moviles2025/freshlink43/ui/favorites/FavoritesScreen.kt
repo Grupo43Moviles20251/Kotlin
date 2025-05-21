@@ -99,6 +99,18 @@ fun FavoritesScreen(
                             color = Color.LightGray,
                             fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
                         )
+                        Button(
+                            onClick = { navController.navigate("recommendations") },
+                            colors = ButtonDefaults.buttonColors(containerColor = corporationGreen),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(
+                                text = "Browse Recommended restaurants",
+                                fontSize = 14.sp,
+                                color = Color.White,
+                                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
+                            )
+                        }
                     }
                 }
             } else {
@@ -133,13 +145,27 @@ fun FavoritesScreen(
                                     color = Color.LightGray,
                                     fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
                                 )
+
                                 Spacer(modifier = Modifier.height(4.dp))
+
                                 Text(
                                     text = "Search restaurants and build your favorite list :)",
                                     fontSize = 12.sp,
                                     color = Color.LightGray,
                                     fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
                                 )
+                                Button(
+                                    onClick = { navController.navigate("recommendations") },
+                                    colors = ButtonDefaults.buttonColors(containerColor = corporationGreen),
+                                    shape = RoundedCornerShape(16.dp)
+                                ) {
+                                    Text(
+                                        text = "Browse Recommended restaurants",
+                                        fontSize = 14.sp,
+                                        color = Color.White,
+                                        fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
+                                    )
+                                }
                             }
                         }
                     }
