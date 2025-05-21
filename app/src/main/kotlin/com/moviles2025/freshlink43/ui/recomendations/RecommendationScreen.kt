@@ -58,6 +58,9 @@ import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.corporationGreen
 import com.moviles2025.freshlink43.utils.NotConnection
+import com.moviles2025.freshlink43.utils.corporationBlack
+import com.moviles2025.freshlink43.utils.corporationBlue
+import com.moviles2025.freshlink43.utils.corporationOrange
 
 
 @Composable
@@ -95,7 +98,7 @@ fun RecommendationScreen(
             Text(
                 text = "Recommended restaurants",
                 fontSize = 24.sp,
-                color = corporationGreen,
+                color = corporationBlue,
                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -157,7 +160,7 @@ fun PlaceholderRestaurantCard(
             },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2))
+        colors = CardDefaults.cardColors(containerColor = corporationBlue)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             val painter = rememberImagePainter(
@@ -188,14 +191,14 @@ fun PlaceholderRestaurantCard(
                         text = restaurant.name,
                         fontSize = 20.sp,
                         fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
-                        color = corporationGreen,
+                        color = Color.White,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
 
                     Text(
                         text = restaurant.products.getOrNull(0)?.productName ?: "No product available",
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = Color.LightGray
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -211,13 +214,13 @@ fun PlaceholderRestaurantCard(
                             Icon(
                                 imageVector = Icons.Filled.Star,
                                 contentDescription = "Rating",
-                                tint = corporationGreen,
+                                tint = Color.Yellow,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
                                 text = restaurant.rating.toString(),
                                 fontSize = 14.sp,
-                                color = corporationGreen,
+                                color = Color.Yellow,
                                 modifier = Modifier.padding(start = 4.dp)
                             )
                         }
@@ -229,7 +232,7 @@ fun PlaceholderRestaurantCard(
                             Text(
                                 text = "$${formatAmount(discount)}",
                                 fontSize = 15.sp,
-                                color = Color.Gray,
+                                color = Color.LightGray,
                                 textDecoration = TextDecoration.LineThrough,
                                 modifier = Modifier.padding(horizontal = 8.dp)
                             )
@@ -237,7 +240,7 @@ fun PlaceholderRestaurantCard(
                                 text = "$${formatAmount(original)}",
                                 fontSize = 20.sp,
                                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
-                                color = corporationGreen
+                                color = Color.White
                             )
                         }
                     }

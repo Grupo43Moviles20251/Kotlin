@@ -9,9 +9,14 @@ import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.network.ConnectivityHandler
 import kotlinx.coroutines.flow.StateFlow
 import android.content.Context
+import com.moviles2025.freshlink43.data.dto.RestaurantMaps
+import com.moviles2025.freshlink43.data.serviceadapters.FirebaseServiceAdapter
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class RecommendationRepository (
-    private val backendServiceAdapter: BackendServiceAdapter,
+    private val firebaseServiceAdapter: FirebaseServiceAdapter,
     private val connectivityHandler: ConnectivityHandler,
     private val context: Context
 ) {
@@ -19,34 +24,51 @@ class RecommendationRepository (
     private val connection: StateFlow<Boolean> = connectivityHandler.isConnected
     val isConnected = connection.value
 
+
+
     suspend fun getRestaurants(): Result<List<Restaurant>> {
-        // Si hay conexión a internet, hacemos la solicitud al backend
         return if (isConnected) {
-            val result = backendServiceAdapter.fetchRestaurants()
+            try {
+                val calendar = Calendar.getInstance()
+                val dateFormat = SimpleDateFormat("yyyy-MM", Locale.getDefault())
+                val monthYear = dateFormat.format(calendar.time)
 
-            return if (result.isSuccess) {
-                val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
-                val domainList = dtoList.map { it.toDomain() }
+                val topNamesResult = firebaseServiceAdapter.getTopRestaurantsFromVisitsThisMonth(monthYear)
+                if (topNamesResult.isFailure) return Result.failure(topNamesResult.exceptionOrNull()!!)
 
-                // Borramos el caché y luego guardamos los primeros 5 restaurantes
-                //clearCache(context)
-                saveRestaurantsToCache(context,domainList)
+                val topNames = topNamesResult.getOrNull() ?: emptyList()
+                if (topNames.isEmpty()) return Result.failure(Exception("No top restaurants found"))
 
-                Result.success(domainList)
-            } else {
-                Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
+                val restaurantsResult = firebaseServiceAdapter.getRestaurantsByNames(topNames)
+                if (restaurantsResult.isFailure) return Result.failure(restaurantsResult.exceptionOrNull()!!)
+
+                val restaurants = restaurantsResult.getOrNull() ?: emptyList()
+
+                // Ordenar lista según orden de topNames para mantener ranking descendente
+                val restaurantsOrdered = topNames.mapNotNull { name ->
+                    restaurants.find { it.name == name }
+                }
+
+                saveRestaurantsToCache(context, restaurantsOrdered)
+
+                Result.success(restaurantsOrdered)
+
+            } catch (e: Exception) {
+                val cachedRestaurants = getRestaurantsFromCache(context)
+                if (cachedRestaurants.isNotEmpty()) {
+                    Result.success(cachedRestaurants)
+                } else {
+                    Result.failure(e)
+                }
             }
         } else {
-            // Si no hay conexión a internet, buscamos los restaurantes en el caché
             val cachedRestaurants = getRestaurantsFromCache(context)
-
-            return if (cachedRestaurants.isNotEmpty()) {
-                // Si hay restaurantes en caché, los devolvemos
+            if (cachedRestaurants.isNotEmpty()) {
                 Result.success(cachedRestaurants)
             } else {
-                // Si no hay datos en caché, devolvemos un error
                 Result.failure(Exception("No internet connection and no cached data available"))
             }
         }
     }
+
 }

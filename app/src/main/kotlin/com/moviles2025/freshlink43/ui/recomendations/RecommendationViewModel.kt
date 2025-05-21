@@ -11,13 +11,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlinx.coroutines.flow.StateFlow
 import android.content.Context
+import com.moviles2025.freshlink43.data.repository.RecommendationRepository
 import com.moviles2025.freshlink43.network.ConnectivityHandler
 
 
 
 @HiltViewModel
 class RecommendationViewModel @Inject constructor(
-    private val repository: HomeRepository,
+    private val repository: RecommendationRepository,
     private val favoriteRepository: FavoriteRepository,
     private val connectivityHandler: ConnectivityHandler
 ) : ViewModel() {
