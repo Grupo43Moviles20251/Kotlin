@@ -15,7 +15,6 @@ import android.content.Context
 import com.moviles2025.freshlink43.data.repository.DetailRepository
 import com.moviles2025.freshlink43.data.repository.ForgotPasswordRepository
 import com.moviles2025.freshlink43.data.repository.LoginRepository
-import com.moviles2025.freshlink43.data.repository.RecommendationRepository
 import com.moviles2025.freshlink43.data.repository.SearchRepository
 import com.moviles2025.freshlink43.data.repository.SignUpRepository
 import com.moviles2025.freshlink43.data.serviceadapters.FirebaseServiceAdapter
@@ -99,16 +98,6 @@ object RepositoryModule {
         backendServiceAdapter: BackendServiceAdapter
     ): SearchRepository {
         return SearchRepository(backendServiceAdapter)
-    }
-
-    @Provides
-    @Singleton
-    fun provideRecommendationRepository(
-        firebaseServiceAdapter: FirebaseServiceAdapter,
-        connectivityHandler: ConnectivityHandler,
-        @ApplicationContext context: Context
-    ): RecommendationRepository {
-        return RecommendationRepository(firebaseServiceAdapter, connectivityHandler, context)
     }
 
     @Provides

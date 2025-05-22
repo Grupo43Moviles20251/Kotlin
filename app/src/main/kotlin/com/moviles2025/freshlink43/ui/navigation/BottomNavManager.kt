@@ -21,7 +21,6 @@ fun BottomNavManager(
     val items = listOf(
         BottomNavItem("home", R.drawable.restaurante), // Home
         BottomNavItem("favorites", R.drawable.corazon), // Favoritos
-        //BottomNavItem("recommendations", R.drawable.recomendado), // Perfil
         BottomNavItem("search", R.drawable.busqueda),   // Búsqueda
         BottomNavItem("ubication", R.drawable.marcador) // Ubicación
     )

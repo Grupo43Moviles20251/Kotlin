@@ -12,11 +12,6 @@ import kotlinx.coroutines.withContext
 import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
-import com.google.firebase.firestore.FieldPath
-import com.moviles2025.freshlink43.model.Restaurant
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 class FirebaseServiceAdapter {
 
@@ -31,59 +26,6 @@ class FirebaseServiceAdapter {
             Pair(idToken, null)
         } catch (e: Exception) {
             Pair(null, e.localizedMessage)
-        }
-    }
-
-    suspend fun getTopRestaurantsFromVisitsThisMonth(monthYear: String): Result<List<String>> = withContext(Dispatchers.IO) {
-        try {
-            val visitsCollection = firestore.collection("restaurant_visits")
-
-            // monthYear = "2025-05" (yyyy-MM) para filtrar documentos que empiecen con esa fecha
-            val snapshot = visitsCollection
-                .whereGreaterThanOrEqualTo(FieldPath.documentId(), "$monthYear-01")
-                .whereLessThanOrEqualTo(FieldPath.documentId(), "$monthYear-31")
-                .get()
-                .await()
-
-            val visitsCount = mutableMapOf<String, Int>()
-
-            for (doc in snapshot.documents) {
-                val data = doc.data ?: continue
-                for ((key, value) in data) {
-                    if (key == "last_visited_by") continue
-                    val count = (value as? Number)?.toInt() ?: 0
-                    visitsCount[key] = visitsCount.getOrDefault(key, 0) + count
-                }
-            }
-
-            Log.d("TopRestaurants", "Visitas totales en $monthYear: $visitsCount")
-
-            // Top 3 o 4 restaurantes con más visitas
-            val topRestaurants = visitsCount.entries
-                .sortedByDescending { it.value }
-                .take(3)
-                .map { it.key }
-
-            Log.d("TopRestaurants", "Top restaurantes en $monthYear: $topRestaurants")
-            Result.success(topRestaurants)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun getRestaurantsByNames(names: List<String>): Result<List<Restaurant>> = withContext(Dispatchers.IO) {
-        try {
-            if (names.isEmpty()) return@withContext Result.success(emptyList())
-
-            val restaurantsSnapshot = firestore.collection("retaurants")
-                .whereIn("name", names)
-                .get()
-                .await()
-
-            val restaurants = restaurantsSnapshot.documents.mapNotNull { it.toObject(Restaurant::class.java) }
-            Result.success(restaurants)
-        } catch (e: Exception) {
-            Result.failure(e)
         }
     }
 

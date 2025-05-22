@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -100,18 +99,6 @@ fun FavoritesScreen(
                             color = Color.LightGray,
                             fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
                         )
-                        Button(
-                            onClick = { navController.navigate("recommendations") },
-                            colors = ButtonDefaults.buttonColors(containerColor = corporationGreen),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Text(
-                                text = "Browse Recommended restaurants",
-                                fontSize = 14.sp,
-                                color = Color.White,
-                                fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
-                            )
-                        }
                     }
                 }
             } else {
@@ -125,7 +112,7 @@ fun FavoritesScreen(
                         )
                     }
 
-                    if (favorites.size == 1 || favorites.size == 2) {
+                    if (favorites.size == 1) {
                         item {
                             Column(
                                 modifier = Modifier
@@ -141,32 +128,18 @@ fun FavoritesScreen(
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Text(
-                                    text = "Only this ones? There are more waiting for you!",
+                                    text = "Only one? There are more waiting for you!",
                                     fontSize = 16.sp,
                                     color = Color.LightGray,
                                     fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
                                 )
-
                                 Spacer(modifier = Modifier.height(4.dp))
-
                                 Text(
                                     text = "Search restaurants and build your favorite list :)",
                                     fontSize = 12.sp,
                                     color = Color.LightGray,
                                     fontFamily = FontFamily(Font(R.font.montserratalternates_regular))
                                 )
-                                Button(
-                                    onClick = { navController.navigate("recommendations") },
-                                    colors = ButtonDefaults.buttonColors(containerColor = corporationGreen),
-                                    shape = RoundedCornerShape(16.dp)
-                                ) {
-                                    Text(
-                                        text = "Browse Recommended restaurants",
-                                        fontSize = 14.sp,
-                                        color = Color.White,
-                                        fontFamily = FontFamily(Font(R.font.montserratalternates_semibold))
-                                    )
-                                }
                             }
                         }
                     }
