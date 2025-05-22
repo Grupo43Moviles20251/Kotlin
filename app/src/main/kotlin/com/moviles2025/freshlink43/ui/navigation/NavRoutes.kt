@@ -11,5 +11,6 @@ sealed class NavRoutes(val route: String) {
     object SignUp : NavRoutes("signup")
     object ForgotPassword : NavRoutes("forgotpass")
     object Favorites : NavRoutes("favorites")
+    object Recommendations : NavRoutes("recommendations")
     object Detail : NavRoutes("detail/{productId}")
 }
