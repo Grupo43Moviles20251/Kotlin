@@ -14,6 +14,7 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.firestore.FieldPath
 import com.moviles2025.freshlink43.model.Restaurant
+import com.moviles2025.freshlink43.ui.profile.UserProfile
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -127,6 +128,22 @@ class FirebaseServiceAdapter {
     fun signOut() {
         auth.signOut()
     }
+
+    suspend fun updateUserProfile(updated: UserProfile): Result<Void?> =
+        withContext(Dispatchers.IO) {
+            val uid = getCurrentUser()?.uid
+                ?: return@withContext Result.failure(Exception("User not logged in"))
+            try {
+                firestore.collection("users")
+                    .document(uid)
+                    .set(updated)
+                    .await()
+                Result.success(null)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
 
     fun registerDeviceInfo(userId: String) {
         val model = android.os.Build.MODEL ?: "Unknown"

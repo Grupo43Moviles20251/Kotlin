@@ -11,6 +11,8 @@ class ProfileRepository @Inject constructor(
     private val firebaseServiceAdapter: FirebaseServiceAdapter
 ) {
 
+    suspend fun updateUserProfile(profile: UserProfile) = firebaseServiceAdapter.updateUserProfile(profile)
+
     suspend fun getUserProfile(): Result<UserProfile?> {
         val userId = firebaseServiceAdapter.getCurrentUser()?.uid
             ?: return Result.failure(Exception("User not logged in"))
