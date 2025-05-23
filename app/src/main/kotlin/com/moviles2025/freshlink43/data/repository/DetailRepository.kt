@@ -50,5 +50,14 @@ class DetailRepository(
         return Restaurant() // Devuelve un restaurante vacío si no se encuentra el id
     }
 
+    suspend fun getOrderCode(restaurantId: String, product:String, price:String): Result<String> {
 
+        val result = backendServiceAdapter.fetchOrder(restaurantId, product, price)
+
+        return if(!result.isSuccess){
+            Result.failure(result.exceptionOrNull() ?: Exception("Error en el Repository papu"))
+        } else{
+            return result
+        }
+    }
 }
