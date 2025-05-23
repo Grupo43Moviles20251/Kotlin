@@ -55,6 +55,7 @@ import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.ui.detail.DetailViewModel
+import com.moviles2025.freshlink43.ui.home.HomeViewModel
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.corporationGreen
@@ -237,21 +238,44 @@ fun PlaceholderRestaurantCard(
                     }
                 }
 
-                IconButton(
-                    onClick = {
-                        isFavorite = !isFavorite
-                        onFavoriteClick(restaurant)
-                        AnalyticsManager.logRestaurantVisit(restaurant.name)
-                    },
+                FavoriteIcon(
+                    restaurant = restaurant,
+                    viewModel = viewModel,
+                    onFavoriteClick = onFavoriteClick,
                     modifier = Modifier.align(Alignment.TopEnd)
-                ) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite Icon",
-                        tint = Color.Red
-                    )
-                }
+                )
             }
         }
+    }
+}
+
+@Composable
+fun FavoriteIcon(
+    restaurant: Restaurant,
+    viewModel: RecommendationViewModel,
+    onFavoriteClick: (Restaurant) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isFavorite by remember { mutableStateOf(false) }
+
+    LaunchedEffect(restaurant) {
+        viewModel.isFavorite(restaurant) { result ->
+            isFavorite = result
+        }
+    }
+
+    IconButton(
+        onClick = {
+            isFavorite = !isFavorite
+            onFavoriteClick(restaurant)
+            AnalyticsManager.logRestaurantVisit(restaurant.name)
+        },
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            contentDescription = "Favorite Icon",
+            tint = Color.Red
+        )
     }
 }

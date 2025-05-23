@@ -234,21 +234,45 @@ fun PlaceholderRestaurantCard(
                     }
                 }
 
-                IconButton(
-                    onClick = {
-                        isFavorite = !isFavorite
-                        onFavoriteClick(restaurant)
-                        AnalyticsManager.logRestaurantVisit(restaurant.name)
-                    },
+                FavoriteIcon(
+                    restaurant = restaurant,
+                    viewModel = viewModel,
+                    onFavoriteClick = onFavoriteClick,
                     modifier = Modifier.align(Alignment.TopEnd)
-                ) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite Icon",
-                        tint = Color.Red
-                    )
-                }
+                )
             }
         }
+    }
+}
+
+
+@Composable
+fun FavoriteIcon(
+    restaurant: Restaurant,
+    viewModel: HomeViewModel,
+    onFavoriteClick: (Restaurant) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isFavorite by remember { mutableStateOf(false) }
+
+    LaunchedEffect(restaurant) {
+        viewModel.isFavorite(restaurant) { result ->
+            isFavorite = result
+        }
+    }
+
+    IconButton(
+        onClick = {
+            isFavorite = !isFavorite
+            onFavoriteClick(restaurant)
+            AnalyticsManager.logRestaurantVisit(restaurant.name)
+        },
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            contentDescription = "Favorite Icon",
+            tint = Color.Red
+        )
     }
 }
