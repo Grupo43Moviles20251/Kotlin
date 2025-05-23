@@ -13,6 +13,7 @@ import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.Source
 import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.ui.profile.UserProfile
 import java.text.SimpleDateFormat
@@ -127,6 +128,27 @@ class FirebaseServiceAdapter {
 
     fun signOut() {
         auth.signOut()
+    }
+
+    suspend fun getUserProfile(
+        source: Source = Source.DEFAULT
+    ): Result<UserProfile?> = withContext(Dispatchers.IO) {
+        val uid = getCurrentUser()?.uid
+            ?: return@withContext Result.failure(Exception("User not logged in"))
+        return@withContext try {
+            val snap = firestore
+                .collection("users")
+                .document(uid)
+                .get(source)     // aquí pasamos el source
+                .await()
+            if (snap.exists()) {
+                Result.success(snap.toObject(UserProfile::class.java))
+            } else {
+                Result.failure(Exception("Profile not found"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     suspend fun updateUserProfile(updated: UserProfile): Result<Void?> =

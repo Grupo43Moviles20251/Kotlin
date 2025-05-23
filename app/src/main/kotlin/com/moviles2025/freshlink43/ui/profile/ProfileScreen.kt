@@ -69,158 +69,175 @@ fun ProfileScreen(
             BottomNavManager(navController = navController, selectedTab = "profile")
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.Center,
+
         ) {
-            // Avatar y botón de edición de foto
-            Box(modifier = Modifier.size(120.dp)) {
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        ImageRequest.Builder(context)
-                            .data(photoUrl ?: R.drawable.profileicon)
-                            .crossfade(true)
-                            .diskCachePolicy(CachePolicy.ENABLED)
-                            .build()
-                    ),
-                    contentDescription = "User Profile",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .align(Alignment.Center)
-                )
-                IconButton(
-                    onClick = {
-                        if (viewModel.isConnectedToInternet(context)) {
-                            imagePickerLauncher.launch("image/*")
-                        } else {
-                            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(32.dp)
-                        .background(Color.White, shape = CircleShape)
-                        .padding(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit Photo",
-                        tint = corporationOrange,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            // Nombre (Text o TextField)
-            if (isEditing) {
-                OutlinedTextField(
-                    value = nameField,
-                    onValueChange = { viewModel.editableName.value = it },
-                    label = { Text("Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                Text(
-                    text = user?.name ?: "User",
-                    fontSize = 24.sp,
-                    fontFamily = FontFamily(Font(R.font.montserratalternates_bold))
-                )
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            // Card con campos y botón de editar/guardar integrado
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 200.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize()
             ) {
-                Box {
-                    // IconButton de editar o guardar usando painterResource
+                // Avatar y botón de edición de foto
+                Box(modifier = Modifier.size(120.dp)) {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest.Builder(context)
+                                .data(photoUrl ?: R.drawable.profileicon)
+                                .crossfade(true)
+                                .diskCachePolicy(CachePolicy.ENABLED)
+                                .build()
+                        ),
+                        contentDescription = "User Profile",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .align(Alignment.Center)
+                    )
                     IconButton(
                         onClick = {
-                            if (isEditing) viewModel.saveProfile()
-                            else viewModel.toggleEdit()
+                            if (viewModel.isConnectedToInternet(context)) {
+                                imagePickerLauncher.launch("image/*")
+                            } else {
+                                Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG)
+                                    .show()
+                            }
                         },
                         modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(8.dp)
-                            .size(28.dp)
+                            .align(Alignment.BottomEnd)
+                            .size(32.dp)
+                            .background(Color.White, shape = CircleShape)
+                            .padding(4.dp)
                     ) {
                         Icon(
-                            imageVector = if (isEditing) Icons.Default.Save else Icons.Default.Edit,
-                            contentDescription = if (isEditing) "Guardar" else "Editar",
-                            tint = corporationOrange
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit Photo",
+                            tint = corporationOrange,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
+                }
 
-                    Column(modifier = Modifier.padding(24.dp)) {
-                        // Email (siempre lectura)
-                        ProfileField(
-                            icon = R.drawable.ic_mail,
-                            label = "Email",
-                            value = user?.email ?: "No email"
-                        )
-                        Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(12.dp))
 
-                        // Address
-                        if (isEditing) {
-                            OutlinedTextField(
-                                value = addressField,
-                                onValueChange = { viewModel.editableAddress.value = it },
-                                label = { Text("Address") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        } else {
-                            ProfileField(
-                                icon = R.drawable.marcador,
-                                label = "Address",
-                                value = user?.address ?: "No address"
+                // Nombre (Text o TextField)
+                if (isEditing) {
+                    OutlinedTextField(
+                        value = nameField,
+                        onValueChange = { viewModel.editableName.value = it },
+                        label = { Text("Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else {
+                    Text(
+                        text = user?.name ?: "User",
+                        fontSize = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.montserratalternates_bold))
+                    )
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                // Card con campos y botón de editar/guardar integrado
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 200.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                ) {
+                    Box {
+                        // IconButton de editar o guardar usando painterResource
+                        IconButton(
+                            onClick = {
+                                if (!isEditing) {
+                                    // al entrar en edición, chequear internet
+                                    if (viewModel.isConnectedToInternet(context)) {
+                                        viewModel.toggleEdit()
+                                    } else {
+                                        Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
+                                    }
+                                } else {
+                                    // al guardar, sin checar
+                                    viewModel.saveProfile()
+                                }
+                            },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(8.dp)
+                                .size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isEditing) Icons.Default.Save else Icons.Default.Edit,
+                                contentDescription = if (isEditing) "Guardar" else "Editar",
+                                tint = corporationOrange
                             )
                         }
-                        Spacer(Modifier.height(12.dp))
 
-                        // Birthday
-                        if (isEditing) {
-                            OutlinedTextField(
-                                value = birthdayField,
-                                onValueChange = { viewModel.editableBirthday.value = it },
-                                label = { Text("Birthday") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        } else {
+                        Column(modifier = Modifier.padding(24.dp)) {
+                            // Email (siempre lectura)
                             ProfileField(
-                                icon = R.drawable.ic_birthday,
-                                label = "Birthday",
-                                value = user?.birthday ?: "No birthday"
+                                icon = R.drawable.ic_mail,
+                                label = "Email",
+                                value = user?.email ?: "No email"
                             )
+                            Spacer(Modifier.height(12.dp))
+
+                            // Address
+                            if (isEditing) {
+                                OutlinedTextField(
+                                    value = addressField,
+                                    onValueChange = { viewModel.editableAddress.value = it },
+                                    label = { Text("Address") },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            } else {
+                                ProfileField(
+                                    icon = R.drawable.marcador,
+                                    label = "Address",
+                                    value = user?.address ?: "No address"
+                                )
+                            }
+                            Spacer(Modifier.height(12.dp))
+
+                            // Birthday
+                            if (isEditing) {
+                                OutlinedTextField(
+                                    value = birthdayField,
+                                    onValueChange = { viewModel.editableBirthday.value = it },
+                                    label = { Text("Birthday") },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            } else {
+                                ProfileField(
+                                    icon = R.drawable.ic_birthday,
+                                    label = "Birthday",
+                                    value = user?.birthday ?: "No birthday"
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(24.dp))
 
-            // Sign Out
-            Button(
-                onClick = {
-                    viewModel.signOut()
-                    navController.navigate(NavRoutes.Main.route) {
-                        popUpTo(NavRoutes.Home.route) { inclusive = true }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = corporationOrange)
-            ) {
-                Text("Sign Out", color = Color.White)
+                // Sign Out
+                Button(
+                    onClick = {
+                        viewModel.signOut()
+                        navController.navigate(NavRoutes.Main.route) {
+                            popUpTo(NavRoutes.Home.route) { inclusive = true }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = corporationOrange)
+                ) {
+                    Text("Sign Out", color = Color.White)
+                }
             }
         }
     }
