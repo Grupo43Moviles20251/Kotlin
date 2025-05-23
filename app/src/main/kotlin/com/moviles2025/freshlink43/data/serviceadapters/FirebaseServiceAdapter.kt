@@ -44,6 +44,7 @@ class FirebaseServiceAdapter {
             val snapshot = visitsCollection
                 .whereGreaterThanOrEqualTo(FieldPath.documentId(), "$monthYear-01")
                 .whereLessThanOrEqualTo(FieldPath.documentId(), "$monthYear-31")
+                .limit(20)
                 .get()
                 .await()
 
