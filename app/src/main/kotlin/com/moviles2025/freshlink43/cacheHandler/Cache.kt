@@ -13,7 +13,7 @@ fun saveRestaurantsToCache(context: Context, restaurants: List<Restaurant>) {
     sharedPreferences.edit() {
 
         val gson = Gson()
-        val json = gson.toJson(restaurants.take(4)) // Guardamos solo los primeros 5
+        val json = gson.toJson(restaurants.take(4)) // Guardamos solo los primeros 4
 
         putString("restaurants_cache_key", json)
     } // Guarda de manera asincrónica
@@ -39,7 +39,7 @@ fun saveOrdersToCache(context: Context, orders: List<Order>) {
     sharedPreferences.edit() {
 
         val gson = Gson()
-        val json = gson.toJson(orders.take(4)) // Guardamos solo los primeros 5
+        val json = gson.toJson(orders.take(4)) // Guardamos solo los primeros 4
 
         putString("orders_cache_key", json)
     } // Guarda de manera asincrónica
