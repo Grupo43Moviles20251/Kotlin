@@ -1,6 +1,7 @@
 package com.moviles2025.freshlink43.ui.navigation
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -27,10 +28,12 @@ import com.moviles2025.freshlink43.ui.maps.UbicationViewModel
 import com.moviles2025.freshlink43.ui.order.OrderViewModel
 import com.moviles2025.freshlink43.ui.profile.ProfileScreen
 import com.moviles2025.freshlink43.ui.profile.ProfileViewModel
+import com.moviles2025.freshlink43.ui.recomendations.RecommendationScreen
 import com.moviles2025.freshlink43.ui.splash.SplashScreen
+import com.moviles2025.freshlink43.ui.recomendations.RecommendationViewModel
 
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph(navController: NavHostController, modifier: Modifier) {
     val firebaseAuth = FirebaseAuth.getInstance()
     var isUserAuthenticated by remember { mutableStateOf(firebaseAuth.currentUser != null) }
     val user = FirebaseAuth.getInstance().currentUser
@@ -117,6 +120,16 @@ fun NavGraph(navController: NavHostController) {
             if (FirebaseAuth.getInstance().currentUser != null) {
                 val viewModel: ProfileViewModel = hiltViewModel()
                 ProfileScreen(navController, viewModel)
+            } else {
+                LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
+            }
+        }
+
+        composable(NavRoutes.Recommendations.route) {
+            if (FirebaseAuth.getInstance().currentUser != null) {
+                val viewModel: RecommendationViewModel = hiltViewModel()
+                val detailViewModel : DetailViewModel = hiltViewModel()
+                RecommendationScreen(navController, viewModel, detailViewModel)
             } else {
                 LaunchedEffect(Unit) { navController.navigate(NavRoutes.Main.route) }
             }

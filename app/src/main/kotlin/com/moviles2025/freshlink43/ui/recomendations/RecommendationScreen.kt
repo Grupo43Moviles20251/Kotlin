@@ -1,4 +1,4 @@
-package com.moviles2025.freshlink43.ui.home
+package com.moviles2025.freshlink43.ui.recomendations
 
 import android.icu.text.DecimalFormat
 import androidx.compose.foundation.Image
@@ -55,16 +55,20 @@ import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.ui.detail.DetailViewModel
+import com.moviles2025.freshlink43.ui.home.HomeViewModel
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.corporationGreen
 import com.moviles2025.freshlink43.utils.NotConnection
+import com.moviles2025.freshlink43.utils.corporationBlack
+import com.moviles2025.freshlink43.utils.corporationBlue
+import com.moviles2025.freshlink43.utils.corporationOrange
 
 
 @Composable
-fun HomeScreen(
+fun RecommendationScreen(
     navController: NavController,
-    viewModel: HomeViewModel,
+    viewModel: RecommendationViewModel,
     detailViewModel: DetailViewModel
 ) {
     val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
@@ -94,9 +98,9 @@ fun HomeScreen(
                 .padding(innerPadding)
         ) {
             Text(
-                text = "Restaurants for you",
+                text = "Recommended restaurants",
                 fontSize = 24.sp,
-                color = corporationGreen,
+                color = corporationBlue,
                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -133,7 +137,7 @@ fun formatAmount(amount: Int): String {
 @Composable
 fun PlaceholderRestaurantCard(
     restaurant: Restaurant,
-    viewModel: HomeViewModel,
+    viewModel: RecommendationViewModel,
     navController: NavController,
     detailViewModel: DetailViewModel,
     onFavoriteClick: (Restaurant) -> Unit
@@ -158,16 +162,16 @@ fun PlaceholderRestaurantCard(
             },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2))
+        colors = CardDefaults.cardColors(containerColor = corporationBlue)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+
             AsyncImage(
                 model = restaurant.imageUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxWidth().height(100.dp),
                 contentScale = ContentScale.Crop
-            ) // primera micro optimizacion
-
+            )
 
             Box(
                 modifier = Modifier
@@ -179,14 +183,14 @@ fun PlaceholderRestaurantCard(
                         text = restaurant.name,
                         fontSize = 20.sp,
                         fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
-                        color = corporationGreen,
+                        color = Color.White,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
 
                     Text(
                         text = restaurant.products.getOrNull(0)?.productName ?: "No product available",
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = Color.LightGray
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -202,13 +206,13 @@ fun PlaceholderRestaurantCard(
                             Icon(
                                 imageVector = Icons.Filled.Star,
                                 contentDescription = "Rating",
-                                tint = corporationGreen,
+                                tint = Color.Yellow,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
                                 text = restaurant.rating.toString(),
                                 fontSize = 14.sp,
-                                color = corporationGreen,
+                                color = Color.Yellow,
                                 modifier = Modifier.padding(start = 4.dp)
                             )
                         }
@@ -220,7 +224,7 @@ fun PlaceholderRestaurantCard(
                             Text(
                                 text = "$${formatAmount(discount)}",
                                 fontSize = 15.sp,
-                                color = Color.Gray,
+                                color = Color.LightGray,
                                 textDecoration = TextDecoration.LineThrough,
                                 modifier = Modifier.padding(horizontal = 8.dp)
                             )
@@ -228,7 +232,7 @@ fun PlaceholderRestaurantCard(
                                 text = "$${formatAmount(original)}",
                                 fontSize = 20.sp,
                                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
-                                color = corporationGreen
+                                color = Color.White
                             )
                         }
                     }
@@ -245,11 +249,10 @@ fun PlaceholderRestaurantCard(
     }
 }
 
-
 @Composable
 fun FavoriteIcon(
     restaurant: Restaurant,
-    viewModel: HomeViewModel,
+    viewModel: RecommendationViewModel,
     onFavoriteClick: (Restaurant) -> Unit,
     modifier: Modifier = Modifier
 ) {
