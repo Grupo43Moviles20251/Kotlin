@@ -22,31 +22,64 @@ class HomeViewModel @Inject constructor(
     private val connectivityHandler: ConnectivityHandler
 ) : ViewModel() {
 
+    companion object {
+        private const val PAGE_SIZE = 5
+    }
+
+    private val _allRestaurants     = MutableStateFlow<List<Restaurant>>(emptyList())
+    private val _visibleRestaurants = MutableStateFlow<List<Restaurant>>(emptyList())
+
+
+    val visibleRestaurants: StateFlow<List<Restaurant>> = _visibleRestaurants
+    val welcomeMessage: StateFlow<String>get() = _welcomeMessage
+    val errorMessage: StateFlow<String?>get() = _errorMessage
+    val isConnected: StateFlow<Boolean>get() = connectivityHandler.isConnected
+
+
     private val _welcomeMessage = MutableStateFlow("Welcome to FreshLink!")
-    val welcomeMessage: StateFlow<String> = _welcomeMessage
+    private val _errorMessage   = MutableStateFlow<String?>(null)
 
-    private val _restaurants = MutableStateFlow<List<Restaurant>>(emptyList())
-    val restaurants: StateFlow<List<Restaurant>> = _restaurants
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage
-
-    val isConnected: StateFlow<Boolean> = connectivityHandler.isConnected
-
+    private var currentPage    = 0
+    private var isLoadingPage  = false
 
     fun getRestaurants() {
         viewModelScope.launch {
-            val result = repository.getRestaurants()
-
-            result
-                .onSuccess { restaurantList ->
-                    _restaurants.value = restaurantList
+            repository.getRestaurants()
+                .onSuccess { list ->
+                    //Guarda TODAS las órdenes
+                    _allRestaurants.value = list
+                    //Reinicia la paginación
+                    currentPage = 0
+                    _visibleRestaurants.value = emptyList()
+                    //Carga la primera página
+                    loadNextPage()
                 }
-                .onFailure { error ->
-                    _errorMessage.value = error.localizedMessage ?: "Error al cargar restaurantes"
+                .onFailure { err ->
+                    _errorMessage.value = err.localizedMessage ?: "Error al cargar restaurantes"
                 }
         }
     }
+
+    fun loadNextPage() {
+        if (isLoadingPage) return
+
+        val all = _allRestaurants.value
+        val fromIndex = currentPage * PAGE_SIZE
+        if (fromIndex >= all.size) return  // no hay más
+
+        isLoadingPage = true
+        val toIndex = (fromIndex + PAGE_SIZE).coerceAtMost(all.size)
+
+        // sublista 0 until toIndex → página + páginas anteriores
+        _visibleRestaurants.value = all.subList(0, toIndex)
+
+        currentPage++
+        isLoadingPage = false
+    }
+
+    fun hasMorePages(): Boolean =
+        _visibleRestaurants.value.size < _allRestaurants.value.size
 
     fun toggleFavorite(restaurant: Restaurant) {
         viewModelScope.launch {
