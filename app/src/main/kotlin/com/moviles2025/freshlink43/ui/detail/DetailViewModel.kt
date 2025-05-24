@@ -22,6 +22,9 @@ class DetailViewModel @Inject constructor(
 
     val isConnected: StateFlow<Boolean> = connectivityHandler.isConnected
 
+    private val _orderCode = MutableStateFlow<Result<String>?>(null)
+    val orderCode: StateFlow<Result<String>?> = _orderCode
+
     fun getRestaurantDetail(productId: Int) {
         viewModelScope.launch {
             val result = repository.getRestaurantDetail(productId)
@@ -36,6 +39,13 @@ class DetailViewModel @Inject constructor(
                     println("Error obteniendo restaurante: ${error.localizedMessage}")
                     // Aquí puedes mostrar un mensaje de error si quieres
                 }
+        }
+    }
+
+    fun fetchOrderCode(restaurantId: String, product: String, price: String) {
+        viewModelScope.launch {
+            val result = repository.getOrderCode(restaurantId, product, price)
+            _orderCode.value = result
         }
     }
 

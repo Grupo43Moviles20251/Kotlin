@@ -226,6 +226,13 @@ fun ProfileScreen(
 
                 Spacer(Modifier.height(24.dp))
 
+
+                Spacer(modifier = Modifier.height(16.dp))
+    */
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp), // espacio entre botones
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 // Sign Out
                 Button(
                     onClick = {
@@ -235,8 +242,31 @@ fun ProfileScreen(
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = corporationOrange)
+                    
                 ) {
-                    Text("Sign Out", color = Color.White)
+                    Button(
+                        onClick = {
+                            viewModel.signOut()
+                            navController.navigate(NavRoutes.Main.route) {
+                                popUpTo(NavRoutes.Home.route) { inclusive = true }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = corporationOrange),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Sign Out", color = Color.White)
+                    }
+                    Button(
+                        onClick = {
+                            navController.navigate(NavRoutes.Order.route) {
+                            popUpTo(NavRoutes.Home.route) { inclusive = true }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = corporationOrange),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Order Record", color = Color.White)
+                    }
                 }
             }
         }

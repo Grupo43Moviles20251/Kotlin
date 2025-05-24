@@ -1,38 +1,33 @@
 package com.moviles2025.freshlink43.data.repository
 
-import androidx.compose.runtime.collectAsState
-import com.moviles2025.freshlink43.cacheHandler.getRestaurantsFromCache
-import com.moviles2025.freshlink43.cacheHandler.saveRestaurantsToCache
-import com.moviles2025.freshlink43.cacheHandler.clearCache
+import com.moviles2025.freshlink43.cacheHandler.getOrdersFromCache
+import com.moviles2025.freshlink43.cacheHandler.saveOrdersToCache
 import com.moviles2025.freshlink43.data.serviceadapters.BackendServiceAdapter
-import com.moviles2025.freshlink43.model.Restaurant
+import com.moviles2025.freshlink43.model.Order
 import com.moviles2025.freshlink43.network.ConnectivityHandler
 import kotlinx.coroutines.flow.StateFlow
 import android.content.Context
 
-class HomeRepository(
+class OrderRepository(
     private val backendServiceAdapter: BackendServiceAdapter,
     private val connectivityHandler: ConnectivityHandler,
     private val context: Context
 ) {
-
     //private val connection: StateFlow<Boolean> = connectivityHandler.isConnected
     //val isConnected = connection.value
 
     /*
-
-    suspend fun getRestaurants(): Result<List<Restaurant>> {
+    suspend fun getOrders(): Result<List<Order>> {
         // Si hay conexión a internet, hacemos la solicitud al backend
         return if (isConnected) {
-            val result = backendServiceAdapter.fetchRestaurants()
+            val result = backendServiceAdapter.getOrders()
 
             return if (result.isSuccess) {
                 val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
                 val domainList = dtoList.map { it.toDomain() }
 
                 // Borramos el caché y luego guardamos los primeros 5 restaurantes
-                //clearCache(context)
-                saveRestaurantsToCache(context,domainList)
+                saveOrdersToCache(context, domainList)
 
                 Result.success(domainList)
             } else {
@@ -40,11 +35,11 @@ class HomeRepository(
             }
         } else {
             // Si no hay conexión a internet, buscamos los restaurantes en el caché
-            val cachedRestaurants = getRestaurantsFromCache(context)
+            val cachedOrders = getOrdersFromCache(context)
 
-            return if (cachedRestaurants.isNotEmpty()) {
+            return if (cachedOrders.isNotEmpty()) {
                 // Si hay restaurantes en caché, los devolvemos
-                Result.success(cachedRestaurants)
+                Result.success(cachedOrders)
             } else {
                 // Si no hay datos en caché, devolvemos un error
                 Result.failure(Exception("No internet connection and no cached data available"))
@@ -52,34 +47,33 @@ class HomeRepository(
         }
     }
 
-
      */
 
-    suspend fun getRestaurants(): Result<List<Restaurant>> {
+    suspend fun getOrders(): Result<List<Order>> {
         // Si hay conexión a internet, hacemos la solicitud al backend
         val isConnected = connectivityHandler.hasInternetConnection()
-        if (isConnected) {
-            val result = backendServiceAdapter.fetchRestaurants()
 
-            return if (result.isSuccess) {
+        return if (isConnected) {
+            val result = backendServiceAdapter.getOrders()
+
+            if (result.isSuccess) {
                 val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
                 val domainList = dtoList.map { it.toDomain() }
 
-                // Borramos el caché y luego guardamos los primeros 5 restaurantes
-                //clearCache(context)
-                saveRestaurantsToCache(context,domainList)
+                // Guardamos las primeras 4 órdenes en caché
+                saveOrdersToCache(context, domainList)
 
                 Result.success(domainList)
             } else {
                 Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
             }
         } else {
-            // Si no hay conexión a internet, buscamos los restaurantes en el caché
-            val cachedRestaurants = getRestaurantsFromCache(context)
+            // Si no hay conexión a internet, buscamos las órdenes en el caché
+            val cachedOrders = getOrdersFromCache(context)
 
-            if (cachedRestaurants.isNotEmpty()) {
-                // Si hay restaurantes en caché, los devolvemos
-                return Result.success(cachedRestaurants)
+            if (cachedOrders.isNotEmpty()) {
+                // Si hay órdenes en caché, las devolvemos
+                return Result.success(cachedOrders)
             } else {
                 // Si no hay datos en caché, devolvemos un error
                 return Result.failure(Exception("No internet connection and no cached data available"))
@@ -87,6 +81,12 @@ class HomeRepository(
         }
     }
 
-
-
+    suspend fun cancelOrder(orderId: String): Result<Unit> {
+        val isConnected = connectivityHandler.hasInternetConnection()
+        return if (isConnected) {
+            backendServiceAdapter.cancelOrder(orderId)
+        } else {
+            Result.failure(Exception("No internet connection"))
+        }
+    }
 }

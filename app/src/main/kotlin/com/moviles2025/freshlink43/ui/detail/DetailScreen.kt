@@ -60,6 +60,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.utils.NotConnection
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 
 @Composable
@@ -76,6 +80,20 @@ fun DetailScreen(
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "detail"
 
     val isConnected = viewModel.isConnected.collectAsState(initial = false).value
+
+    var showOrderDialog by remember { mutableStateOf(false) }
+    var currentOrderId by remember { mutableStateOf("") }
+
+
+    val orderCodeResult by viewModel.orderCode.collectAsStateWithLifecycle()
+
+    LaunchedEffect(orderCodeResult) {
+        orderCodeResult?.onSuccess { code ->
+            currentOrderId = code
+            showOrderDialog = true
+        }
+    }
+
 
     LaunchedEffect(productId) {
         AnalyticsManager.logFeatureUsage("DetailScreen")
@@ -165,9 +183,22 @@ fun DetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
-                        onClick = { /* Implementar acción de orden */ },
+                        onClick = {
+
+                            if (isConnected){
+                                viewModel.fetchOrderCode(
+                                    restaurant.name,
+                                    restaurant.products[0].productName,
+                                    restaurant.products[0].discountPrice.toInt().toString()
+                                )
+                            }
+
+                        },
                         modifier = Modifier
-                            .widthIn(min = 0.dp, max = LocalConfiguration.current.screenWidthDp.dp / 3) // Ocupa un tercio del ancho de la pantalla
+                            .widthIn(
+                                min = 0.dp,
+                                max = LocalConfiguration.current.screenWidthDp.dp / 3
+                            ) // Ocupa un tercio del ancho de la pantalla
                             .height(48.dp), // Ajusta la altura si es necesario
                         colors = ButtonDefaults.buttonColors(
                             containerColor = corporationGreen, // Color de fondo
@@ -246,8 +277,14 @@ fun DetailScreen(
             }
         }
     }
-}
 
+    if (showOrderDialog) {
+        OrderSuccessDialog(
+            orderId = currentOrderId,
+            onDismiss = { showOrderDialog = false }
+        )
+    }
+}
 
 fun formatAmount(amount: Int): String {
     val formatter = DecimalFormat("#,###")

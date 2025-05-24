@@ -13,11 +13,11 @@ class DetailRepository(
     private val context: Context
 ) {
 
-    private val connection: StateFlow<Boolean> = connectivityHandler.isConnected
-    val isConnected = connection.value
+    //private val connection: StateFlow<Boolean> = connectivityHandler.isConnected
+    //val isConnected = connection.value
 
     suspend fun getRestaurantDetail(productId: Int): Result<Restaurant> {
-
+        val isConnected = connectivityHandler.hasInternetConnection()
         return if(!isConnected){
             // Si no hay conexión a internet, buscamos los restaurantes en el caché
             val cachedRestaurants = getRestaurantsFromCache(context)
@@ -50,5 +50,14 @@ class DetailRepository(
         return Restaurant() // Devuelve un restaurante vacío si no se encuentra el id
     }
 
+    suspend fun getOrderCode(restaurantId: String, product:String, price:String): Result<String> {
 
+        val result = backendServiceAdapter.fetchOrder(restaurantId, product, price)
+
+        return if(!result.isSuccess){
+            Result.failure(result.exceptionOrNull() ?: Exception("Error en el Repository papu"))
+        } else{
+            return result
+        }
+    }
 }
