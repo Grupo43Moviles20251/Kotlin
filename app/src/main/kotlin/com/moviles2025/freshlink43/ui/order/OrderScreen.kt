@@ -35,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.moviles2025.freshlink43.model.Order
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
@@ -47,7 +49,6 @@ fun OrderScreen(
 ) {
     val orders by viewModel.orders.collectAsStateWithLifecycle()
     val isConnected = viewModel.isConnected.collectAsState(initial = false).value
-
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "order"
 
     LaunchedEffect(Unit) {
@@ -146,7 +147,7 @@ fun OrderCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            val (color, text) = when (order.state.lowercase()) {
+            var (color, text) = when (order.state.lowercase()) {
                 "pending" -> Pair(Color(0xFFFFA500), "PENDING")
                 "cancelled" -> Pair(Color(0xFFFF4C4C), "CANCELLED")
                 else -> Pair(Color.Gray, order.state.uppercase())
@@ -154,9 +155,7 @@ fun OrderCard(
 
             Button(
                 onClick = {
-                if(isConnected){
                     viewModel.cancelOrder(order.orderId)
-                }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = color),
                 shape = RoundedCornerShape(8.dp),

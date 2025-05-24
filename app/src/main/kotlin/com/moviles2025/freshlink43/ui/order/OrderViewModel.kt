@@ -42,11 +42,32 @@ class OrderViewModel @Inject constructor(
         }
     }
 
-    fun cancelOrder(orderId: String) {
+    fun cancelOrder1(orderId: String) {
         viewModelScope.launch {
             val result = repository.cancelOrder(orderId)
             println("cancelOrder result: $result")
 
+        }
+    }
+
+    fun cancelOrder(orderId: String) {
+        // Actualiza localmente la orden a "cancelled" inmediatamente para reflejar cambio en UI
+        val updatedList = _orders.value.map {
+            if (it.orderId == orderId) it.copy(state = "cancelled") else it
+        }
+        _orders.value = updatedList
+
+        // Ejecuta cancelación en backend
+        viewModelScope.launch {
+            val result = repository.cancelOrder(orderId)
+            if (result.isFailure) {
+                // Opcional: revertir el cambio si fallo en backend
+                val revertedList = _orders.value.map {
+                    if (it.orderId == orderId) it.copy(state = "pending") else it
+                }
+                _orders.value = revertedList
+                // Opcional: mostrar mensaje error
+            }
         }
     }
 
