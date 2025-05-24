@@ -1,6 +1,7 @@
 package com.moviles2025.freshlink43.ui.login
 
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -8,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -21,6 +23,8 @@ import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -54,6 +58,13 @@ fun LoginScreen(
 
     val customFont = FontFamily(Font(R.font.montserratalternates_regular))
     val montserratSemiBold = FontFamily(Font(R.font.montserratalternates_semibold))
+    val email = uiState.email
+    val isEmailValid = remember(email) {
+        Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+    val passwordValid = uiState.password.length >= 6
+    val canSignIn = !uiState.isLoading && isEmailValid && passwordValid
+
 
     // Google Sign-In launcher
     val googleSignInLauncher = rememberLauncherForActivityResult(
@@ -145,9 +156,20 @@ fun LoginScreen(
                         label = { Text("Email", fontFamily = customFont) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
                         textStyle = LocalTextStyle.current.copy(fontFamily = customFont)
                     )
-
+                    if (email.isNotEmpty() && !isEmailValid) {
+                        Text(
+                            text = "Formato de correo inválido",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
 
                     var passwordVisible by remember { mutableStateOf(false) }
@@ -187,7 +209,7 @@ fun LoginScreen(
 
                     Button(
                         onClick = { viewModel.login(context) },
-                        enabled = !uiState.isLoading,
+                        enabled = canSignIn,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 16.dp),

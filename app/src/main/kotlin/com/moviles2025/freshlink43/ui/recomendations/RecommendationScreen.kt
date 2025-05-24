@@ -1,6 +1,7 @@
-package com.moviles2025.freshlink43.ui.home
+package com.moviles2025.freshlink43.ui.recomendations
 
 import android.icu.text.DecimalFormat
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,12 +30,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.Font
@@ -46,91 +49,76 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
+import coil.compose.rememberImagePainter
+import coil.size.Size
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.model.Restaurant
 import com.moviles2025.freshlink43.ui.detail.DetailViewModel
+import com.moviles2025.freshlink43.ui.home.HomeViewModel
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.corporationGreen
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-
+import com.moviles2025.freshlink43.utils.NotConnection
+import com.moviles2025.freshlink43.utils.corporationBlack
+import com.moviles2025.freshlink43.utils.corporationBlue
+import com.moviles2025.freshlink43.utils.corporationOrange
 
 
 @Composable
-fun HomeScreen(
+fun RecommendationScreen(
     navController: NavController,
-    viewModel: HomeViewModel,
+    viewModel: RecommendationViewModel,
     detailViewModel: DetailViewModel
 ) {
-    // 1) Estado y conexión
-    val message       by viewModel.welcomeMessage.collectAsStateWithLifecycle()
-    val isConnected   by viewModel.isConnected.collectAsStateWithLifecycle()
-    val restaurants   by viewModel.visibleRestaurants.collectAsStateWithLifecycle()
+    val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
 
-    // 2) Analytics & carga
-    LaunchedEffect(viewModel) {
+    val isConnected = viewModel.isConnected.collectAsState(initial = false).value
+
+    // Cargar los restaurantes cuando se crea la pantalla
+    LaunchedEffect(Unit) {
         AnalyticsManager.logFeatureUsage("HomeScreen")
         viewModel.getRestaurants()
     }
 
-    val currentRoute = navController
-        .currentBackStackEntryAsState()
-        .value
-        ?.destination
-        ?.route
-        ?: "home"
+    // Observar la lista de restaurantes
+    val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
+
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
 
     Scaffold(
-        topBar    = { Header { navController.navigate("profile") } },
+        // Ajuste edge-to-edge
+        topBar = { Header { navController.navigate("profile") } },
         bottomBar = { BottomNavManager(navController, currentRoute) },
-        modifier  = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+        modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
     ) { innerPadding ->
         Column(
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
             Text(
-                text = "Restaurants for you",
+                text = "Recommended restaurants",
                 fontSize = 24.sp,
-                color    = corporationGreen,
+                color = corporationBlue,
                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            LazyColumn(Modifier.fillMaxSize()) {
-                // 3) Lista de páginas acumuladas
-                items(
-                    items = restaurants,
-                    key   = { it.name }   // o usa el ID si lo tienes
-                ) { restaurant ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(restaurants.size) { index ->
+                    val restaurant = restaurants[index]
                     PlaceholderRestaurantCard(
-                        restaurant     = restaurant,
-                        viewModel      = viewModel,
-                        navController  = navController,
-                        detailViewModel = detailViewModel,
+                        restaurant = restaurant,
+                        viewModel = viewModel,
+                        navController = navController,
+                        detailViewModel = detailViewModel,// pasas el ViewModel aquí
                         onFavoriteClick = { viewModel.toggleFavorite(it) }
                     )
-                }
-
-                // 4) Botón “Load more” si quedan más
-                if (viewModel.hasMorePages()) {
-                    item {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Button(onClick = { viewModel.loadNextPage() }) {
-                                Text("Load more restaurants")
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -149,7 +137,7 @@ fun formatAmount(amount: Int): String {
 @Composable
 fun PlaceholderRestaurantCard(
     restaurant: Restaurant,
-    viewModel: HomeViewModel,
+    viewModel: RecommendationViewModel,
     navController: NavController,
     detailViewModel: DetailViewModel,
     onFavoriteClick: (Restaurant) -> Unit
@@ -174,16 +162,16 @@ fun PlaceholderRestaurantCard(
             },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2))
+        colors = CardDefaults.cardColors(containerColor = corporationBlue)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+
             AsyncImage(
                 model = restaurant.imageUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxWidth().height(100.dp),
                 contentScale = ContentScale.Crop
-            ) // primera micro optimizacion
-
+            )
 
             Box(
                 modifier = Modifier
@@ -195,14 +183,14 @@ fun PlaceholderRestaurantCard(
                         text = restaurant.name,
                         fontSize = 20.sp,
                         fontFamily = FontFamily(Font(R.font.montserratalternates_bold)),
-                        color = corporationGreen,
+                        color = Color.White,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
 
                     Text(
                         text = restaurant.products.getOrNull(0)?.productName ?: "No product available",
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = Color.LightGray
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -218,13 +206,13 @@ fun PlaceholderRestaurantCard(
                             Icon(
                                 imageVector = Icons.Filled.Star,
                                 contentDescription = "Rating",
-                                tint = corporationGreen,
+                                tint = Color.Yellow,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
                                 text = restaurant.rating.toString(),
                                 fontSize = 14.sp,
-                                color = corporationGreen,
+                                color = Color.Yellow,
                                 modifier = Modifier.padding(start = 4.dp)
                             )
                         }
@@ -236,7 +224,7 @@ fun PlaceholderRestaurantCard(
                             Text(
                                 text = "$${formatAmount(discount)}",
                                 fontSize = 15.sp,
-                                color = Color.Gray,
+                                color = Color.LightGray,
                                 textDecoration = TextDecoration.LineThrough,
                                 modifier = Modifier.padding(horizontal = 8.dp)
                             )
@@ -244,7 +232,7 @@ fun PlaceholderRestaurantCard(
                                 text = "$${formatAmount(original)}",
                                 fontSize = 20.sp,
                                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
-                                color = corporationGreen
+                                color = Color.White
                             )
                         }
                     }
@@ -261,11 +249,10 @@ fun PlaceholderRestaurantCard(
     }
 }
 
-
 @Composable
 fun FavoriteIcon(
     restaurant: Restaurant,
-    viewModel: HomeViewModel,
+    viewModel: RecommendationViewModel,
     onFavoriteClick: (Restaurant) -> Unit,
     modifier: Modifier = Modifier
 ) {

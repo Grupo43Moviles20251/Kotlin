@@ -16,8 +16,10 @@ class HomeRepository(
     private val context: Context
 ) {
 
-    private val connection: StateFlow<Boolean> = connectivityHandler.isConnected
-    val isConnected = connection.value
+    //private val connection: StateFlow<Boolean> = connectivityHandler.isConnected
+    //val isConnected = connection.value
+
+    /*
 
     suspend fun getRestaurants(): Result<List<Restaurant>> {
         // Si hay conexión a internet, hacemos la solicitud al backend
@@ -49,4 +51,42 @@ class HomeRepository(
             }
         }
     }
+
+
+     */
+
+    suspend fun getRestaurants(): Result<List<Restaurant>> {
+        // Si hay conexión a internet, hacemos la solicitud al backend
+        val isConnected = connectivityHandler.hasInternetConnection()
+        if (isConnected) {
+            val result = backendServiceAdapter.fetchRestaurants()
+
+            return if (result.isSuccess) {
+                val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
+                val domainList = dtoList.map { it.toDomain() }
+
+                // Borramos el caché y luego guardamos los primeros 5 restaurantes
+                //clearCache(context)
+                saveRestaurantsToCache(context,domainList)
+
+                Result.success(domainList)
+            } else {
+                Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
+            }
+        } else {
+            // Si no hay conexión a internet, buscamos los restaurantes en el caché
+            val cachedRestaurants = getRestaurantsFromCache(context)
+
+            if (cachedRestaurants.isNotEmpty()) {
+                // Si hay restaurantes en caché, los devolvemos
+                return Result.success(cachedRestaurants)
+            } else {
+                // Si no hay datos en caché, devolvemos un error
+                return Result.failure(Exception("No internet connection and no cached data available"))
+            }
+        }
+    }
+
+
+
 }

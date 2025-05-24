@@ -15,6 +15,8 @@ import android.content.Context
 import com.moviles2025.freshlink43.data.repository.DetailRepository
 import com.moviles2025.freshlink43.data.repository.ForgotPasswordRepository
 import com.moviles2025.freshlink43.data.repository.LoginRepository
+import com.moviles2025.freshlink43.data.repository.OrderRepository
+import com.moviles2025.freshlink43.data.repository.RecommendationRepository
 import com.moviles2025.freshlink43.data.repository.SearchRepository
 import com.moviles2025.freshlink43.data.repository.SignUpRepository
 import com.moviles2025.freshlink43.data.serviceadapters.FirebaseServiceAdapter
@@ -36,8 +38,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideBackendServiceAdapter(): BackendServiceAdapter {
-        return BackendServiceAdapter()
+    fun provideBackendServiceAdapter(firebaseServiceAdapter: FirebaseServiceAdapter): BackendServiceAdapter {
+        return BackendServiceAdapter(firebaseServiceAdapter)
     }
 
     @Provides
@@ -102,6 +104,16 @@ object RepositoryModule {
 
     @Provides
     @Singleton
+    fun provideRecommendationRepository(
+        firebaseServiceAdapter: FirebaseServiceAdapter,
+        connectivityHandler: ConnectivityHandler,
+        @ApplicationContext context: Context
+    ): RecommendationRepository {
+        return RecommendationRepository(firebaseServiceAdapter, connectivityHandler, context)
+    }
+
+    @Provides
+    @Singleton
     fun provideDetailRepository(
         backendServiceAdapter: BackendServiceAdapter,
         connectivityHandler: ConnectivityHandler,
@@ -109,4 +121,16 @@ object RepositoryModule {
     ): DetailRepository {
         return DetailRepository(backendServiceAdapter, connectivityHandler, context)
     }
+
+    @Provides
+    @Singleton
+    fun provideOrderRepository(
+        backendServiceAdapter: BackendServiceAdapter,
+        connectivityHandler: ConnectivityHandler,
+        @ApplicationContext context: Context
+    ): OrderRepository {
+        return OrderRepository(backendServiceAdapter, connectivityHandler, context)
+    }
+
+
 }
