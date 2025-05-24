@@ -13,9 +13,10 @@ class OrderRepository(
     private val connectivityHandler: ConnectivityHandler,
     private val context: Context
 ) {
-    private val connection: StateFlow<Boolean> = connectivityHandler.isConnected
-    val isConnected = connection.value
+    //private val connection: StateFlow<Boolean> = connectivityHandler.isConnected
+    //val isConnected = connection.value
 
+    /*
     suspend fun getOrders(): Result<List<Order>> {
         // Si hay conexión a internet, hacemos la solicitud al backend
         return if (isConnected) {
@@ -46,7 +47,42 @@ class OrderRepository(
         }
     }
 
+     */
+
+    suspend fun getOrders(): Result<List<Order>> {
+        // Si hay conexión a internet, hacemos la solicitud al backend
+        val isConnected = connectivityHandler.hasInternetConnection()
+
+        return if (isConnected) {
+            val result = backendServiceAdapter.getOrders()
+
+            if (result.isSuccess) {
+                val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
+                val domainList = dtoList.map { it.toDomain() }
+
+                // Guardamos las primeras 4 órdenes en caché
+                saveOrdersToCache(context, domainList)
+
+                Result.success(domainList)
+            } else {
+                Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
+            }
+        } else {
+            // Si no hay conexión a internet, buscamos las órdenes en el caché
+            val cachedOrders = getOrdersFromCache(context)
+
+            if (cachedOrders.isNotEmpty()) {
+                // Si hay órdenes en caché, las devolvemos
+                return Result.success(cachedOrders)
+            } else {
+                // Si no hay datos en caché, devolvemos un error
+                return Result.failure(Exception("No internet connection and no cached data available"))
+            }
+        }
+    }
+
     suspend fun cancelOrder(orderId: String): Result<Unit> {
+        val isConnected = connectivityHandler.hasInternetConnection()
         return if (isConnected) {
             backendServiceAdapter.cancelOrder(orderId)
         } else {
