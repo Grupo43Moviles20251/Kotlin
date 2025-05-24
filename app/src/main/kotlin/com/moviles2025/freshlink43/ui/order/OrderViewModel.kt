@@ -19,56 +19,76 @@ class OrderViewModel @Inject constructor(
     private val connectivityHandler: ConnectivityHandler
 ) : ViewModel(){
 
-    private val _orders = MutableStateFlow<List<Order>>(emptyList())
-    val orders: StateFlow<List<Order>> = _orders
+    companion object {
+        private const val PAGE_SIZE = 10
+    }
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage
-
+    // 1) Flujos internos
+    private val _allOrders = MutableStateFlow<List<Order>>(emptyList())
+    private val _visibleOrders = MutableStateFlow<List<Order>>(emptyList())
     val isConnected: StateFlow<Boolean> = connectivityHandler.isConnected
+
+    // 2) Exposición al UI
+    val visibleOrders: StateFlow<List<Order>> = _visibleOrders
+
+    // 3) Variables de control
+    private var currentPage = 0
+    private var isLoadingPage = false
 
     fun getOrders() {
         viewModelScope.launch {
-            val result = repository.getOrders()
-            println("getOrders result: $result")
-
-            result
-                .onSuccess { orderList ->
-                    _orders.value = orderList
+            repository.getOrders()
+                .onSuccess { list ->
+                    _allOrders.value = list
+                    currentPage = 0
+                    _visibleOrders.value = emptyList()
+                    loadNextPage()
                 }
-                .onFailure { error ->
-                    _errorMessage.value = error.localizedMessage ?: "Error al cargar ordenes"
+                .onFailure { err ->
+                    // … tu lógica de error
                 }
-        }
-    }
-
-    fun cancelOrder1(orderId: String) {
-        viewModelScope.launch {
-            val result = repository.cancelOrder(orderId)
-            println("cancelOrder result: $result")
-
         }
     }
 
     fun cancelOrder(orderId: String) {
-        // Actualiza localmente la orden a "cancelled" inmediatamente para reflejar cambio en UI
-        val updatedList = _orders.value.map {
-            if (it.orderId == orderId) it.copy(state = "cancelled") else it
-        }
-        _orders.value = updatedList
+        // 1) Guarda el estado previo para poder revertir
+        val prevAll     = _allOrders.value
+        val prevVisible = _visibleOrders.value
 
-        // Ejecuta cancelación en backend
+        // 2) Aplica cambio optimista: marca como "cancelled"
+        _allOrders.value     = prevAll.map { if (it.orderId == orderId) it.copy(state = "cancelled") else it }
+        _visibleOrders.value = prevVisible.map { if (it.orderId == orderId) it.copy(state = "cancelled") else it }
+
+        // 3) Lanza la petición al backend
         viewModelScope.launch {
             val result = repository.cancelOrder(orderId)
+
             if (result.isFailure) {
-                // Opcional: revertir el cambio si fallo en backend
-                val revertedList = _orders.value.map {
-                    if (it.orderId == orderId) it.copy(state = "pending") else it
-                }
-                _orders.value = revertedList
-                // Opcional: mostrar mensaje error
+                // 4) En caso de error, revierte ambos flujos y emite mensaje
+                _allOrders.value     = prevAll
+                _visibleOrders.value = prevVisible
             }
         }
+    }
+
+    fun loadNextPage() {
+        if (isLoadingPage) return
+        val all = _allOrders.value
+        val fromIndex = currentPage * PAGE_SIZE
+        if (fromIndex >= all.size) return  // ya no hay más
+        isLoadingPage = true
+
+        // Calcula el toIndex seguro
+        val toIndex = (fromIndex + PAGE_SIZE).coerceAtMost(all.size)
+        // Toma la “sublista” desde 0 hasta toIndex
+        _visibleOrders.value = all.subList(0, toIndex)
+
+        currentPage++
+        isLoadingPage = false
+    }
+
+    fun hasMorePages(): Boolean {
+        return _visibleOrders.value.size < _allOrders.value.size
     }
 
 }
