@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import coil.size.Size
 import com.moviles2025.freshlink43.R
@@ -160,23 +161,13 @@ fun PlaceholderRestaurantCard(
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2))
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            val painter = rememberImagePainter(
-                data = restaurant.imageUrl,
-                builder = {
-                    size(Size.ORIGINAL)
-                    crossfade(true)
-                }
-            )
+            AsyncImage(
+                model = restaurant.imageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth().height(100.dp),
+                contentScale = ContentScale.Crop
+            ) // primera micro optimizacion
 
-            Image(
-                painter = painter,
-                contentDescription = "Restaurant Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-            )
 
             Box(
                 modifier = Modifier
@@ -243,21 +234,45 @@ fun PlaceholderRestaurantCard(
                     }
                 }
 
-                IconButton(
-                    onClick = {
-                        isFavorite = !isFavorite
-                        onFavoriteClick(restaurant)
-                        AnalyticsManager.logRestaurantVisit(restaurant.name)
-                    },
+                FavoriteIcon(
+                    restaurant = restaurant,
+                    viewModel = viewModel,
+                    onFavoriteClick = onFavoriteClick,
                     modifier = Modifier.align(Alignment.TopEnd)
-                ) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite Icon",
-                        tint = Color.Red
-                    )
-                }
+                )
             }
         }
+    }
+}
+
+
+@Composable
+fun FavoriteIcon(
+    restaurant: Restaurant,
+    viewModel: HomeViewModel,
+    onFavoriteClick: (Restaurant) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isFavorite by remember { mutableStateOf(false) }
+
+    LaunchedEffect(restaurant) {
+        viewModel.isFavorite(restaurant) { result ->
+            isFavorite = result
+        }
+    }
+
+    IconButton(
+        onClick = {
+            isFavorite = !isFavorite
+            onFavoriteClick(restaurant)
+            AnalyticsManager.logRestaurantVisit(restaurant.name)
+        },
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            contentDescription = "Favorite Icon",
+            tint = Color.Red
+        )
     }
 }
