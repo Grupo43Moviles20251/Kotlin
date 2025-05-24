@@ -1,6 +1,7 @@
 package com.moviles2025.freshlink43.ui.signup
 
 import android.content.Context
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moviles2025.freshlink43.data.repository.SignUpRepository
@@ -29,6 +30,7 @@ class SignUpViewModel @Inject constructor(
     fun clearSnackbarMessage() {
         _snackbarMessage.value = null
     }
+
     fun onNameChanged(name: String) {
         _uiState.value = _uiState.value.copy(name = name)
     }
@@ -55,7 +57,8 @@ class SignUpViewModel @Inject constructor(
 
 
     fun isConnected(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         return capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
@@ -63,37 +66,64 @@ class SignUpViewModel @Inject constructor(
 
     fun signUp(context: Context) {
         val state = _uiState.value
+        val name = state.name.trim()
+        val email = state.email.trim()
+        val pass = state.password
+        val confirm = state.confirmPassword
+        val address = state.address.trim()
+        val birthday = state.birthday
 
+        // 1. Campos obligatorios
+        if (name.isEmpty() || email.isEmpty() || pass.isEmpty() ||
+            confirm.isEmpty() || address.isEmpty() || birthday.isEmpty()
+        ) {
+            showSnackbarMessage("Please complete all the spaces")
+            return
+        }
+
+        // 2. Formato de email
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _uiState.value = state.copy(emailError = "Invalid Email")
+            return
+        }
+
+        // 3. Longitud mínima de contraseña
+        if (pass.length < 6) {
+            showSnackbarMessage("The password should have at least 6 characters")
+            return
+        }
+
+        // 4. Confirmación de contraseña
+        if (pass != confirm) {
+            _uiState.value = state.copy(confirmPasswordError = "Passwords do not match")
+            return
+        }
+
+        // 5. Conectividad
         if (!isConnected(context)) {
             showSnackbarMessage("Oops! No internet connection. Please try again later.")
             return
         }
 
-        if (state.password != state.confirmPassword) {
-            _uiState.value = state.copy(confirmPasswordError = "Passwords do not match")
-            return
-        }
-
         _uiState.value = state.copy(isLoading = true)
-
         viewModelScope.launch {
             val result = repository.signUpWithEmail(
-                name = state.name,
-                email = state.email,
-                password = state.password,
-                address = state.address,
-                birthday = state.birthday
+                name = name,
+                email = email,
+                password = pass,
+                address = address,
+                birthday = birthday
             )
 
             val errorMsg = result.exceptionOrNull()?.localizedMessage
-            val emailAlreadyExists = errorMsg?.contains("correo ya está registrado", ignoreCase = true) == true
+            val exists = errorMsg?.contains("ya está registrado", true) == true
 
             _uiState.value = _uiState.value.copy(
                 signUpSuccess = result.isSuccess,
-                signUpResult = if (result.isSuccess) "User registered successfully!"
-                else if (!emailAlreadyExists) errorMsg
+                signUpResult = if (result.isSuccess) "Usuario registrado correctamente!"
+                else if (!exists) errorMsg
                 else null,
-                emailError = if (emailAlreadyExists) errorMsg else null,
+                emailError = if (exists) errorMsg else null,
                 isLoading = false
             )
         }

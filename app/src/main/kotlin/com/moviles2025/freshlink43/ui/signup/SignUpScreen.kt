@@ -1,5 +1,6 @@
 package com.moviles2025.freshlink43.ui.signup
 
+import android.util.Patterns
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -48,6 +49,19 @@ fun SignUpScreen(
     val montserratBold = FontFamily(Font(R.font.montserratalternates_bold))
     val montserratRegular = FontFamily(Font(R.font.montserratalternates_regular))
     val montserratSemiBold = FontFamily(Font(R.font.montserratalternates_semibold))
+    val state = uiState
+    val nameValid     = state.name.isNotBlank()
+    val emailValid    = Patterns.EMAIL_ADDRESS.matcher(state.email).matches()
+    val passValid     = state.password.length >= 6
+    val confirmValid  = state.confirmPassword == state.password
+    val addressValid  = state.address.isNotBlank()
+    val birthdayValid = state.birthday.isNotBlank()
+
+    val canSignUp = !state.isLoading &&
+            nameValid && emailValid &&
+            passValid && confirmValid &&
+            addressValid && birthdayValid
+
 
     // Observa el snackbarMessage y muestra el Snackbar cuando haya mensaje
     LaunchedEffect(snackbarMessage) {
@@ -87,9 +101,7 @@ fun SignUpScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // TODO: Aquí va todo tu contenido actual sin cambios
-                    // (Logo, campos, botones, textos, etc.)
-                    // No olvides mantener el modifier.fillMaxWidth() para inputs y botones
+
                     Image(
                         painter = painterResource(id = R.drawable.logoapp),
                         contentDescription = "App Logo",
@@ -121,6 +133,17 @@ fun SignUpScreen(
                         modifier = Modifier.fillMaxWidth(),
                         isError = uiState.emailError != null
                     )
+                    val emailErrorText = state.emailError ?: if (state.email.isNotEmpty() && !emailValid)
+                        "Formato de correo inválido" else null
+
+                    emailErrorText?.let {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.fillMaxWidth().padding(start = 4.dp)
+                        )
+                    }
 
                     if (uiState.emailError != null) {
                         Text(
@@ -177,10 +200,10 @@ fun SignUpScreen(
 
                     Button(
                         onClick = { viewModel.signUp(context) },
-                        enabled = !uiState.isLoading,
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = corporationBlue),
-                        modifier = Modifier.fillMaxWidth()
+                        enabled = canSignUp,
+                        shape   = RoundedCornerShape(16.dp),
+                        modifier= Modifier.fillMaxWidth(),
+                        colors  = ButtonDefaults.buttonColors(containerColor = corporationBlue)
                     ) {
                         Text("Sign Up", fontFamily = montserratSemiBold)
                     }

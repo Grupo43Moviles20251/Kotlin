@@ -1,6 +1,7 @@
 package com.moviles2025.freshlink43.ui.login
 
 import android.content.Context
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
@@ -39,25 +40,41 @@ class LoginViewModel @Inject constructor(
         val password = uiState.value.password
 
         viewModelScope.launch {
+            // 1) Campos vacíos
             if (email.isEmpty() || password.isEmpty()) {
                 _uiState.update { it.copy(isLoading = false) }
-                showSnackbarMessage("Please enter both email and password")
+                showSnackbarMessage("Please enter mail and password")
                 return@launch
             }
 
+            // 2) Formato de email
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                _uiState.update { it.copy(isLoading = false) }
+                showSnackbarMessage("Please enter a valid email")
+                return@launch
+            }
+
+            // 3) Longitud mínima de contraseña
+            if (password.length < 6) {
+                _uiState.update { it.copy(isLoading = false) }
+                showSnackbarMessage("The password should have at least 6 characters")
+                return@launch
+            }
+
+            // 4) Conexión a Internet
             if (!isConnected(context)) {
+                _uiState.update { it.copy(isLoading = false) }
                 showSnackbarMessage("Oops! No internet connection. Please try again later.")
                 return@launch
             }
 
             _uiState.update { it.copy(isLoading = true) }
-
             val result = repository.loginWithEmail(email, password)
             _uiState.update {
                 it.copy(
                     loginSuccess = result.isSuccess,
-                    loginResult = result.getOrNull() ?: result.exceptionOrNull()?.localizedMessage,
-                    isLoading = false
+                    loginResult  = result.getOrNull() ?: result.exceptionOrNull()?.localizedMessage,
+                    isLoading    = false
                 )
             }
         }
