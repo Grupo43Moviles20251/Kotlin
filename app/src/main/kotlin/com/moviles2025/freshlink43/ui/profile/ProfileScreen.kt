@@ -228,21 +228,12 @@ fun ProfileScreen(
 
 
                 Spacer(modifier = Modifier.height(16.dp))
-    */
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp), // espacio entre botones
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 // Sign Out
-                Button(
-                    onClick = {
-                        viewModel.signOut()
-                        navController.navigate(NavRoutes.Main.route) {
-                            popUpTo(NavRoutes.Home.route) { inclusive = true }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = corporationOrange)
-                    
                 ) {
                     Button(
                         onClick = {
