@@ -191,6 +191,7 @@ fun DetailScreen(
                                     restaurant.products[0].productName,
                                     restaurant.products[0].discountPrice.toInt().toString()
                                 )
+                                AnalyticsManager.logProductsOrder(restaurant.products[0].productName)
                             }
 
                         },

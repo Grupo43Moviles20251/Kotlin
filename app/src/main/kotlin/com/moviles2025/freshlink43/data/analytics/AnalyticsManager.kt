@@ -65,4 +65,31 @@ object AnalyticsManager {
         }
     }
 
+    fun logProductsOrder(restaurantName: String) {
+        val userId = auth.currentUser?.uid ?: "anonymous"
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        val restaurantRef = db.collection("orders_product").document(today)
+
+        restaurantRef.get().addOnSuccessListener { document ->
+            val currentCount = document.getLong(restaurantName) ?: 0
+
+            val updateData = mapOf(
+                restaurantName to currentCount + 1, // Incrementa el contador
+                "last_visited_by" to userId  // Último usuario que visitó el restaurante
+            )
+
+            restaurantRef.set(updateData, SetOptions.merge())
+                .addOnSuccessListener {
+                    Log.d("Analytics", "Visita al restaurante $restaurantName registrada exitosamente")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Analytics", "Error registrando visita: ${e.message}")
+                }
+
+        }.addOnFailureListener { e ->
+            Log.e("Analytics", "Error obteniendo documento de Firestore: ${e.message}")
+        }
+    }
+
 }
