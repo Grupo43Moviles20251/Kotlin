@@ -46,7 +46,7 @@ fun saveOrdersToCache(context: Context, orders: List<Order>) {
     sharedPreferences.edit() {
 
         val gson = Gson()
-        val json = gson.toJson(orders.take(2)) // Guardamos solo los primeros 4
+        val json = gson.toJson(orders.take(5)) // Guardamos solo los primeros 4
 
         putString("orders_cache_key", json).apply()
         Log.d("CacheDebug", "GET Orders JSON: $json")

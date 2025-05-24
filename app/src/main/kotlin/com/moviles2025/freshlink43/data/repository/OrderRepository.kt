@@ -13,41 +13,6 @@ class OrderRepository(
     private val connectivityHandler: ConnectivityHandler,
     private val context: Context
 ) {
-    //private val connection: StateFlow<Boolean> = connectivityHandler.isConnected
-    //val isConnected = connection.value
-
-    /*
-    suspend fun getOrders(): Result<List<Order>> {
-        // Si hay conexión a internet, hacemos la solicitud al backend
-        return if (isConnected) {
-            val result = backendServiceAdapter.getOrders()
-
-            return if (result.isSuccess) {
-                val dtoList = result.getOrNull() ?: return Result.failure(Exception("Empty result"))
-                val domainList = dtoList.map { it.toDomain() }
-
-                // Borramos el caché y luego guardamos los primeros 5 restaurantes
-                saveOrdersToCache(context, domainList)
-
-                Result.success(domainList)
-            } else {
-                Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
-            }
-        } else {
-            // Si no hay conexión a internet, buscamos los restaurantes en el caché
-            val cachedOrders = getOrdersFromCache(context)
-
-            return if (cachedOrders.isNotEmpty()) {
-                // Si hay restaurantes en caché, los devolvemos
-                Result.success(cachedOrders)
-            } else {
-                // Si no hay datos en caché, devolvemos un error
-                Result.failure(Exception("No internet connection and no cached data available"))
-            }
-        }
-    }
-
-     */
 
     suspend fun getOrders(): Result<List<Order>> {
         // Si hay conexión a internet, hacemos la solicitud al backend

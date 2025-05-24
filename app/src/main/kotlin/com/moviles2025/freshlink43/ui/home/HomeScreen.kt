@@ -1,7 +1,6 @@
 package com.moviles2025.freshlink43.ui.home
 
 import android.icu.text.DecimalFormat
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,14 +29,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.Font
@@ -49,8 +46,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
-import coil.compose.rememberImagePainter
-import coil.size.Size
 import com.moviles2025.freshlink43.R
 import com.moviles2025.freshlink43.data.AnalyticsManager
 import com.moviles2025.freshlink43.model.Restaurant
@@ -58,7 +53,9 @@ import com.moviles2025.freshlink43.ui.detail.DetailViewModel
 import com.moviles2025.freshlink43.ui.navigation.BottomNavManager
 import com.moviles2025.freshlink43.ui.navigation.Header
 import com.moviles2025.freshlink43.utils.corporationGreen
-import com.moviles2025.freshlink43.utils.NotConnection
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+
 
 
 @Composable
@@ -67,54 +64,73 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     detailViewModel: DetailViewModel
 ) {
-    val message by viewModel.welcomeMessage.collectAsStateWithLifecycle()
+    // 1) Estado y conexión
+    val message       by viewModel.welcomeMessage.collectAsStateWithLifecycle()
+    val isConnected   by viewModel.isConnected.collectAsStateWithLifecycle()
+    val restaurants   by viewModel.visibleRestaurants.collectAsStateWithLifecycle()
 
-    val isConnected = viewModel.isConnected.collectAsState(initial = false).value
-
-    // Cargar los restaurantes cuando se crea la pantalla
-    LaunchedEffect(Unit) {
+    // 2) Analytics & carga
+    LaunchedEffect(viewModel) {
         AnalyticsManager.logFeatureUsage("HomeScreen")
         viewModel.getRestaurants()
     }
 
-    // Observar la lista de restaurantes
-    val restaurants by viewModel.restaurants.collectAsStateWithLifecycle()
-
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
+    val currentRoute = navController
+        .currentBackStackEntryAsState()
+        .value
+        ?.destination
+        ?.route
+        ?: "home"
 
     Scaffold(
-        // Ajuste edge-to-edge
-        topBar = { Header { navController.navigate("profile") } },
+        topBar    = { Header { navController.navigate("profile") } },
         bottomBar = { BottomNavManager(navController, currentRoute) },
-        modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+        modifier  = Modifier.windowInsetsPadding(WindowInsets.statusBars)
     ) { innerPadding ->
         Column(
-            modifier = Modifier
+            Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
             Text(
                 text = "Restaurants for you",
                 fontSize = 24.sp,
-                color = corporationGreen,
+                color    = corporationGreen,
                 fontFamily = FontFamily(Font(R.font.montserratalternates_semibold)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(restaurants.size) { index ->
-                    val restaurant = restaurants[index]
+            LazyColumn(Modifier.fillMaxSize()) {
+                // 3) Lista de páginas acumuladas
+                items(
+                    items = restaurants,
+                    key   = { it.name }   // o usa el ID si lo tienes
+                ) { restaurant ->
                     PlaceholderRestaurantCard(
-                        restaurant = restaurant,
-                        viewModel = viewModel,
-                        navController = navController,
-                        detailViewModel = detailViewModel,// pasas el ViewModel aquí
+                        restaurant     = restaurant,
+                        viewModel      = viewModel,
+                        navController  = navController,
+                        detailViewModel = detailViewModel,
                         onFavoriteClick = { viewModel.toggleFavorite(it) }
                     )
+                }
+
+                // 4) Botón “Load more” si quedan más
+                if (viewModel.hasMorePages()) {
+                    item {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Button(onClick = { viewModel.loadNextPage() }) {
+                                Text("Load more restaurants")
+                            }
+                        }
+                    }
                 }
             }
         }
